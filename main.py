@@ -1,20 +1,49 @@
-from auth import login
-from admin import menu_admin
-from user import menu_user
+import streamlit as st
+from auth import login, logout
 
-while True:
-    print("\n=== LOGIN ===")
-    nama = input("Username: ")
-    password = input("Password: ")
+st.set_page_config(
+    page_title="SKD App",
+    layout="wide"
+)
 
-    user = login(nama, password)
+# ======================
+# LOGIN CHECK
+# ======================
+if not login():
+    st.stop()
 
-    if user:
-        print("Login berhasil")
+# ======================
+# APP UTAMA
+# ======================
 
-        if user["role"] == "admin":
-            menu_admin()
-        else:
-            menu_user(user)
-    else:
-        print("Login gagal")
+st.title("📊 SKD Application")
+
+st.sidebar.title("Menu")
+
+menu = st.sidebar.selectbox(
+    "Pilih Menu",
+    ["Item", "Grafik", "User"]
+)
+
+logout()
+
+# ======================
+# HALAMAN ITEM
+# ======================
+if menu == "Item":
+    st.header("Data Item")
+    st.write("Halaman item tampil di sini")
+
+# ======================
+# HALAMAN GRAFIK
+# ======================
+elif menu == "Grafik":
+    st.header("Grafik")
+    st.write("Grafik tampil di sini")
+
+# ======================
+# HALAMAN USER
+# ======================
+elif menu == "User":
+    st.header("User Management")
+    st.write("Data user tampil di sini")
