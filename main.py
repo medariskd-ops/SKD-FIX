@@ -310,6 +310,8 @@ def user_personal_dashboard(user: dict):
     ax.set_ylabel("Nilai")
     ax.set_title("Perkembangan Nilai TWK / TIU / TKP")
     ax.legend()
+    ax.set_xticks(x)
+    ax.set_xticklabels([f"SKD ke-{i}" for i in x])
     plt.xticks(rotation=45)
     st.pyplot(fig)
 
@@ -319,6 +321,8 @@ def user_personal_dashboard(user: dict):
     ax2.set_xlabel("Percobaan (SKD ke-)")
     ax2.set_ylabel("Total Nilai")
     ax2.set_title("Perkembangan Total Nilai SKD")
+    ax2.set_xticks(x)
+    ax2.set_xticklabels([f"SKD ke-{i}" for i in x])
     plt.xticks(rotation=45)
     st.pyplot(fig2)
 
