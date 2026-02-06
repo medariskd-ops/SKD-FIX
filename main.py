@@ -159,10 +159,8 @@ def admin_user_management():
     users = fetch_all_users()
     if users:
         df = pd.DataFrame(users)
-        for col in ["twk", "tiu", "tkp", "total"]:
-            if col not in df.columns:
-                df[col] = 0
-        cols = [c for c in ["nama", "role", "twk", "tiu", "tkp", "total"] if c in df.columns]
+        # Sesuai permintaan, daftar user hanya menampilkan nama dan role
+        cols = [c for c in ["nama", "role"] if c in df.columns]
 
         st.subheader("Daftar User")
         st.dataframe(df[cols])
