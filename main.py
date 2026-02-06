@@ -211,9 +211,6 @@ def admin_user_management():
                         "nama": nama,
                         "password": password_hash,
                         "role": role,
-                        "twk": 0,
-                        "tiu": 0,
-                        "tkp": 0,
                     }
                 ).execute()
                 st.success("User baru berhasil ditambahkan.")
@@ -230,9 +227,6 @@ def admin_user_management():
         user_pilih = next(u for u in users if u["nama"] == nama_pilih)
 
         current_role = user_pilih.get("role", "user")
-        current_twk = user_pilih.get("twk") or 0
-        current_tiu = user_pilih.get("tiu") or 0
-        current_tkp = user_pilih.get("tkp") or 0
 
         with st.form("edit_user"):
             new_password = st.text_input(
@@ -243,18 +237,12 @@ def admin_user_management():
                 ["admin", "user"],
                 index=0 if current_role == "admin" else 1,
             )
-            twk = st.number_input("TWK", min_value=0, value=int(current_twk))
-            tiu = st.number_input("TIU", min_value=0, value=int(current_tiu))
-            tkp = st.number_input("TKP", min_value=0, value=int(current_tkp))
 
             submitted_edit = st.form_submit_button("Simpan Perubahan")
 
         if submitted_edit:
             update_data = {
                 "role": new_role,
-                "twk": twk,
-                "tiu": tiu,
-                "tkp": tkp,
             }
             if new_password:
                 password_hash = bcrypt.hashpw(
@@ -318,11 +306,8 @@ def user_self_page(user: dict):
             }
         ).execute()
 
-        # Update ringkasan nilai terakhir di tabel users
-        supabase.table("users").update(
-            {"twk": twk, "tiu": tiu, "tkp": tkp}
-        ).eq("id", user["id"]).execute()
-
+        # Nilai sekarang hanya disimpan di tabel scores (history)
+        
         # update juga di session supaya tampilan langsung ikut berubah
         user.update({"twk": twk, "tiu": tiu, "tkp": tkp, "total": total})
         st.session_state.user = user
