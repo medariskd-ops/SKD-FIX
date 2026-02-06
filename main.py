@@ -13,13 +13,13 @@ st.set_page_config(
 
 
 def inject_global_css():
-    """Tambahkan styling global agar tampilan putih dan lebih modern."""
+    """Tambahkan styling global agar tampilan lebih kontras dan jelas."""
     st.markdown(
         """
         <style>
-        /* Background utama aplikasi */
+        /* Background utama aplikasi: putih terang */
         .stApp {
-            background: #f4f6fb;
+            background: #ffffff;
         }
 
         /* Kontainer konten utama */
@@ -29,41 +29,64 @@ def inject_global_css():
             max-width: 1100px;
         }
 
-        /* Sidebar */
+        /* Sidebar: lebih gelap agar kontras dengan konten */
         section[data-testid="stSidebar"] {
-            background-color: #ffffff;
-            border-right: 1px solid #e5e7eb;
+            background-color: #1f2937; /* abu gelap */
+            color: #f9fafb; /* teks terang */
+            border-right: 1px solid #9ca3af;
+        }
+
+        /* Sidebar: teks & elemen lebih jelas */
+        section[data-testid="stSidebar"] label,
+        section[data-testid="stSidebar"] .stMarkdown p,
+        section[data-testid="stSidebar"] .stRadio label {
+            color: #f9fafb;
         }
 
         /* Judul & heading */
         h1, h2, h3 {
-            color: #111827;
+            color: #111827; /* teks hitam pekat */
         }
 
         /* Kartu putih untuk membungkus konten utama */
         .skd-card {
-            background-color: #ffffff;
+            background-color: #f9fafb; /* lebih terang dari putih murni */
             padding: 1.5rem 1.75rem;
             border-radius: 16px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-            border: 1px solid #e5e7eb;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1); /* shadow lebih jelas */
+            border: 1px solid #d1d5db;
             margin-bottom: 1.5rem;
         }
 
-        /* Tabel DataFrame sedikit lebih rapi */
+        /* Tabel DataFrame lebih jelas */
         .skd-card table {
             border-collapse: collapse !important;
             border-radius: 12px;
             overflow: hidden;
         }
         .skd-card th {
-            background-color: #f9fafb !important;
+            background-color: #e5e7eb !important; /* abu terang */
             font-weight: 600 !important;
         }
+        .skd-card td, .skd-card th {
+            padding: 0.5rem 0.75rem !important;
+        }
 
-        /* Tombol lebih rounded */
-        button[kind="primary"], button[kind="secondary"] {
+        /* Tombol lebih kontras & rounded */
+        button[kind="primary"] {
+            background-color: #2563eb !important; /* biru pekat */
+            color: #ffffff !important;
             border-radius: 999px !important;
+        }
+        button[kind="secondary"] {
+            background-color: #f87171 !important; /* merah/attention */
+            color: #ffffff !important;
+            border-radius: 999px !important;
+        }
+
+        /* Link & teks interaktif */
+        a, .stButton button {
+            color: #2563eb;
         }
         </style>
         """,
