@@ -434,7 +434,7 @@ def grafik_dashboard():
     ax.set_ylabel("Nilai")
     ax.set_title(f"Komponen Nilai SKD ({pilih_skd})")
     ax.legend()
-    plt.xticks([]) # Sembunyikan label bawah sementara
+    plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
     st.pyplot(fig)
 
@@ -444,7 +444,7 @@ def grafik_dashboard():
     # ax2.set_xlabel("User")
     ax2.set_ylabel("Total Nilai")
     ax2.set_title(f"Total Nilai SKD ({pilih_skd})")
-    plt.xticks([]) # Sembunyikan label bawah sementara
+    plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
     st.pyplot(fig2)
 
@@ -479,9 +479,10 @@ def user_personal_dashboard(user: dict):
     ax.set_ylabel("Nilai")
     ax.set_title("Perkembangan Nilai TWK / TIU / TKP")
     ax.legend()
-    # ax.set_xticks(x)
-    # ax.set_xticklabels([f"SKD ke-{i}" for i in x])
-    plt.xticks([]) # Sembunyikan label bawah sementara
+    ax.set_xticks(x)
+    ax.set_xticklabels([f"SKD ke-{i}" for i in x])
+    plt.xticks(rotation=45)
+    plt.tight_layout()
     st.pyplot(fig)
 
     st.subheader("Grafik Total Nilai")
@@ -490,9 +491,10 @@ def user_personal_dashboard(user: dict):
     # ax2.set_xlabel("Percobaan (SKD ke-)")
     ax2.set_ylabel("Total Nilai")
     ax2.set_title("Perkembangan Total Nilai SKD")
-    # ax2.set_xticks(x)
-    # ax2.set_xticklabels([f"SKD ke-{i}" for i in x])
-    plt.xticks([]) # Sembunyikan label bawah sementara
+    ax2.set_xticks(x)
+    ax2.set_xticklabels([f"SKD ke-{i}" for i in x])
+    plt.xticks(rotation=45)
+    plt.tight_layout()
     st.pyplot(fig2)
 
 
