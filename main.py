@@ -13,86 +13,75 @@ st.set_page_config(
 
 
 def inject_global_css():
-    """Tambahkan styling global agar tampilan lebih kontras dan jelas."""
+    """Mengubah tema menjadi serba putih dengan aksen border hitam yang kontras."""
     st.markdown(
         """
         <style>
-        /* Background utama aplikasi: putih terang */
-        .stApp {
-            background: #ffffff;
+        /* 1. Background Utama & Sidebar jadi Putih */
+        .stApp, [data-testid="stSidebar"] {
+            background-color: #ffffff !important;
         }
 
-        /* Kontainer konten utama */
-        .block-container {
-            padding-top: 1.5rem;
-            padding-bottom: 2.5rem;
-            max-width: 1100px;
+        /* 2. Tambahkan Border Hitam pada Sidebar sebagai pemisah */
+        [data-testid="stSidebar"] {
+            border-right: 2px solid #000000 !important;
         }
 
-        /* Sidebar: lebih gelap agar kontras dengan konten */
-        section[data-testid="stSidebar"] {
-            background-color: #1f2937; /* abu gelap */
-            color: #f9fafb; /* teks terang */
-            border-right: 1px solid #9ca3af;
+        /* 3. Semua Teks di Sidebar & Utama jadi Hitam Pekat */
+        [data-testid="stSidebar"] .stMarkdown p,
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] span,
+        [data-testid="stSidebar"] h1, h2, h3, p, label {
+            color: #000000 !important;
+            font-weight: 500;
         }
 
-        /* Sidebar: teks & elemen lebih jelas */
-        section[data-testid="stSidebar"] label,
-        section[data-testid="stSidebar"] .stMarkdown p,
-        section[data-testid="stSidebar"] .stRadio label {
-            color: #f9fafb;
+        /* 4. Styling Radio Button (Dashboard & User) */
+        /* Mengubah warna teks pilihan agar hitam jelas */
+        div[data-testid="stWidgetLabel"] p, 
+        div[data-baseweb="radio"] label {
+            color: #000000 !important;
+        }
+        
+        /* Memberi border hitam pada bulatan radio yang belum terpilih */
+        div[data-baseweb="radio"] div[role="presentation"] {
+            border: 1px solid #000000 !important;
         }
 
-        /* Judul & heading */
-        h1, h2, h3 {
-            color: #111827; /* teks hitam pekat */
-        }
-
-        /* Kartu putih untuk membungkus konten utama */
+        /* 5. Kartu Konten dengan Border Hitam */
         .skd-card {
-            background-color: #f9fafb; /* lebih terang dari putih murni */
-            padding: 1.5rem 1.75rem;
-            border-radius: 16px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1); /* shadow lebih jelas */
-            border: 1px solid #d1d5db;
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #000000; /* Border hitam tegas */
             margin-bottom: 1.5rem;
         }
 
-        /* Tabel DataFrame lebih jelas */
-        .skd-card table {
-            border-collapse: collapse !important;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .skd-card th {
-            background-color: #e5e7eb !important; /* abu terang */
-            font-weight: 600 !important;
-        }
-        .skd-card td, .skd-card th {
-            padding: 0.5rem 0.75rem !important;
+        /* 6. Tombol dengan Gaya Minimalis (Outline Hitam) */
+        div.stButton > button {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            border: 2px solid #000000 !important;
+            border-radius: 6px !important;
+            font-weight: bold !important;
+            transition: 0.3s;
         }
 
-        /* Tombol lebih kontras & rounded */
-        button[kind="primary"] {
-            background-color: #2563eb !important; /* biru pekat */
+        /* Efek saat tombol dihover (Invert warna) */
+        div.stButton > button:hover {
+            background-color: #000000 !important;
             color: #ffffff !important;
-            border-radius: 999px !important;
-        }
-        button[kind="secondary"] {
-            background-color: #f87171 !important; /* merah/attention */
-            color: #ffffff !important;
-            border-radius: 999px !important;
         }
 
-        /* Link & teks interaktif */
-        a, .stButton button {
-            color: #2563eb;
+        /* 7. Input Field (Search/Text Input) */
+        .stTextInput input {
+            border: 2px solid #000000 !important;
+            color: #000000 !important;
         }
         </style>
         """,
         unsafe_allow_html=True,
     )
-
 
 
 inject_global_css()
