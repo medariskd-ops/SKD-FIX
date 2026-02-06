@@ -101,9 +101,6 @@ def login():
                             "nama": new_username,
                             "password": password_hash,
                             "role": "user", # Selalu 'user' untuk registrasi mandiri
-                            "twk": 0,
-                            "tiu": 0,
-                            "tkp": 0
                         }).execute()
                         st.success("Pendaftaran berhasil! Silakan login di tab sebelah.")
                     except Exception as e:
