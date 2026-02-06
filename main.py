@@ -280,6 +280,44 @@ def grafik_dashboard():
     st.pyplot(fig2)
 
 
+def user_personal_dashboard(user: dict):
+    """Dashboard khusus user: hanya lihat nilai miliknya sendiri."""
+    st.header("Dashboard Nilai Saya")
+
+    scores = fetch_user_scores(user["id"])
+    if not scores:
+        st.info("Belum ada data nilai. Silakan input nilai terlebih dahulu di menu User.")
+        return
+
+    df = pd.DataFrame(scores)
+
+    st.subheader("Riwayat Nilai")
+    cols = [c for c in ["created_at", "twk", "tiu", "tkp", "total"] if c in df.columns]
+    st.dataframe(df[cols])
+
+    st.subheader("Grafik Komponen Nilai (Per Percobaan)")
+    fig, ax = plt.subplots()
+    x = df["created_at"] if "created_at" in df.columns else range(1, len(df) + 1)
+    ax.plot(x, df["twk"], marker="o", label="TWK")
+    ax.plot(x, df["tiu"], marker="o", label="TIU")
+    ax.plot(x, df["tkp"], marker="o", label="TKP")
+    ax.set_xlabel("Waktu / Percobaan")
+    ax.set_ylabel("Nilai")
+    ax.set_title("Perkembangan Nilai TWK / TIU / TKP")
+    ax.legend()
+    plt.xticks(rotation=45)
+    st.pyplot(fig)
+
+    st.subheader("Grafik Total Nilai")
+    fig2, ax2 = plt.subplots()
+    ax2.plot(x, df["total"], marker="o")
+    ax2.set_xlabel("Waktu / Percobaan")
+    ax2.set_ylabel("Total Nilai")
+    ax2.set_title("Perkembangan Total Nilai SKD")
+    plt.xticks(rotation=45)
+    st.pyplot(fig2)
+
+
 # ======================
 # LOGIN CHECK
 # ======================
@@ -308,8 +346,11 @@ logout()
 # HALAMAN DASHBOARD (ringkas)
 # ======================
 if menu == "Dashboard":
-    st.header("Ringkasan Nilai User")
-    grafik_dashboard()
+    if role == "admin":
+        st.header("Ringkasan Nilai Semua User")
+        grafik_dashboard()
+    else:
+        user_personal_dashboard(user)
 
 # ======================
 # HALAMAN GRAFIK (khusus admin)
