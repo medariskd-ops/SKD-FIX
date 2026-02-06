@@ -228,6 +228,8 @@ def grafik_dashboard():
     for col in ["twk", "tiu", "tkp", "total"]:
         if col not in df.columns:
             df[col] = 0
+        # pastikan tipe numerik supaya filter dan grafik jalan benar
+        df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
 
     # Hilangkan admin dari tampilan nilai/grafik agar tidak makan tempat
     if "role" in df.columns:
