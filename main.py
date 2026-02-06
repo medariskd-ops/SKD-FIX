@@ -518,6 +518,51 @@ def user_personal_dashboard(user: dict):
     st.pyplot(fig2)
 
 
+def admin_maintenance():
+    st.header("🛠️ Maintenance / Reset Data")
+    st.warning(
+        "**PERINGATAN:** Menu ini akan menghapus data secara permanen. "
+        "Pastikan Anda benar-benar ingin melakukannya."
+    )
+
+    st.markdown("""
+    **Aksi yang akan dilakukan:**
+    1. **Menghapus semua data nilai SKD** (tabel `scores`).
+    2. **Menghapus semua akun dengan role 'user'** (tabel `users`).
+    3. **Menyisakan akun admin** agar sistem tetap dapat dikelola.
+    """)
+
+    st.markdown("---")
+
+    confirm_phrase = "RESET SEMUA DATA"
+    st.write(f"Untuk melanjutkan, silakan ketik kalimat konfirmasi di bawah ini:")
+    st.code(confirm_phrase)
+
+    input_confirm = st.text_input("Kalimat Konfirmasi", placeholder="Ketik di sini...")
+
+    # Tombol reset hanya aktif jika input cocok
+    is_confirmed = (input_confirm == confirm_phrase)
+
+    if st.button("🚀 Jalankan Reset Data Sekarang", disabled=not is_confirmed):
+        with st.spinner("Sedang memproses reset data..."):
+            try:
+                # 1. Hapus semua data scores
+                # Di Supabase, .delete().neq("id", 0) atau semacamnya bisa digunakan untuk "hapus semua" jika diizinkan
+                # Namun cara paling umum untuk hapus semua jika tidak ada filter spesifik:
+                supabase.table("scores").delete().neq("twk", -1).execute()
+
+                # 2. Hapus semua user dengan role 'user'
+                supabase.table("users").delete().eq("role", "user").execute()
+
+                st.success("✅ Semua data SKD dan akun user berhasil dihapus!")
+                st.balloons()
+
+                # Beri sedikit jeda lalu rerun
+                st.info("Sistem akan memuat ulang dalam sekejap...")
+            except Exception as e:
+                st.error(f"Terjadi kesalahan saat melakukan reset: {e}")
+
+
 # ======================
 # LOGIN CHECK
 # ======================
@@ -534,9 +579,13 @@ role = user.get("role", "user") if user else "user"
 st.title("📊 SKD Application")
 
 st.sidebar.title("Sidebar Navigation")
+menu_options = ["Dashboard", "User"]
+if role == "admin":
+    menu_options.append("Maintenance")
+
 menu = st.sidebar.radio(
     "Pilih Halaman",
-    ["Dashboard", "User"],
+    menu_options,
     index=0,
 )
 
@@ -563,3 +612,12 @@ elif menu == "User":
             st.error("Data user tidak ditemukan di session.")
         else:
             user_self_page(user)
+
+# ======================
+# HALAMAN MAINTENANCE
+# ======================
+elif menu == "Maintenance":
+    if role == "admin":
+        admin_maintenance()
+    else:
+        st.error("Hanya Admin yang dapat mengakses halaman ini.")
