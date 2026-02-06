@@ -12,114 +12,82 @@ st.set_page_config(
 )
 
 
-def inject_global_css_dark_simple():
-    """Dark mode minimal: sidebar gelap tipis, konten putih, tombol biru tipis, tanpa warna lain."""
+def inject_global_css():
+    """Tambahkan styling global agar tampilan lebih kontras dan jelas."""
     st.markdown(
         """
         <style>
-        /* ===================
-           BACKGROUND & TEXT
-           =================== */
+        /* Background utama aplikasi: putih terang */
         .stApp {
-            background: #111827; /* hitam pekat */
-            color: #f9fafb; /* teks putih */
+            background: #ffffff;
         }
 
+        /* Kontainer konten utama */
         .block-container {
             padding-top: 1.5rem;
-            padding-bottom: 2rem;
+            padding-bottom: 2.5rem;
             max-width: 1100px;
-            color: #f9fafb;
         }
 
-        h1, h2, h3 {
-            color: #f9fafb;
-        }
-
-        /* ===================
-           SIDEBAR
-           =================== */
+        /* Sidebar: lebih gelap agar kontras dengan konten */
         section[data-testid="stSidebar"] {
-            background-color: #1f2937 !important; /* gelap */
-            color: #f9fafb !important;
-            border-right: 1px solid #374151; /* tipis */
+            background-color: #1f2937; /* abu gelap */
+            color: #f9fafb; /* teks terang */
+            border-right: 1px solid #9ca3af;
         }
 
+        /* Sidebar: teks & elemen lebih jelas */
         section[data-testid="stSidebar"] label,
         section[data-testid="stSidebar"] .stMarkdown p,
-        section[data-testid="stSidebar"] .stRadio label,
-        section[data-testid="stSidebar"] div {
-            color: #f9fafb !important;
-        }
-
-        /* ===================
-           KARTU & TABEL
-           =================== */
-        .skd-card {
-            background-color: #1f2937; /* gelap tipis */
-            padding: 1.5rem 1.75rem;
-            border-radius: 12px;
-            border: 1px solid #374151;
-            margin-bottom: 1.5rem;
+        section[data-testid="stSidebar"] .stRadio label {
             color: #f9fafb;
         }
 
+        /* Judul & heading */
+        h1, h2, h3 {
+            color: #111827; /* teks hitam pekat */
+        }
+
+        /* Kartu putih untuk membungkus konten utama */
+        .skd-card {
+            background-color: #f9fafb; /* lebih terang dari putih murni */
+            padding: 1.5rem 1.75rem;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1); /* shadow lebih jelas */
+            border: 1px solid #d1d5db;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Tabel DataFrame lebih jelas */
         .skd-card table {
             border-collapse: collapse !important;
+            border-radius: 12px;
+            overflow: hidden;
         }
-
         .skd-card th {
-            background-color: #111827 !important;
+            background-color: #e5e7eb !important; /* abu terang */
             font-weight: 600 !important;
-            color: #f9fafb !important;
         }
-
         .skd-card td, .skd-card th {
             padding: 0.5rem 0.75rem !important;
-            color: #f9fafb !important;
         }
 
-        /* ===================
-           TOMBOL
-           =================== */
+        /* Tombol lebih kontras & rounded */
         button[kind="primary"] {
-            background-color: #2563eb !important; /* biru tipis */
-            color: #f9fafb !important;
+            background-color: #2563eb !important; /* biru pekat */
+            color: #ffffff !important;
             border-radius: 999px !important;
         }
         button[kind="secondary"] {
-            background-color: #111827 !important;
-            color: #f9fafb !important;
+            background-color: #f87171 !important; /* merah/attention */
+            color: #ffffff !important;
             border-radius: 999px !important;
         }
 
+        /* Link & teks interaktif */
         a, .stButton button {
-            color: #2563eb !important;
+            color: #2563eb;
         }
-
-        /* ===================
-           FORM INPUT / SELECT
-           =================== */
-        input, .stTextInput>div>input, .stNumberInput>div>input {
-            background-color: #111827 !important;
-            color: #f9fafb !important;
-            border: 1px solid #374151 !important;
-            border-radius: 8px !important;
-            padding: 0.4rem 0.6rem !important;
-        }
-
-        .stTextInput>div>div>button {
-            color: #f9fafb !important; /* icon password */
-        }
-
-        select, .stSelectbox>div>select {
-            background-color: #111827 !important;
-            color: #f9fafb !important;
-            border: 1px solid #374151 !important;
-            border-radius: 8px !important;
-            padding: 0.4rem 0.6rem !important;
-        }
-
         </style>
         """,
         unsafe_allow_html=True,
