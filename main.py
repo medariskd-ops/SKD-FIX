@@ -225,11 +225,14 @@ def grafik_dashboard():
         return
 
     df = pd.DataFrame(users)
-    for col in ["twk", "tiu", "tkp", "total"]:
+    for col in ["twk", "tiu", "tkp"]:
         if col not in df.columns:
             df[col] = 0
         # pastikan tipe numerik supaya filter dan grafik jalan benar
         df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+
+    # Hitung ulang total di sisi aplikasi agar konsisten
+    df["total"] = df["twk"] + df["tiu"] + df["tkp"]
 
     # Hilangkan admin dari tampilan nilai/grafik agar tidak makan tempat
     if "role" in df.columns:
