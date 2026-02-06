@@ -19,62 +19,95 @@ def _get_user_by_username(username: str):
 
 
 def login():
-    """Halaman login dengan penyimpanan user di session_state."""
-    st.title("🔐 Login SKD App")
+    """Halaman login & registrasi dengan penyimpanan user di session_state."""
+    st.title("🔐 SKD App")
 
     # kalau sudah login, tidak perlu login lagi
     if st.session_state.get("user") is not None:
         return True
 
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
+    tab1, tab2 = st.tabs(["Login", "Daftar Akun"])
 
-    if st.button("Login"):
-        if not username or not password:
-            st.error("Username dan password wajib diisi")
-            return False
+    with tab1:
+        st.subheader("Login")
+        username = st.text_input("Username", key="login_user")
+        password = st.text_input("Password", type="password", key="login_pass")
 
-        user = _get_user_by_username(username)
-        if not user:
-            st.error("User tidak ditemukan")
-            return False
+        if st.button("Login"):
+            if not username or not password:
+                st.error("Username dan password wajib diisi")
+                return False
 
-        stored_password = user.get("password")
-        ok = False
+            user = _get_user_by_username(username)
+            if not user:
+                st.error("User tidak ditemukan")
+                return False
 
-        if stored_password:
-            # jika sudah hash bcrypt
-            if _is_bcrypt_hash(stored_password):
-                try:
-                    ok = bcrypt.checkpw(
-                        password.encode("utf-8"), stored_password.encode("utf-8")
-                    )
-                except ValueError:
-                    ok = False
-            else:
-                # fallback: cocokkan plaintext; jika cocok, migrasi ke bcrypt
-                if password == stored_password:
-                    ok = True
+            stored_password = user.get("password")
+            ok = False
+
+            if stored_password:
+                if _is_bcrypt_hash(stored_password):
                     try:
-                        new_hash = bcrypt.hashpw(
-                            password.encode("utf-8"), bcrypt.gensalt()
-                        ).decode("utf-8")
-                        supabase.table("users").update(
-                            {"password": new_hash}
-                        ).eq("id", user["id"]).execute()
-                    except Exception:
-                        # kalau gagal migrasi, abaikan tapi login tetap jalan
-                        pass
+                        ok = bcrypt.checkpw(
+                            password.encode("utf-8"), stored_password.encode("utf-8")
+                        )
+                    except ValueError:
+                        ok = False
+                else:
+                    if password == stored_password:
+                        ok = True
+                        try:
+                            new_hash = bcrypt.hashpw(
+                                password.encode("utf-8"), bcrypt.gensalt()
+                            ).decode("utf-8")
+                            supabase.table("users").update(
+                                {"password": new_hash}
+                            ).eq("id", user["id"]).execute()
+                        except Exception:
+                            pass
 
-        if not ok:
-            st.error("Username atau password salah")
-            return False
+            if not ok:
+                st.error("Username atau password salah")
+                return False
 
-        # login sukses: simpan info user di session
-        st.session_state.user = user
-        st.session_state.role = user.get("role", "user")
-        st.success("Login berhasil")
-        st.rerun()
+            st.session_state.user = user
+            st.session_state.role = user.get("role", "user")
+            st.success("Login berhasil")
+            st.rerun()
+
+    with tab2:
+        st.subheader("Daftar Akun Baru")
+        new_username = st.text_input("Nama Lengkap", key="reg_user")
+        new_password = st.text_input("Password", type="password", key="reg_pass")
+        confirm_password = st.text_input("Konfirmasi Password", type="password", key="reg_conf")
+
+        if st.button("Daftar"):
+            if not new_username or not new_password:
+                st.error("Nama dan password wajib diisi")
+            elif new_password != confirm_password:
+                st.error("Konfirmasi password tidak cocok")
+            else:
+                existing = _get_user_by_username(new_username)
+                if existing:
+                    st.error("Nama sudah digunakan, silakan pilih nama lain")
+                else:
+                    password_hash = bcrypt.hashpw(
+                        new_password.encode("utf-8"), bcrypt.gensalt()
+                    ).decode("utf-8")
+                    
+                    try:
+                        supabase.table("users").insert({
+                            "nama": new_username,
+                            "password": password_hash,
+                            "role": "user", # Selalu 'user' untuk registrasi mandiri
+                            "twk": 0,
+                            "tiu": 0,
+                            "tkp": 0
+                        }).execute()
+                        st.success("Pendaftaran berhasil! Silakan login di tab sebelah.")
+                    except Exception as e:
+                        st.error(f"Terjadi kesalahan: {e}")
 
     return False
 
