@@ -101,6 +101,15 @@ def fetch_all_users():
     return getattr(response, "data", []) or []
 
 
+def fetch_all_scores():
+    """Ambil semua data dari tabel scores."""
+    try:
+        response = supabase.table("scores").select("*").execute()
+        return getattr(response, "data", []) or []
+    except Exception:
+        return []
+
+
 def fetch_user_scores(user_id: str):
     """Ambil semua riwayat nilai untuk satu user (scores table)."""
     try:
@@ -301,62 +310,123 @@ def grafik_dashboard():
     st.header("Dashboard & Grafik Nilai SKD")
 
     users = fetch_all_users()
+    scores = fetch_all_scores()
+
     if not users:
         st.info("Belum ada data user.")
         return
 
-    df = pd.DataFrame(users)
+    if not scores:
+        st.info("Belum ada data nilai (scores) di database.")
+        return
+
+    df_users = pd.DataFrame(users)
+    df_scores = pd.DataFrame(scores)
+
+    # Pastikan tipe data benar
     for col in ["twk", "tiu", "tkp"]:
-        if col not in df.columns:
-            df[col] = 0
-        # pastikan tipe numerik supaya filter dan grafik jalan benar
-        df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+        if col in df_scores.columns:
+            df_scores[col] = pd.to_numeric(df_scores[col], errors="coerce").fillna(0)
 
-    # Hitung ulang total di sisi aplikasi agar konsisten
-    df["total"] = df["twk"] + df["tiu"] + df["tkp"]
+    # Hitung ulang total untuk memastikan kolom total ada dan akurat
+    df_scores["total"] = df_scores["twk"] + df_scores["tiu"] + df_scores["tkp"]
 
-    # Hilangkan admin dari tampilan nilai/grafik agar tidak makan tempat
+    # Gabungkan dengan data user untuk mendapatkan nama dan role
+    df = pd.merge(
+        df_scores,
+        df_users[["id", "nama", "role"]],
+        left_on="user_id",
+        right_on="id",
+        how="inner"
+    )
+
+    # Hilangkan admin dari tampilan
     if "role" in df.columns:
         df = df[df["role"] != "admin"]
 
-    # Tidak ada filter tambahan; gunakan semua user (kecuali admin)
-    filtered = df.copy()
-
-    if filtered.empty:
-        st.warning("Tidak ada data yang cocok dengan filter.")
+    if df.empty:
+        st.warning("Tidak ada data nilai dari user (non-admin).")
         return
 
-    st.subheader("Tabel Nilai User")
-    cols = [c for c in ["nama", "role", "twk", "tiu", "tkp", "total"] if c in filtered.columns]
-    st.dataframe(filtered[cols])
+    # Hitung SKD ke-n untuk tiap user
+    # Pastikan created_at ada dan urutkan
+    if "created_at" in df.columns:
+        df = df.sort_values(["user_id", "created_at"])
+    else:
+        df = df.sort_values(["user_id"])
 
-    csv = filtered[cols].to_csv(index=False).encode("utf-8")
+    df["skd_ke"] = df.groupby("user_id").cumcount() + 1
+
+    # Filter pilihan SKD
+    max_skd = int(df["skd_ke"].max())
+    options = ["Terakhir"] + [f"SKD ke-{i}" for i in range(1, max_skd + 1)] + ["Semua"]
+    pilih_skd = st.selectbox("Pilih Percobaan SKD (Attempt)", options)
+
+    if pilih_skd == "Terakhir":
+        # Ambil record terbaru untuk tiap user
+        if "created_at" in df.columns:
+            filtered = df.sort_values("created_at").groupby("user_id").tail(1)
+        else:
+            filtered = df.groupby("user_id").tail(1)
+        st.subheader("Data SKD Terakhir Setiap User")
+    elif pilih_skd == "Semua":
+        filtered = df.copy()
+        st.subheader("Semua Riwayat Data SKD")
+    else:
+        # Ambil angka dari "SKD ke-n"
+        try:
+            n = int(pilih_skd.split("-")[-1])
+            filtered = df[df["skd_ke"] == n]
+            st.subheader(f"Data SKD Percobaan ke-{n}")
+        except:
+            filtered = df.copy()
+
+    if filtered.empty:
+        st.warning(f"Tidak ada data untuk filter: {pilih_skd}")
+        return
+
+    # Tampilkan Tabel
+    cols_to_show = ["nama", "skd_ke", "twk", "tiu", "tkp", "total"]
+    if "created_at" in filtered.columns:
+        cols_to_show.insert(1, "created_at")
+
+    st.dataframe(filtered[cols_to_show])
+
+    csv = filtered.to_csv(index=False).encode("utf-8")
     st.download_button(
         "Download CSV",
         csv,
-        "users_nilai.csv",
-        "text/csv",
+        f"skd_data_{pilih_skd.replace(' ', '_')}.csv",
+        "text/csv"
     )
 
+    # Label untuk grafik agar unik jika pilih "Semua"
+    if pilih_skd == "Semua":
+        filtered["label"] = filtered["nama"] + " (SKD " + filtered["skd_ke"].astype(str) + ")"
+    else:
+        filtered["label"] = filtered["nama"]
+
     st.subheader("Grafik Komponen Nilai")
-    fig, ax = plt.subplots()
-    ax.plot(filtered["nama"], filtered["twk"], marker="o", label="TWK")
-    ax.plot(filtered["nama"], filtered["tiu"], marker="o", label="TIU")
-    ax.plot(filtered["nama"], filtered["tkp"], marker="o", label="TKP")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(filtered["label"], filtered["twk"], marker="o", label="TWK")
+    ax.plot(filtered["label"], filtered["tiu"], marker="o", label="TIU")
+    ax.plot(filtered["label"], filtered["tkp"], marker="o", label="TKP")
     ax.set_xlabel("User")
     ax.set_ylabel("Nilai")
-    ax.set_title("Nilai TWK / TIU / TKP per User")
+    ax.set_title(f"Komponen Nilai SKD ({pilih_skd})")
     ax.legend()
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
     st.pyplot(fig)
 
     st.subheader("Grafik Total Nilai")
-    fig2, ax2 = plt.subplots()
-    ax2.plot(filtered["nama"], filtered["total"], marker="o")
+    fig2, ax2 = plt.subplots(figsize=(10, 5))
+    ax2.plot(filtered["label"], filtered["total"], marker="o", color='tab:orange')
     ax2.set_xlabel("User")
     ax2.set_ylabel("Total Nilai")
-    ax2.set_title("Total Nilai SKD per User")
-    plt.xticks(rotation=45)
+    ax2.set_title(f"Total Nilai SKD ({pilih_skd})")
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
     st.pyplot(fig2)
 
 
