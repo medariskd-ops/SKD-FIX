@@ -291,17 +291,22 @@ def user_personal_dashboard(user: dict):
 
     df = pd.DataFrame(scores)
 
+    # Urutkan berdasarkan waktu (kalau ada), lalu beri nomor percobaan "SKD ke-"
+    if "created_at" in df.columns:
+        df = df.sort_values("created_at")
+    df["skd_ke"] = range(1, len(df) + 1)
+
     st.subheader("Riwayat Nilai")
-    cols = [c for c in ["created_at", "twk", "tiu", "tkp", "total"] if c in df.columns]
+    cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df.columns]
     st.dataframe(df[cols])
 
     st.subheader("Grafik Komponen Nilai (Per Percobaan)")
     fig, ax = plt.subplots()
-    x = df["created_at"] if "created_at" in df.columns else range(1, len(df) + 1)
+    x = df["skd_ke"]
     ax.plot(x, df["twk"], marker="o", label="TWK")
     ax.plot(x, df["tiu"], marker="o", label="TIU")
     ax.plot(x, df["tkp"], marker="o", label="TKP")
-    ax.set_xlabel("Waktu / Percobaan")
+    ax.set_xlabel("Percobaan (SKD ke-)")
     ax.set_ylabel("Nilai")
     ax.set_title("Perkembangan Nilai TWK / TIU / TKP")
     ax.legend()
@@ -311,7 +316,7 @@ def user_personal_dashboard(user: dict):
     st.subheader("Grafik Total Nilai")
     fig2, ax2 = plt.subplots()
     ax2.plot(x, df["total"], marker="o")
-    ax2.set_xlabel("Waktu / Percobaan")
+    ax2.set_xlabel("Percobaan (SKD ke-)")
     ax2.set_ylabel("Total Nilai")
     ax2.set_title("Perkembangan Total Nilai SKD")
     plt.xticks(rotation=45)
