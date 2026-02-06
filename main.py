@@ -239,10 +239,15 @@ def grafik_dashboard():
         df = df[df["role"] != "admin"]
 
     st.subheader("Filter Data")
-    min_total = st.number_input("Minimal total skor", min_value=0, value=0)
+    min_total = 0
+    apply_filter = False
+    with st.form("filter_admin_total"):
+        min_total = st.number_input("Minimal total skor", min_value=0, value=0)
+        apply_filter = st.form_submit_button("Cari / Terapkan Filter")
 
     filtered = df.copy()
-    filtered = filtered[filtered["total"] >= min_total]
+    if apply_filter and min_total > 0:
+        filtered = filtered[filtered["total"] >= min_total]
 
     if filtered.empty:
         st.warning("Tidak ada data yang cocok dengan filter.")
