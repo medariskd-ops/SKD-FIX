@@ -12,6 +12,68 @@ st.set_page_config(
 )
 
 
+def inject_global_css():
+    """Tambahkan styling global agar tampilan putih dan lebih modern."""
+    st.markdown(
+        """
+        <style>
+        /* Background utama aplikasi */
+        .stApp {
+            background: #f4f6fb;
+        }
+
+        /* Kontainer konten utama */
+        .block-container {
+            padding-top: 1.5rem;
+            padding-bottom: 2.5rem;
+            max-width: 1100px;
+        }
+
+        /* Sidebar */
+        section[data-testid="stSidebar"] {
+            background-color: #ffffff;
+            border-right: 1px solid #e5e7eb;
+        }
+
+        /* Judul & heading */
+        h1, h2, h3 {
+            color: #111827;
+        }
+
+        /* Kartu putih untuk membungkus konten utama */
+        .skd-card {
+            background-color: #ffffff;
+            padding: 1.5rem 1.75rem;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Tabel DataFrame sedikit lebih rapi */
+        .skd-card table {
+            border-collapse: collapse !important;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .skd-card th {
+            background-color: #f9fafb !important;
+            font-weight: 600 !important;
+        }
+
+        /* Tombol lebih rounded */
+        button[kind="primary"], button[kind="secondary"] {
+            border-radius: 999px !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+inject_global_css()
+
+
 # ======================
 # HELPER FUNCTIONS
 # ======================
@@ -238,16 +300,8 @@ def grafik_dashboard():
     if "role" in df.columns:
         df = df[df["role"] != "admin"]
 
-    st.subheader("Filter Data")
-    min_total = 0
-    apply_filter = False
-    with st.form("filter_admin_total"):
-        min_total = st.number_input("Minimal total skor", min_value=0, value=0)
-        apply_filter = st.form_submit_button("Cari / Terapkan Filter")
-
+    # Tidak ada filter tambahan; gunakan semua user (kecuali admin)
     filtered = df.copy()
-    if apply_filter and min_total > 0:
-        filtered = filtered[filtered["total"] >= min_total]
 
     if filtered.empty:
         st.warning("Tidak ada data yang cocok dengan filter.")
@@ -352,7 +406,7 @@ st.title("📊 SKD Application")
 st.sidebar.title("Sidebar Navigation")
 menu = st.sidebar.radio(
     "Pilih Halaman",
-    ["Dashboard", "Grafik", "User"],
+    ["Dashboard", "User"],
     index=0,
 )
 
@@ -367,15 +421,6 @@ if menu == "Dashboard":
         grafik_dashboard()
     else:
         user_personal_dashboard(user)
-
-# ======================
-# HALAMAN GRAFIK (khusus admin)
-# ======================
-elif menu == "Grafik":
-    if role != "admin":
-        st.warning("Halaman grafik lengkap hanya dapat diakses oleh admin.")
-        st.stop()
-    grafik_dashboard()
 
 # ======================
 # HALAMAN USER
