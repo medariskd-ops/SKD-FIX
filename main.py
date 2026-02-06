@@ -13,76 +13,82 @@ st.set_page_config(
 
 
 def inject_global_css():
-    """Mengubah tema menjadi serba putih dengan aksen border hitam yang kontras."""
+    """Mengubah semua elemen (input, box, button) menjadi putih dengan border hitam & teks hitam."""
     st.markdown(
         """
         <style>
-        /* 1. Background Utama & Sidebar jadi Putih */
-        .stApp, [data-testid="stSidebar"] {
+        /* 1. Reset Global: Background Putih & Teks Hitam */
+        .stApp, [data-testid="stSidebar"], .main {
             background-color: #ffffff !important;
+            color: #000000 !important;
         }
 
-        /* 2. Tambahkan Border Hitam pada Sidebar sebagai pemisah */
+        /* 2. Sidebar Border */
         [data-testid="stSidebar"] {
             border-right: 2px solid #000000 !important;
         }
 
-        /* 3. Semua Teks di Sidebar & Utama jadi Hitam Pekat */
-        [data-testid="stSidebar"] .stMarkdown p,
-        [data-testid="stSidebar"] label,
-        [data-testid="stSidebar"] span,
-        [data-testid="stSidebar"] h1, h2, h3, p, label {
+        /* 3. Semua Input Field (Kolom Teks, Number, Selectbox, Multiselect) */
+        /* Menargetkan input, textarea, dan container selectbox */
+        div[data-baseweb="input"], 
+        div[data-baseweb="select"] > div, 
+        div[data-baseweb="textarea"] textarea,
+        .stTextInput input, .stNumberInput input, .stSelectbox div[role="button"] {
+            background-color: #ffffff !important;
             color: #000000 !important;
-            font-weight: 500;
+            border: 2px solid #000000 !important;
+            border-radius: 4px !important;
         }
 
-        /* 4. Styling Radio Button (Dashboard & User) */
-        /* Mengubah warna teks pilihan agar hitam jelas */
-        div[data-testid="stWidgetLabel"] p, 
-        div[data-baseweb="radio"] label {
+        /* Fix untuk teks di dalam input agar tidak abu-abu */
+        input, textarea, select {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+        }
+
+        /* 4. Teks Label & Header */
+        h1, h2, h3, h4, h5, h6, label, p, span, .stMarkdown {
             color: #000000 !important;
         }
-        
-        /* Memberi border hitam pada bulatan radio yang belum terpilih */
+
+        /* 5. Radio Button & Checkbox */
+        div[data-baseweb="radio"] div {
+            color: #000000 !important;
+        }
+        /* Bulatan radio button */
         div[data-baseweb="radio"] div[role="presentation"] {
-            border: 1px solid #000000 !important;
+            border: 2px solid #000000 !important;
+            background-color: #ffffff !important;
         }
 
-        /* 5. Kartu Konten dengan Border Hitam */
-        .skd-card {
-            background-color: #ffffff;
-            padding: 1.5rem;
-            border-radius: 8px;
-            border: 2px solid #000000; /* Border hitam tegas */
-            margin-bottom: 1.5rem;
-        }
-
-        /* 6. Tombol dengan Gaya Minimalis (Outline Hitam) */
+        /* 6. Tombol (Button) */
         div.stButton > button {
             background-color: #ffffff !important;
             color: #000000 !important;
             border: 2px solid #000000 !important;
-            border-radius: 6px !important;
+            border-radius: 4px !important;
             font-weight: bold !important;
-            transition: 0.3s;
+            width: 100%;
         }
-
-        /* Efek saat tombol dihover (Invert warna) */
+        
         div.stButton > button:hover {
             background-color: #000000 !important;
             color: #ffffff !important;
         }
 
-        /* 7. Input Field (Search/Text Input) */
-        .stTextInput input {
+        /* 7. Dataframe / Tabel */
+        .styled-table, .stDataFrame {
             border: 2px solid #000000 !important;
-            color: #000000 !important;
+        }
+
+        /* Menghilangkan bayangan/shadow agar clean */
+        * {
+            box-shadow: none !important;
         }
         </style>
         """,
         unsafe_allow_html=True,
     )
-
 
 inject_global_css()
 
