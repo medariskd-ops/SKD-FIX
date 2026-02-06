@@ -13,76 +13,50 @@ st.set_page_config(
 
 
 def inject_global_css():
-    """Tambahkan styling global agar tampilan lebih kontras dan jelas."""
+    """Perbaikan CSS agar teks di sidebar terlihat jelas dan kontras."""
     st.markdown(
         """
         <style>
-        /* 1. Background utama: Putih Bersih */
-        .stApp {
-            background-color: #ffffff;
-        }
-
-        /* 2. Sidebar: Gelap dengan teks putih kontras */
+        /* 1. Background Sidebar tetap gelap */
         [data-testid="stSidebar"] {
-            background-color: #111827 !important; /* Biru gelap/hitam */
-            border-right: 1px solid #374151;
+            background-color: #111827 !important;
         }
 
-        /* Memastikan semua teks di sidebar berwarna putih terang */
-        [data-testid="stSidebar"] .stMarkdown p, 
-        [data-testid="stSidebar"] label, 
-        [data-testid="stSidebar"] span {
+        /* 2. MEMPERBAIKI TEKS SIDEBAR (Sangat Penting) */
+        /* Menargetkan semua label, paragraf, dan teks radio button di sidebar */
+        [data-testid="stSidebar"] .stMarkdown p,
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] .stRadio div[role="radiogroup"] p,
+        [data-testid="stSidebar"] div[data-testid="stWidgetLabel"] p {
             color: #ffffff !important;
-            font-weight: 500;
+            font-size: 1rem !important;
+            opacity: 1 !important;
         }
 
-        /* 3. Tipografi Konten Utama */
-        h1, h2, h3 {
-            color: #000000 !important; /* Hitam pekat */
+        /* Khusus teks di samping bulatan Radio Button */
+        [data-testid="stSidebar"] div[data-baseweb="radio"] div {
+            color: #ffffff !important;
+        }
+
+        /* Judul Sidebar (Sidebar Navigation) */
+        [data-testid="stSidebar"] h1, 
+        [data-testid="stSidebar"] h2, 
+        [data-testid="stSidebar"] h3 {
+            color: #ffffff !important;
             font-weight: 700 !important;
         }
-        
-        p, span, label {
-            color: #1f2937; /* Abu gelap untuk readability */
-        }
 
-        /* 4. Kartu Konten (Custom Class: skd-card) */
-        .skd-card {
-            background-color: #ffffff;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e5e7eb;
-            margin-bottom: 2rem;
-            color: #111827;
-        }
-
-        /* 5. Styling Tombol (Primary & Secondary) */
-        div.stButton > button:first-child {
-            background-color: #2563eb; /* Biru terang */
+        /* 3. Tombol Logout agar lebih mencolok */
+        [data-testid="stSidebar"] button {
+            background-color: #2563eb !important;
             color: white !important;
-            border-radius: 8px;
-            border: none;
-            padding: 0.5rem 1rem;
-            transition: all 0.3s ease;
-        }
-
-        div.stButton > button:first-child:hover {
-            background-color: #1d4ed8; /* Biru lebih gelap saat hover */
-            border: none;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
-
-        /* 6. Tabel DataFrame agar lebih terbaca */
-        .stDataFrame {
-            border: 1px solid #e5e7eb;
+            width: 100%; /* Membuat tombol selebar sidebar jika diinginkan */
             border-radius: 8px;
         }
-
-        /* Input Field styling */
-        .stTextInput input {
-            background-color: #f9fafb;
-            border: 1px solid #d1d5db !important;
+        
+        /* 4. Background utama aplikasi tetap putih */
+        .stApp {
+            background-color: #ffffff;
         }
         </style>
         """,
