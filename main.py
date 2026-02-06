@@ -76,8 +76,12 @@ def inject_global_css():
             background-color: #ffffff !important;
         }
 
-        /* 6. Tombol (Button) - Putih dengan Teks Hitam */
-        div.stButton > button {
+        /* 6. Tombol (Button) - Putih dengan Teks Hitam (Seragam) */
+        div.stButton > button,
+        div.stDownloadButton > button,
+        div[data-testid="stFormSubmitButton"] > button,
+        [data-testid="baseButton-secondary"],
+        [data-testid="baseButton-primary"] {
             background-color: #ffffff !important;
             color: #000000 !important;
             border: 2px solid #000000 !important;
@@ -86,9 +90,11 @@ def inject_global_css():
             width: 100%;
         }
         
-        div.stButton > button:hover {
-            background-color: #000000 !important;
-            color: #ffffff !important;
+        div.stButton > button:hover,
+        div.stDownloadButton > button:hover,
+        div[data-testid="stFormSubmitButton"] > button:hover {
+            background-color: #f0f0f0 !important; /* Tetap terang saat hover */
+            color: #000000 !important;
         }
 
         /* 7. Dataframe / Tabel */
@@ -376,10 +382,21 @@ def grafik_dashboard():
 
     df["skd_ke"] = df.groupby("user_id").cumcount() + 1
 
+    # Filter Pilihan User
+    user_list = ["Semua User"] + sorted(df["nama"].unique().tolist())
+    pilih_user = st.selectbox("Pilih User", user_list)
+
     # Filter pilihan SKD
     max_skd = int(df["skd_ke"].max())
     options = ["Terakhir"] + [f"SKD ke-{i}" for i in range(1, max_skd + 1)] + ["Semua"]
-    pilih_skd = st.selectbox("Pilih Percobaan SKD (Attempt)", options)
+
+    # Jika pilih user tertentu, default ke "Semua" riwayat dia
+    default_skd_idx = 2 if pilih_user != "Semua User" else 0
+    pilih_skd = st.selectbox("Pilih Percobaan SKD (Attempt)", options, index=default_skd_idx)
+
+    # Apply User Filter
+    if pilih_user != "Semua User":
+        df = df[df["nama"] == pilih_user]
 
     if pilih_skd == "Terakhir":
         # Ambil record terbaru untuk tiap user
@@ -421,7 +438,10 @@ def grafik_dashboard():
 
     # Label untuk grafik agar unik jika pilih "Semua"
     if pilih_skd == "Semua":
-        filtered["label"] = filtered["nama"] + " (SKD " + filtered["skd_ke"].astype(str) + ")"
+        if pilih_user == "Semua User":
+            filtered["label"] = filtered["nama"] + " (SKD " + filtered["skd_ke"].astype(str) + ")"
+        else:
+            filtered["label"] = "SKD ke-" + filtered["skd_ke"].astype(str)
     else:
         filtered["label"] = filtered["nama"]
 
