@@ -234,12 +234,9 @@ def grafik_dashboard():
         df = df[df["role"] != "admin"]
 
     st.subheader("Filter Data")
-    role_filter = st.selectbox("Filter berdasarkan role", ["Semua", "user"])
     min_total = st.number_input("Minimal total skor", min_value=0, value=0)
 
     filtered = df.copy()
-    if role_filter != "Semua" and "role" in filtered.columns:
-        filtered = filtered[filtered["role"] == role_filter]
     filtered = filtered[filtered["total"] >= min_total]
 
     if filtered.empty:
@@ -342,11 +339,11 @@ role = user.get("role", "user") if user else "user"
 # ======================
 st.title("📊 SKD Application")
 
-st.sidebar.title("Menu")
-
-menu = st.sidebar.selectbox(
-    "Pilih Menu",
-    ["Dashboard", "Grafik", "User"]
+st.sidebar.title("Sidebar Navigation")
+menu = st.sidebar.radio(
+    "Pilih Halaman",
+    ["Dashboard", "Grafik", "User"],
+    index=0,
 )
 
 logout()
