@@ -187,37 +187,6 @@ def admin_user_management():
 
     st.markdown("---")
 
-    # Tambah user baru
-    st.subheader("Tambah User Baru")
-    with st.form("tambah_user"):
-        nama = st.text_input("Nama")
-        password = st.text_input("Password", type="password")
-        role = st.selectbox("Role", ["admin", "user"])
-        submitted_tambah = st.form_submit_button("Simpan User")
-
-    if submitted_tambah:
-        if not nama or not password:
-            st.error("Nama dan password wajib diisi.")
-        else:
-            existing = supabase.table("users").select("id").eq("nama", nama).execute()
-            if getattr(existing, "data", None):
-                st.error("Nama user sudah digunakan.")
-            else:
-                password_hash = bcrypt.hashpw(
-                    password.encode("utf-8"), bcrypt.gensalt()
-                ).decode("utf-8")
-                supabase.table("users").insert(
-                    {
-                        "nama": nama,
-                        "password": password_hash,
-                        "role": role,
-                    }
-                ).execute()
-                st.success("User baru berhasil ditambahkan.")
-                st.rerun()
-
-    st.markdown("---")
-
     # Edit user
     st.subheader("Edit User")
     users = fetch_all_users()
