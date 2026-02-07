@@ -162,12 +162,6 @@ def inject_global_css():
             box-shadow: none !important;
         }
 
-        /* 11. Custom Navbar Styling */
-        .nav-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 25px;
-        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -717,26 +711,15 @@ menu_options = ["Dashboard", "User"]
 if role == "admin":
     menu_options.append("Maintenance")
 
-# Navbar horizontal di bagian atas menggunakan segmented_control
-st.markdown('<div class="nav-container">', unsafe_allow_html=True)
-menu = st.segmented_control(
-    "Pilih Halaman",
-    menu_options,
-    default=menu_options[0],
-    label_visibility="collapsed"
-)
-# Jika tidak ada yang terpilih (jarang terjadi dengan default), fallback ke Dashboard
-if not menu:
-    menu = "Dashboard"
-st.markdown('</div>', unsafe_allow_html=True)
-
-# Tambahkan tombol logout di samping navbar atau tetap di sidebar?
-# Permintaan user: "tambahin navbar biar pilihan Pilih Halaman Dashboard User Maintenance bisa diubah ubah"
-# Saya akan memindahkan Logout ke sidebar atau ke Navbar.
-# Untuk saat ini tetap di sidebar agar tidak terlalu penuh di atas, kecuali user minta.
-# Namun saya akan merapikan CSS untuk Navbar.
-
-logout()
+with st.sidebar:
+    st.markdown("### 🧭 Menu Utama")
+    menu = st.radio(
+        "Pilih Halaman",
+        menu_options,
+        index=0,
+    )
+    st.markdown("---")
+    logout()
 
 # ======================
 # HALAMAN DASHBOARD (ringkas)
