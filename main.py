@@ -13,160 +13,88 @@ st.set_page_config(
 
 
 def inject_global_css():
-    """Menerapkan Design System baru: Minimalis, Profesional, dan Modern."""
+    """Menerapkan Design System Modern dengan High-Contrast Buttons."""
     st.markdown(
         """
         <style>
-        /* 1. Global Background & Text */
+        /* 1. Global & Sidebar Spacing */
+        .block-container { padding-top: 3.5rem !important; }
+        [data-testid="stSidebarNav"] { padding-top: 1.5rem !important; }
+        [data-testid="stSidebarHeader"] { display: none !important; }
+
         .stApp {
-            background-color: #EAEFEF !important;
+            background-color: #F8FAFA !important; /* Abu sangat muda agar tidak flat */
             color: #25343F !important;
         }
-        
-        [data-testid="stSidebar"] {
-            background-color: #FFFFFF !important;
-            border-right: 1px solid #BFC9D1 !important;
-        }
 
-        /* 2. Header / Top Navigation */
+        /* 2. Header & Navbar */
         header[data-testid="stHeader"] {
             background-color: #25343F !important;
-            color: #FFFFFF !important;
-        }
-        header[data-testid="stHeader"] svg {
-            fill: #FFFFFF !important;
+            border-bottom: 2px solid #FF9B51 !important;
         }
 
-        /* 3. Cards Styling */
-        .main-card {
-            background-color: #FFFFFF !important;
-            border: 1px solid #BFC9D1 !important;
-            border-radius: 8px !important;
-            padding: 20px !important;
-            margin-bottom: 20px !important;
-        }
-
-        /* 4. Input Fields Styling */
-        div[data-baseweb="input"], 
-        div[data-baseweb="select"] > div, 
-        div[data-baseweb="textarea"] textarea,
-        .stTextInput input, .stNumberInput input, .stSelectbox div[role="button"] {
-            background-color: #FFFFFF !important;
-            color: #25343F !important;
-            border: 1px solid #BFC9D1 !important;
-            border-radius: 6px !important;
-        }
-
-        /* 5. Typography */
-        h1, h2, h3, h4, h5, h6, label, p, span, .stMarkdown {
-            color: #25343F !important;
-        }
-        [data-testid="stWidgetLabel"] p {
-            font-weight: 500 !important;
-            color: #25343F !important;
-        }
-        /* Text Sekunder */
-        .stCaption, small {
-            color: rgba(37, 52, 63, 0.7) !important;
-        }
-
-        /* 6. Buttons Styling (Primary, Secondary, Accent) */
-        /* Primary Buttons */
+        /* 3. Button Styling - HIGH CONTRAST */
+        /* Primary Buttons (Login, Simpan, Update) */
         div.stButton > button, 
-        div[data-testid="stFormSubmitButton"] > button,
-        [data-testid="baseButton-primary"] {
-            background-color: #25343F !important;
+        div[data-testid="stFormSubmitButton"] > button {
+            background: linear-gradient(135deg, #FF9B51 0%, #FF7E21 100%) !important;
             color: #FFFFFF !important;
             border: none !important;
-            border-radius: 6px !important;
-            padding: 10px 20px !important;
-            font-weight: 600 !important;
-            transition: all 0.3s ease !important;
-        }
-        div.stButton > button:hover,
-        div[data-testid="stFormSubmitButton"] > button:hover,
-        [data-testid="baseButton-primary"]:hover {
-            background-color: #354a5a !important;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
-        }
-
-        /* Secondary / Download Buttons */
-        div.stDownloadButton > button,
-        [data-testid="baseButton-secondary"] {
-            background-color: #FFFFFF !important;
-            color: #25343F !important;
-            border: 1px solid #25343F !important;
-            border-radius: 6px !important;
-        }
-        div.stDownloadButton > button:hover,
-        [data-testid="baseButton-secondary"]:hover {
-            background-color: #f8f9f9 !important;
-            color: #25343F !important;
-            border-color: #354a5a !important;
-        }
-
-        /* Accent Elements */
-        .accent-box {
-            background-color: #FF9B51 !important;
-            color: #FFFFFF !important;
-            padding: 8px 12px !important;
-            border-radius: 6px !important;
-            font-weight: 600 !important;
-        }
-
-        /* 7. Toast Notification (Center, smooth fade) */
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, -60%); }
-            10% { opacity: 1; transform: translate(-50%, -50%); }
-            90% { opacity: 1; transform: translate(-50%, -50%); }
-            100% { opacity: 0; transform: translate(-50%, -40%); }
-        }
-        .custom-toast {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #FF9B51 !important;
-            color: #FFFFFF !important;
+            border-radius: 10px !important;
             padding: 12px 24px !important;
-            border-radius: 8px !important;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-            animation: fadeInOut 4s ease-in-out forwards;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
             font-size: 1rem !important;
-            white-space: nowrap;
-            justify-content: center;
+            letter-spacing: 0.5px !important;
+            box-shadow: 0 4px 15px rgba(255, 155, 81, 0.3) !important;
+            transition: all 0.3s ease !important;
+            width: 100%;
         }
 
-        /* 8. Table Styling */
-        [data-testid="stDataFrame"], [data-testid="stTable"] {
-            border: 1px solid #BFC9D1 !important;
-            border-radius: 8px !important;
-            overflow: hidden !important;
+        div.stButton > button:hover, 
+        div[data-testid="stFormSubmitButton"] > button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(255, 155, 81, 0.4) !important;
+            filter: brightness(1.1);
         }
 
-        /* 9. Container Border (Cards) */
-        [data-testid="stVerticalBlockBorderWrapper"] {
-            background-color: #FFFFFF !important;
-            border: 1px solid #BFC9D1 !important;
-            border-radius: 8px !important;
-            padding: 10px !important;
-        }
-        
-        /* 10. Hilangkan shadow default Streamlit */
-        * {
+        /* Secondary/Logout Button - Tetap Navy tapi Outline bersih */
+        [data-testid="stSidebar"] div.stButton > button {
+            background: transparent !important;
+            color: #25343F !important;
+            border: 2px solid #25343F !important;
             box-shadow: none !important;
         }
+        
+        [data-testid="stSidebar"] div.stButton > button:hover {
+            background: #25343F !important;
+            color: #FFFFFF !important;
+        }
 
+        /* 4. Input Fields - Border lebih tegas saat fokus */
+        .stTextInput input, .stNumberInput input, .stSelectbox div[role="button"] {
+            border: 1px solid #BFC9D1 !important;
+            border-radius: 8px !important;
+        }
+        .stTextInput input:focus, .stNumberInput input:focus {
+            border-color: #FF9B51 !important;
+            box-shadow: 0 0 0 2px rgba(255, 155, 81, 0.2) !important;
+        }
+
+        /* 5. Cards & Containers */
+        [data-testid="stVerticalBlockBorderWrapper"] {
+            background-color: #FFFFFF !important;
+            border: 1px solid rgba(191, 201, 209, 0.4) !important;
+            border-radius: 16px !important;
+            padding: 20px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03) !important;
+        }
+
+        /* 6. Typography */
+        h1, h2, h3 { color: #25343F !important; font-weight: 800 !important; }
         </style>
         """,
         unsafe_allow_html=True,
     )
-
 inject_global_css()
 
 
