@@ -31,6 +31,10 @@ def login():
         st.subheader("Login")
         username = st.text_input("Username", key="login_user")
         password = st.text_input("Password", type="password", key="login_pass")
+        st.markdown(
+            "<small>Jika Anda lupa password, silakan hubungi admin untuk reset atau bantuan lebih lanjut.</small>",
+            unsafe_allow_html=True
+        )
 
         if st.button("Login"):
             if not username or not password:
