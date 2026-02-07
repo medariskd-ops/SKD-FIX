@@ -102,7 +102,7 @@ def inject_global_css():
         div.stButton > button:hover,
         div[data-testid="stFormSubmitButton"] > button:hover,
         [data-testid="baseButton-primary"]:hover {
-            background-color: #354a5a !important;
+            background-color: #FFFFFF !important;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
         }
 
