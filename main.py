@@ -13,43 +13,31 @@ st.set_page_config(
 
 
 def inject_global_css():
-    """Menerapkan Design System: Cerah, Modern, dan Vibran."""
     st.markdown(
         """
         <style>
-        /* 1. Global Background & Text */
+        /* 1. Paksa Latar Belakang Putih Total */
         .stApp {
-            background-color: #F8FAFB !important; /* Lebih putih dari sebelumnya */
-            color: #25343F !important;
-        }
-        
-        /* 2. Sidebar yang lebih bersih */
-        [data-testid="stSidebar"] {
             background-color: #FFFFFF !important;
+        }
+
+        /* 2. Sidebar Cerah */
+        [data-testid="stSidebar"] {
+            background-color: #F8FAFB !important;
             border-right: 1px solid #EAEFEF !important;
         }
 
-        /* 3. Primary Button - Sekarang pakai Orange agar cerah */
-        div.stButton > button, 
-        [data-testid="baseButton-primary"] {
-            background-color: #FF9B51 !important;
-            color: #FFFFFF !important;
-            border: none !important;
-            border-radius: 8px !important;
-            transition: all 0.2s ease;
-        }
-        div.stButton > button:hover {
-            background-color: #FF8631 !important;
-            transform: translateY(-1px);
+        /* 3. Typography: Gunakan Abu Gelap, BUKAN Hitam */
+        h1, h2, h3, p, span, label {
+            color: #34495E !important; 
         }
 
-        /* 4. Pop-up / Toast Styling (Tengah Layar) */
+        /* 4. Pop-up Tengah Layar (Sangat Cerah) */
         @keyframes popIn {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-            15% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
-            20% { transform: translate(-50%, -50%) scale(1); }
+            0% { opacity: 0; transform: translate(-50%, -60%) scale(0.9); }
+            15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
             85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            100% { opacity: 0; transform: translate(-50%, -40%) scale(0.9); }
         }
 
         .custom-toast-container {
@@ -57,50 +45,49 @@ def inject_global_css():
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 100000;
+            z-index: 1000001; /* Pastikan di atas segalanya */
             pointer-events: none;
         }
 
         .custom-toast {
-            background: #FFFFFF !important; /* Putih bersih */
-            color: #25343F !important;
-            padding: 24px 40px !important;
-            border-radius: 20px !important;
-            display: flex;
-            flex-direction: column; /* Icon di atas, teks di bawah */
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 20px 50px rgba(37, 52, 63, 0.15) !important;
+            background: #FFFFFF !important;
+            color: #FF9B51 !important; /* Teks Orange agar cerah */
+            padding: 30px 50px !important;
+            border-radius: 25px !important;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1) !important; /* Shadow lembut */
+            border: 4px solid #FF9B51 !important; /* Border orange tebal */
             animation: popIn 4s ease-in-out forwards;
-            border: 3px solid #FF9B51 !important; /* Border orange sebagai penanda */
-            min-width: 280px;
+            min-width: 350px;
         }
 
-        .toast-icon {
-            font-size: 40px;
-            background: #FF9B51;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            color: white;
-            margin-bottom: 5px;
+        .toast-text {
+            font-size: 1.3rem !important;
+            font-weight: 800 !important;
+            margin-top: 10px;
+            display: block;
+        }
+
+        /* 5. Tombol Orange */
+        div.stButton > button {
+            background-color: #FF9B51 !important;
+            color: white !important;
+            border-radius: 10px !important;
+            border: none !important;
+            padding: 0.5rem 2rem !important;
         }
         </style>
         """,
         unsafe_allow_html=True,
     )
-
-def show_toast(message: str, icon: str = "✅"):
-    """Menampilkan pop-up cerah di tengah layar."""
+    
+def show_toast(message: str):
     st.markdown(
         f"""
         <div class="custom-toast-container">
             <div class="custom-toast">
-                <div class="toast-icon">{icon}</div>
-                <div style="font-weight: 700; font-size: 1.1rem;">{message}</div>
+                <div style="font-size: 50px;">🌟</div>
+                <span class="toast-text">{message}</span>
             </div>
         </div>
         """,
