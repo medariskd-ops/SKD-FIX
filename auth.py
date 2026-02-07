@@ -110,9 +110,22 @@ def login():
 
 
 def logout():
-    """Tombol logout di sidebar."""
-    if st.sidebar.button("Logout"):
-        for key in ("user", "role", "logged_in"):
-            if key in st.session_state:
-                del st.session_state[key]
-        st.rerun()
+    """Tombol logout di sidebar dengan konfirmasi."""
+    if "confirm_logout" not in st.session_state:
+        st.session_state.confirm_logout = False
+
+    if not st.session_state.confirm_logout:
+        if st.sidebar.button("Logout"):
+            st.session_state.confirm_logout = True
+            st.rerun()
+    else:
+        st.sidebar.warning("Yakin ingin keluar?")
+        col1, col2 = st.sidebar.columns(2)
+        if col1.button("Ya", use_container_width=True):
+            for key in ("user", "role", "logged_in", "confirm_logout", "toast_msg"):
+                if key in st.session_state:
+                    del st.session_state[key]
+            st.rerun()
+        if col2.button("Tidak", use_container_width=True):
+            st.session_state.confirm_logout = False
+            st.rerun()
