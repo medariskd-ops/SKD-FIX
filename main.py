@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import bcrypt
 import io
-from PIL import Image
 
 from auth import login, logout
 from database import supabase
@@ -351,7 +350,7 @@ def render_report_page(df, title, content_type="table"):
         the_table.auto_set_font_size(False)
         the_table.set_fontsize(10)
         # Scale lebih besar untuk mengisi halaman A4
-        the_table.scale(1.2, 2.8)
+        the_table.scale(1.2, 2.5)
 
         for (row, col), cell in the_table.get_celld().items():
             if row == 0:
@@ -361,6 +360,7 @@ def render_report_page(df, title, content_type="table"):
                 cell.set_facecolor('#F8F9F9')
 
         plt.title(title + "\n(Halaman 1: Tabel Nilai)", fontsize=16, fontweight='bold', pad=30, color=color_primary)
+        plt.subplots_adjust(top=0.9, bottom=0.1, left=0.1, right=0.9)
 
     else:
         # Grafik - 2 grafik ditumpuk vertikal
@@ -394,32 +394,12 @@ def render_report_page(df, title, content_type="table"):
         ax_total.tick_params(axis='x', rotation=45)
 
         fig.suptitle(title + "\n(Halaman 2: Grafik Perkembangan)", fontsize=16, fontweight='bold', y=0.98, color=color_twk)
-        plt.tight_layout(rect=[0, 0, 1, 0.95])
+        plt.subplots_adjust(top=0.88, bottom=0.12, left=0.15, right=0.85, hspace=0.4)
 
     buf = io.BytesIO()
-    fig.savefig(buf, format="png", bbox_inches="tight")
+    # Gunakan bbox_inches=None agar ukuran tetap A4 murni
+    fig.savefig(buf, format="png", bbox_inches=None)
     plt.close(fig)
-    return Image.open(buf)
-
-@st.cache_data(show_spinner=False)
-def get_consolidated_report(df, title):
-    """Menggabungkan Halaman Tabel dan Halaman Grafik menjadi satu PNG panjang."""
-    img_table = render_report_page(df, title, "table")
-    img_charts = render_report_page(df, title, "charts")
-
-    if not img_table or not img_charts:
-        return None
-
-    # Gabung secara vertikal
-    w = max(img_table.width, img_charts.width)
-    h = img_table.height + img_charts.height + 50 # margin antar halaman
-
-    combined = Image.new("RGB", (w, h), "white")
-    combined.paste(img_table, (0, 0))
-    combined.paste(img_charts, (0, img_table.height + 50))
-
-    buf = io.BytesIO()
-    combined.save(buf, format="PNG")
     return buf.getvalue()
 
 
@@ -848,6 +828,9 @@ def admin_grafik_nilai():
         st.warning(f"Tidak ada data untuk filter: {pilih_skd}")
         return
 
+    # Pastikan filtered adalah copy untuk menghindari SettingWithCopyWarning
+    filtered = filtered.copy()
+
     # Siapkan Label untuk Grafik & Report
     if pilih_skd in ["Semua", "Rentang"]:
         if pilih_user == "Semua User":
@@ -863,18 +846,31 @@ def admin_grafik_nilai():
         cols_to_show = ["nama", "skd_ke", "twk", "tiu", "tkp", "total"]
         st.dataframe(filtered[cols_to_show], use_container_width=True, hide_index=True)
 
-        # Tombol Download Laporan PNG - Berisi Tabel & Grafik (Halaman 1 & 2)
+        # Tombol Download Laporan PNG - Terpisah Tabel & Grafik (Halaman 1 & 2)
         report_title = f"Laporan SKD: {pilih_user} ({pilih_skd})"
         filename_base = f"laporan_skd_{pilih_user}_{pilih_skd}".replace(" ", "_")
-        report_png = get_consolidated_report(filtered, report_title)
-        if report_png:
-            st.download_button(
-                label="📥 Download Laporan PNG (Halaman 1 & 2)",
-                data=report_png,
-                file_name=f"{filename_base}.png",
-                mime="image/png",
-                use_container_width=True
-            )
+
+        col_btn1, col_btn2 = st.columns(2)
+        with col_btn1:
+            report_table = render_report_page(filtered, report_title, "table")
+            if report_table:
+                st.download_button(
+                    label="📄 Download Tabel (Hal. 1)",
+                    data=report_table,
+                    file_name=f"{filename_base}_tabel.png",
+                    mime="image/png",
+                    use_container_width=True
+                )
+        with col_btn2:
+            report_charts = render_report_page(filtered, report_title, "charts")
+            if report_charts:
+                st.download_button(
+                    label="📊 Download Grafik (Hal. 2)",
+                    data=report_charts,
+                    file_name=f"{filename_base}_grafik.png",
+                    mime="image/png",
+                    use_container_width=True
+                )
 
     with st.container(border=True):
         st.subheader("Grafik Komponen Nilai")
@@ -942,18 +938,31 @@ def user_personal_dashboard(user: dict):
         cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df.columns]
         st.dataframe(df[cols], use_container_width=True, hide_index=True)
 
-        # Tombol Download Laporan PNG - Berisi Tabel & Grafik (Halaman 1 & 2)
+        # Tombol Download Laporan PNG - Terpisah Tabel & Grafik (Halaman 1 & 2)
         report_title = f"Laporan Hasil SKD: {user.get('nama')}"
         filename_base = f"laporan_skd_{user.get('nama')}".replace(" ", "_")
-        report_png = get_consolidated_report(df, report_title)
-        if report_png:
-            st.download_button(
-                label="📥 Download Laporan PNG (Halaman 1 & 2)",
-                data=report_png,
-                file_name=f"{filename_base}.png",
-                mime="image/png",
-                use_container_width=True
-            )
+
+        col_btn1, col_btn2 = st.columns(2)
+        with col_btn1:
+            report_table = render_report_page(df, report_title, "table")
+            if report_table:
+                st.download_button(
+                    label="📄 Download Tabel (Hal. 1)",
+                    data=report_table,
+                    file_name=f"{filename_base}_tabel.png",
+                    mime="image/png",
+                    use_container_width=True
+                )
+        with col_btn2:
+            report_charts = render_report_page(df, report_title, "charts")
+            if report_charts:
+                st.download_button(
+                    label="📊 Download Grafik (Hal. 2)",
+                    data=report_charts,
+                    file_name=f"{filename_base}_grafik.png",
+                    mime="image/png",
+                    use_container_width=True
+                )
 
     with st.container(border=True):
         st.subheader("Grafik Komponen Nilai (Per Percobaan)")
