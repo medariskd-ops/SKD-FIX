@@ -273,6 +273,52 @@ def admin_user_management():
             st.success("User berhasil dihapus.")
             st.rerun()
 
+    st.markdown("---")
+
+    # Edit Nilai User (Admin)
+    st.subheader("Edit Nilai SKD User")
+    users = fetch_all_users()
+    if users:
+        nama_list_score = [u["nama"] for u in users if u["role"] != "admin"]
+        if nama_list_score:
+            nama_pilih_score = st.selectbox("Pilih User untuk diedit nilainya", nama_list_score, key="admin_edit_score_user")
+            user_pilih_score = next(u for u in users if u["nama"] == nama_pilih_score)
+            
+            user_scores = fetch_user_scores(user_pilih_score["id"])
+            if user_scores:
+                df_user_scores = pd.DataFrame(user_scores)
+                if "created_at" in df_user_scores.columns:
+                    df_user_scores = df_user_scores.sort_values("created_at")
+                df_user_scores["skd_ke"] = range(1, len(df_user_scores) + 1)
+                
+                edit_options_admin = [f"SKD ke-{row['skd_ke']}" for _, row in df_user_scores.iterrows()]
+                pilih_skd_admin = st.selectbox("Pilih Percobaan (Minggu)", edit_options_admin, key="admin_edit_score_week")
+                
+                idx_pilih_admin = int(pilih_skd_admin.split("-")[-1])
+                data_pilih_admin = df_user_scores[df_user_scores["skd_ke"] == idx_pilih_admin].iloc[0]
+
+                with st.form("admin_edit_nilai_form"):
+                    ae_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih_admin["twk"]))
+                    ae_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih_admin["tiu"]))
+                    ae_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih_admin["tkp"]))
+                    submitted_admin_edit_score = st.form_submit_button("Simpan Perubahan Nilai User")
+
+                if submitted_admin_edit_score:
+                    ae_total = ae_twk + ae_tiu + ae_tkp
+                    supabase.table("scores").update({
+                        "twk": ae_twk,
+                        "tiu": ae_tiu,
+                        "tkp": ae_tkp,
+                        "total": ae_total
+                    }).eq("id", data_pilih_admin["id"]).execute()
+                    
+                    st.success(f"Berhasil memperbarui nilai {nama_pilih_score} pada {pilih_skd_admin}")
+                    st.rerun()
+            else:
+                st.info("User ini belum memiliki riwayat nilai.")
+        else:
+            st.info("Belum ada user untuk diedit nilainya.")
+
 
 def user_self_page(user: dict):
     st.header("Profil & Nilai Saya")
@@ -321,9 +367,42 @@ def user_self_page(user: dict):
     scores = fetch_user_scores(user["id"])
     if scores:
         df_scores = pd.DataFrame(scores)
-        # Tampilkan kolom yang paling penting saja jika ada
-        cols = [c for c in ["created_at", "twk", "tiu", "tkp", "total"] if c in df_scores.columns]
+        if "created_at" in df_scores.columns:
+            df_scores = df_scores.sort_values("created_at")
+        df_scores["skd_ke"] = range(1, len(df_scores) + 1)
+        
+        # Tampilkan riwayat
+        st.subheader("Riwayat Nilai SKD")
+        cols = [c for c in ["skd_ke", "created_at", "twk", "tiu", "tkp", "total"] if c in df_scores.columns]
         st.dataframe(df_scores[cols])
+
+        st.markdown("---")
+        st.subheader("Edit Nilai Percobaan (SKD ke-n)")
+        
+        edit_options = [f"SKD ke-{row['skd_ke']}" for _, row in df_scores.iterrows()]
+        pilih_edit = st.selectbox("Pilih Percobaan yang Ingin Diubah", edit_options)
+        
+        idx_pilih = int(pilih_edit.split("-")[-1])
+        data_pilih = df_scores[df_scores["skd_ke"] == idx_pilih].iloc[0]
+
+        with st.form("edit_nilai_user"):
+            e_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih["twk"]))
+            e_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih["tiu"]))
+            e_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih["tkp"]))
+            submitted_edit_score = st.form_submit_button("Simpan Perubahan Nilai")
+
+        if submitted_edit_score:
+            e_total = e_twk + e_tiu + e_tkp
+            supabase.table("scores").update({
+                "twk": e_twk,
+                "tiu": e_tiu,
+                "tkp": e_tkp,
+                "total": e_total
+            }).eq("id", data_pilih["id"]).execute()
+            
+            st.success(f"Berhasil memperbarui data {pilih_edit}")
+            st.rerun()
+
     else:
         st.info("Belum ada riwayat nilai. Silakan input nilai pertama Anda.")
 
