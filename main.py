@@ -110,7 +110,7 @@ def inject_global_css():
         div.stDownloadButton > button,
         [data-testid="baseButton-secondary"] {
             background-color: #FFFFFF !important;
-            color: #25343F !important;
+            color: #FFFFFF !important;
             border: 1px solid #25343F !important;
             border-radius: 6px !important;
         }
