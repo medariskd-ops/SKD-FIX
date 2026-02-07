@@ -93,7 +93,7 @@ def inject_global_css():
         [data-testid="baseButton-primary"] {
             background-color: #FFFFFF !important;
             color: #FFFFFF !important;
-            border: none !important;
+            border: 1px solid #BFC9D1 !important;
             border-radius: 6px !important;
             padding: 10px 20px !important;
             font-weight: 600 !important;
