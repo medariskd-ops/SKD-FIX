@@ -478,35 +478,27 @@ def user_self_page(user: dict):
         st.info("Belum ada riwayat nilai. Silakan input nilai pertama Anda.")
 
 
-def grafik_dashboard():
-    st.header("📈 Dashboard & Grafik Nilai SKD")
-
+def prepare_admin_data():
+    """Mengambil dan menyiapkan data untuk dashboard admin."""
     users = fetch_all_users()
     scores = fetch_all_scores()
 
     if not users:
-        st.info("Belum ada data user.")
-        return
+        return None
 
     df_users = pd.DataFrame(users)
     total_user = len(df_users[df_users["role"] == "user"])
     total_admin = len(df_users[df_users["role"] == "admin"])
     
-    total_skd_max = 0
-    score_summary = pd.DataFrame(columns=["user_id", "total_skd", "max_score"])
     df = pd.DataFrame()
-
     if scores:
         df_scores = pd.DataFrame(scores)
-        # Pastikan tipe data benar
         for col in ["twk", "tiu", "tkp"]:
             if col in df_scores.columns:
                 df_scores[col] = pd.to_numeric(df_scores[col], errors="coerce").fillna(0)
         
-        # Hitung ulang total untuk memastikan kolom total ada dan akurat
         df_scores["total"] = df_scores["twk"] + df_scores["tiu"] + df_scores["tkp"]
 
-        # Gabungkan dengan data user untuk mendapatkan nama dan role
         df = pd.merge(
             df_scores,
             df_users[["id", "nama", "role"]],
@@ -515,24 +507,47 @@ def grafik_dashboard():
             how="inner"
         )
 
-        # Hilangkan admin dari tampilan
         if "role" in df.columns:
             df = df[df["role"] != "admin"]
 
         if not df.empty:
-            # Hitung SKD ke-n untuk tiap user
             if "created_at" in df.columns:
                 df = df.sort_values(["user_id", "created_at"])
             else:
                 df = df.sort_values(["user_id"])
             
             df["skd_ke"] = df.groupby("user_id").cumcount() + 1
-            total_skd_max = df["skd_ke"].max()
             
-            score_summary = df.groupby("user_id").agg(
-                total_skd=("skd_ke", "max"),
-                max_score=("total", "max")
-            ).reset_index()
+    return {
+        "df_users": df_users,
+        "total_user": total_user,
+        "total_admin": total_admin,
+        "scores": scores,
+        "df": df
+    }
+
+
+def admin_dashboard_summary():
+    st.header("📈 Dashboard Summary")
+    data = prepare_admin_data()
+    if not data:
+        st.info("Belum ada data user.")
+        return
+
+    df_users = data["df_users"]
+    total_user = data["total_user"]
+    total_admin = data["total_admin"]
+    df = data["df"]
+    
+    total_skd_max = 0
+    score_summary = pd.DataFrame(columns=["user_id", "total_skd", "max_score"])
+
+    if not df.empty:
+        total_skd_max = df["skd_ke"].max()
+        score_summary = df.groupby("user_id").agg(
+            total_skd=("skd_ke", "max"),
+            max_score=("total", "max")
+        ).reset_index()
 
     # --- Bagian Metrics Atas ---
     col1, col2, col3 = st.columns(3)
@@ -559,7 +574,17 @@ def grafik_dashboard():
         st.subheader("📊 Ringkasan Aktivitas User")
         st.dataframe(user_summary_df, use_container_width=True, hide_index=True)
 
-    # --- Pengecekan jika data kosong untuk grafik ---
+
+def admin_grafik_nilai():
+    st.header("📊 Grafik Nilai SKD")
+    data = prepare_admin_data()
+    if not data:
+        st.info("Belum ada data user.")
+        return
+    
+    scores = data["scores"]
+    df = data["df"]
+
     if not scores:
         st.info("Belum ada data nilai (scores) di database.")
         return
@@ -572,7 +597,6 @@ def grafik_dashboard():
     user_list = ["Semua User"] + sorted(df["nama"].unique().tolist())
     pilih_user = st.selectbox("Pilih User", user_list)
 
-    # Filter pilihan SKD berdasarkan user terpilih
     if pilih_user != "Semua User":
         max_skd = int(df[df["nama"] == pilih_user]["skd_ke"].max()) if not df.empty else 0
     else:
@@ -580,11 +604,9 @@ def grafik_dashboard():
 
     options = ["Terakhir", "Semua", "Rentang"] + [f"SKD ke-{i}" for i in range(1, max_skd + 1)]
     
-    # Jika pilih user tertentu, default ke "Semua" riwayat dia
     default_skd_idx = 1 if pilih_user != "Semua User" else 0
     pilih_skd = st.selectbox("Pilih Percobaan SKD (Attempt)", options, index=default_skd_idx)
 
-    # Rentang Filter
     rentang_aktif = False
     if pilih_skd == "Rentang":
         col_r1, col_r2 = st.columns(2)
@@ -594,7 +616,6 @@ def grafik_dashboard():
             r_sampai = st.number_input("Sampai SKD ke-", min_value=r_dari, max_value=max_skd, value=max_skd)
         rentang_aktif = True
 
-    # Apply User Filter
     if pilih_user != "Semua User":
         df = df[df["nama"] == pilih_user]
 
@@ -603,7 +624,6 @@ def grafik_dashboard():
         filtered = filtered.sort_values(["skd_ke", "nama"])
         st.subheader(f"Data SKD Rentang ke-{r_dari} sampai {r_sampai}")
     elif pilih_skd == "Terakhir":
-        # Ambil record terbaru untuk tiap user
         if "created_at" in df.columns:
             filtered = df.sort_values("created_at").groupby("user_id").tail(1).copy()
         else:
@@ -614,7 +634,6 @@ def grafik_dashboard():
         filtered = filtered.sort_values(["skd_ke", "nama"])
         st.subheader("Semua Riwayat Data SKD")
     else:
-        # Ambil angka dari "SKD ke-n"
         try:
             n = int(pilih_skd.split("-")[-1])
             filtered = df[df["skd_ke"] == n].copy()
@@ -630,17 +649,11 @@ def grafik_dashboard():
     with st.container(border=True):
         st.subheader("Data Riwayat SKD")
         cols_to_show = ["nama", "skd_ke", "twk", "tiu", "tkp", "total"]
-        
         st.dataframe(filtered[cols_to_show], use_container_width=True)
 
-        # Tombol Cetak
         if st.button("🖨️ Cetak Nilai & Diagram"):
-            st.components.v1.html(
-                "<script>window.print();</script>",
-                height=0,
-            )
+            st.components.v1.html("<script>window.print();</script>", height=0)
 
-    # Label untuk grafik agar unik jika pilih "Semua" atau "Rentang"
     if pilih_skd in ["Semua", "Rentang"]:
         if pilih_user == "Semua User":
             filtered["label"] = filtered["nama"] + " (SKD " + filtered["skd_ke"].astype(str) + ")"
@@ -655,7 +668,6 @@ def grafik_dashboard():
         ax.plot(filtered["label"], filtered["twk"], marker="o", label="TWK", color="#25343F")
         ax.plot(filtered["label"], filtered["tiu"], marker="o", label="TIU", color="#BFC9D1")
         ax.plot(filtered["label"], filtered["tkp"], marker="o", label="TKP", color="#FF9B51")
-        # ax.set_xlabel("User")
         ax.set_ylabel("Nilai")
         ax.set_title(f"Komponen Nilai SKD ({pilih_skd})")
         ax.legend()
@@ -667,7 +679,6 @@ def grafik_dashboard():
         st.subheader("Grafik Total Nilai")
         fig2, ax2 = plt.subplots(figsize=(10, 5))
         ax2.plot(filtered["label"], filtered["total"], marker="o", color='#25343F')
-        # ax2.set_xlabel("User")
         ax2.set_ylabel("Total Nilai")
         ax2.set_title(f"Total Nilai SKD ({pilih_skd})")
         plt.xticks(rotation=45, ha='right')
@@ -799,9 +810,10 @@ role = user.get("role", "user") if user else "user"
 # APP UTAMA
 # ======================
 
-menu_options = ["Dashboard", "User"]
 if role == "admin":
-    menu_options.append("Maintenance")
+    menu_options = ["Dashboard", "Grafik Nilai", "User", "Maintenance"]
+else:
+    menu_options = ["Dashboard", "User"]
 
 with st.sidebar:
     st.markdown("### 🧭 Menu Utama")
@@ -814,14 +826,22 @@ with st.sidebar:
     logout()
 
 # ======================
-# HALAMAN DASHBOARD (ringkas)
+# HALAMAN DASHBOARD
 # ======================
 if menu == "Dashboard":
     if role == "admin":
-        st.header("Ringkasan Nilai Semua User")
-        grafik_dashboard()
+        admin_dashboard_summary()
     else:
         user_personal_dashboard(user)
+
+# ======================
+# HALAMAN GRAFIK NILAI
+# ======================
+elif menu == "Grafik Nilai":
+    if role == "admin":
+        admin_grafik_nilai()
+    else:
+        st.error("Hanya Admin yang dapat mengakses halaman ini.")
 
 # ======================
 # HALAMAN USER
