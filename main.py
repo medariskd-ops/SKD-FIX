@@ -123,7 +123,7 @@ def inject_global_css():
 
         /* Accent Elements */
         .accent-box {
-            background-color: #FF9B51 !important;
+            background-color: #FFFFFF !important;
             color: #FFFFFF !important;
             padding: 8px 12px !important;
             border-radius: 6px !important;
