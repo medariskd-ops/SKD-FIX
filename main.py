@@ -389,95 +389,93 @@ def admin_user_management():
 def user_self_page(user: dict):
     st.header("📑 Profil & Nilai Saya")
     
-    tab1, tab2 = st.tabs(["📊 Nilai SKD", "👤 Profil Saya"])
+    with st.container(border=True):
+        st.write(f"Nama: **{user.get('nama')}**")
+        st.write(f"Role: **{user.get('role', 'user')}**")
 
-    with tab1:
+    st.markdown("---")
+    
+    with st.container(border=True):
+        st.subheader("Input / Update Nilai SKD")
+
+        latest = fetch_latest_score(user["id"])
+        current_twk = (latest or {}).get("twk") or 0
+        current_tiu = (latest or {}).get("tiu") or 0
+        current_tkp = (latest or {}).get("tkp") or 0
+
+        with st.form("update_nilai_saya"):
+            twk = st.number_input("TWK", min_value=0, value=int(current_twk))
+            tiu = st.number_input("TIU", min_value=0, value=int(current_tiu))
+            tkp = st.number_input("TKP", min_value=0, value=int(current_tkp))
+            submitted_nilai = st.form_submit_button("Simpan Nilai")
+
+    if submitted_nilai:
+        total = twk + tiu + tkp
+        # Simpan sebagai percobaan baru di tabel scores
+        supabase.table("scores").insert(
+            {
+                "user_id": user["id"],
+                "twk": twk,
+                "tiu": tiu,
+                "tkp": tkp,
+                "total": total,
+            }
+        ).execute()
+
+        # Nilai sekarang hanya disimpan di tabel scores (history)
+        
+        # update juga di session supaya tampilan langsung ikut berubah
+        user.update({"twk": twk, "tiu": tiu, "tkp": tkp, "total": total})
+        st.session_state.user = user
+
+        st.session_state.toast_msg = "Nilai berhasil disimpan"
+        st.rerun()
+
+    st.markdown("---")
+
+    scores = fetch_user_scores(user["id"])
+    if scores:
+        df_scores = pd.DataFrame(scores)
+        if "created_at" in df_scores.columns:
+            df_scores = df_scores.sort_values("created_at")
+        df_scores["skd_ke"] = range(1, len(df_scores) + 1)
+        
         with st.container(border=True):
-            st.subheader("Input / Update Nilai SKD")
-
-            latest = fetch_latest_score(user["id"])
-            current_twk = (latest or {}).get("twk") or 0
-            current_tiu = (latest or {}).get("tiu") or 0
-            current_tkp = (latest or {}).get("tkp") or 0
-
-            with st.form("update_nilai_saya"):
-                twk = st.number_input("TWK", min_value=0, value=int(current_twk))
-                tiu = st.number_input("TIU", min_value=0, value=int(current_tiu))
-                tkp = st.number_input("TKP", min_value=0, value=int(current_tkp))
-                submitted_nilai = st.form_submit_button("Simpan Nilai")
-
-        if submitted_nilai:
-            total = twk + tiu + tkp
-            # Simpan sebagai percobaan baru di tabel scores
-            supabase.table("scores").insert(
-                {
-                    "user_id": user["id"],
-                    "twk": twk,
-                    "tiu": tiu,
-                    "tkp": tkp,
-                    "total": total,
-                }
-            ).execute()
-
-            # Nilai sekarang hanya disimpan di tabel scores (history)
-            
-            # update juga di session supaya tampilan langsung ikut berubah
-            user.update({"twk": twk, "tiu": tiu, "tkp": tkp, "total": total})
-            st.session_state.user = user
-
-            st.session_state.toast_msg = "Nilai berhasil disimpan"
-            st.rerun()
+            # Tampilkan riwayat
+            st.subheader("Riwayat Nilai SKD")
+            cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df_scores.columns]
+            st.dataframe(df_scores[cols], use_container_width=True)
 
         st.markdown("---")
-
-        scores = fetch_user_scores(user["id"])
-        if scores:
-            df_scores = pd.DataFrame(scores)
-            if "created_at" in df_scores.columns:
-                df_scores = df_scores.sort_values("created_at")
-            df_scores["skd_ke"] = range(1, len(df_scores) + 1)
-            
-            with st.container(border=True):
-                # Tampilkan riwayat
-                st.subheader("Riwayat Nilai SKD")
-                cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df_scores.columns]
-                st.dataframe(df_scores[cols], use_container_width=True)
-
-            st.markdown("---")
-            with st.container(border=True):
-                st.subheader("Edit Nilai Percobaan (SKD ke-n)")
-                
-                edit_options = [f"SKD ke-{row['skd_ke']}" for _, row in df_scores.iterrows()]
-                pilih_edit = st.selectbox("Pilih Percobaan yang Ingin Diubah", edit_options)
-                
-                idx_pilih = int(pilih_edit.split("-")[-1])
-                data_pilih = df_scores[df_scores["skd_ke"] == idx_pilih].iloc[0]
-
-                with st.form("edit_nilai_user"):
-                    e_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih["twk"]))
-                    e_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih["tiu"]))
-                    e_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih["tkp"]))
-                    submitted_edit_score = st.form_submit_button("Simpan Perubahan Nilai")
-
-            if submitted_edit_score:
-                e_total = e_twk + e_tiu + e_tkp
-                supabase.table("scores").update({
-                    "twk": e_twk,
-                    "tiu": e_tiu,
-                    "tkp": e_tkp,
-                    "total": e_total
-                }).eq("id", data_pilih["id"]).execute()
-                
-                st.session_state.toast_msg = f"Berhasil memperbarui {pilih_edit}"
-                st.rerun()
-
-        else:
-            st.info("Belum ada riwayat nilai. Silakan input nilai pertama Anda.")
-
-    with tab2:
         with st.container(border=True):
-            st.write(f"Nama: **{user.get('nama')}**")
-            st.write(f"Role: **{user.get('role', 'user')}**")
+            st.subheader("Edit Nilai Percobaan (SKD ke-n)")
+            
+            edit_options = [f"SKD ke-{row['skd_ke']}" for _, row in df_scores.iterrows()]
+            pilih_edit = st.selectbox("Pilih Percobaan yang Ingin Diubah", edit_options)
+            
+            idx_pilih = int(pilih_edit.split("-")[-1])
+            data_pilih = df_scores[df_scores["skd_ke"] == idx_pilih].iloc[0]
+
+            with st.form("edit_nilai_user"):
+                e_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih["twk"]))
+                e_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih["tiu"]))
+                e_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih["tkp"]))
+                submitted_edit_score = st.form_submit_button("Simpan Perubahan Nilai")
+
+        if submitted_edit_score:
+            e_total = e_twk + e_tiu + e_tkp
+            supabase.table("scores").update({
+                "twk": e_twk,
+                "tiu": e_tiu,
+                "tkp": e_tkp,
+                "total": e_total
+            }).eq("id", data_pilih["id"]).execute()
+            
+            st.session_state.toast_msg = f"Berhasil memperbarui {pilih_edit}"
+            st.rerun()
+
+    else:
+        st.info("Belum ada riwayat nilai. Silakan input nilai pertama Anda.")
 
 
 def grafik_dashboard():
