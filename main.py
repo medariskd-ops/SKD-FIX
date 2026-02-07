@@ -805,7 +805,7 @@ def admin_grafik_nilai():
     show_range = (max_skd > 15) or (pilih_skd == "Rentang")
     
     if show_range:
-        st.markdown("### 🔍 Pilih Rentang Data")
+        st.markdown("### 🔍 Tentukan rentang data")
         if max_skd > 15:
             st.info(f"Ditemukan {max_skd} data. Semua data dapat dilihat di layar, namun saat mencetak atau membuat laporan, hanya 15 data yang akan ditampilkan per halaman.")
         
