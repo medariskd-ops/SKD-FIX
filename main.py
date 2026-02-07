@@ -178,6 +178,38 @@ def inject_global_css():
             box-shadow: none !important;
         }
 
+        /* 11. Print Styles */
+        @media print {
+            /* Sembunyikan elemen UI yang tidak diperlukan saat cetak */
+            [data-testid="stSidebar"], 
+            header[data-testid="stHeader"], 
+            .stButton, 
+            div[data-testid="stSelectbox"], 
+            div[data-testid="stNumberInput"],
+            .custom-toast,
+            [data-testid="stSidebarNav"],
+            [data-testid="stHeader"] {
+                display: none !important;
+            }
+            
+            /* Optimasi layout halaman cetak */
+            .main .block-container {
+                padding-top: 1rem !important;
+                padding-bottom: 1rem !important;
+                max-width: 100% !important;
+            }
+            
+            .stApp {
+                background-color: white !important;
+            }
+
+            /* Hindari pemotongan chart/tabel di tengah halaman */
+            [data-testid="stVerticalBlockBorderWrapper"] {
+                page-break-inside: avoid !important;
+                margin-bottom: 20px !important;
+            }
+        }
+
         </style>
         """,
         unsafe_allow_html=True,
@@ -573,6 +605,8 @@ def admin_dashboard_summary():
     with st.container(border=True):
         st.subheader("📊 Ringkasan Aktivitas User")
         st.dataframe(user_summary_df, use_container_width=True, hide_index=True)
+        if st.button("🖨️ Cetak Ringkasan"):
+            st.components.v1.html("<script>window.parent.print();</script>", height=0)
 
 
 def admin_grafik_nilai():
@@ -652,7 +686,7 @@ def admin_grafik_nilai():
         st.dataframe(filtered[cols_to_show], use_container_width=True)
 
         if st.button("🖨️ Cetak Nilai & Diagram"):
-            st.components.v1.html("<script>window.print();</script>", height=0)
+            st.components.v1.html("<script>window.parent.print();</script>", height=0)
 
     if pilih_skd in ["Semua", "Rentang"]:
         if pilih_user == "Semua User":
@@ -719,6 +753,8 @@ def user_personal_dashboard(user: dict):
         st.subheader("Riwayat Nilai")
         cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df.columns]
         st.dataframe(df[cols], use_container_width=True)
+        if st.button("🖨️ Cetak Nilai & Diagram"):
+            st.components.v1.html("<script>window.parent.print();</script>", height=0)
 
     with st.container(border=True):
         st.subheader("Grafik Komponen Nilai (Per Percobaan)")
