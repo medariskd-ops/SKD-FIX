@@ -13,84 +13,49 @@ st.set_page_config(
 
 
 def inject_global_css():
-    """Menerapkan Design System Modern dengan High-Contrast Buttons."""
     st.markdown(
         """
         <style>
-        /* 1. Global & Sidebar Spacing */
-        .block-container { padding-top: 3.5rem !important; }
-        [data-testid="stSidebarNav"] { padding-top: 1.5rem !important; }
-        [data-testid="stSidebarHeader"] { display: none !important; }
-
-        .stApp {
-            background-color: #F8FAFA !important; /* Abu sangat muda agar tidak flat */
-            color: #25343F !important;
-        }
-
-        /* 2. Header & Navbar */
-        header[data-testid="stHeader"] {
-            background-color: #25343F !important;
-            border-bottom: 2px solid #FF9B51 !important;
-        }
-
-        /* 3. Button Styling - HIGH CONTRAST */
-        /* Primary Buttons (Login, Simpan, Update) */
+        /* 1. Aturan Seragam untuk SEMUA Tombol (Sidebar & Main Content) */
         div.stButton > button, 
+        div.stDownloadButton > button, 
         div[data-testid="stFormSubmitButton"] > button {
             background: linear-gradient(135deg, #FF9B51 0%, #FF7E21 100%) !important;
             color: #FFFFFF !important;
             border: none !important;
-            border-radius: 10px !important;
-            padding: 12px 24px !important;
+            border-radius: 12px !important; /* Membuat sudut lebih halus/rounded */
+            padding: 10px 20px !important;
             font-weight: 700 !important;
             font-size: 1rem !important;
-            letter-spacing: 0.5px !important;
-            box-shadow: 0 4px 15px rgba(255, 155, 81, 0.3) !important;
-            transition: all 0.3s ease !important;
-            width: 100%;
+            text-align: center !important;
+            box-shadow: 0 4px 15px rgba(255, 126, 33, 0.25) !important;
+            transition: all 0.3s ease-in-out !important;
+            width: 100% !important; /* Supaya seragam memenuhi lebar container */
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 10px !important;
         }
 
+        /* 2. Efek Hover untuk semua tombol */
         div.stButton > button:hover, 
+        div.stDownloadButton > button:hover,
         div[data-testid="stFormSubmitButton"] > button:hover {
             transform: translateY(-2px) !important;
-            box-shadow: 0 8px 25px rgba(255, 155, 81, 0.4) !important;
-            filter: brightness(1.1);
+            box-shadow: 0 8px 25px rgba(255, 126, 33, 0.4) !important;
+            filter: brightness(1.1) !important;
         }
 
-        /* Secondary/Logout Button - Tetap Navy tapi Outline bersih */
-        [data-testid="stSidebar"] div.stButton > button {
-            background: transparent !important;
-            color: #25343F !important;
-            border: 2px solid #25343F !important;
+        /* 3. Menghilangkan garis outline hitam saat diklik (Focus state) */
+        button:focus:not(:focus-visible) {
+            outline: none !important;
             box-shadow: none !important;
         }
-        
-        [data-testid="stSidebar"] div.stButton > button:hover {
-            background: #25343F !important;
-            color: #FFFFFF !important;
-        }
 
-        /* 4. Input Fields - Border lebih tegas saat fokus */
-        .stTextInput input, .stNumberInput input, .stSelectbox div[role="button"] {
-            border: 1px solid #BFC9D1 !important;
-            border-radius: 8px !important;
+        /* 4. Khusus Sidebar: Pastikan tombol logout tidak mepet */
+        [data-testid="stSidebar"] div.stButton {
+            padding: 0 10px !important;
         }
-        .stTextInput input:focus, .stNumberInput input:focus {
-            border-color: #FF9B51 !important;
-            box-shadow: 0 0 0 2px rgba(255, 155, 81, 0.2) !important;
-        }
-
-        /* 5. Cards & Containers */
-        [data-testid="stVerticalBlockBorderWrapper"] {
-            background-color: #FFFFFF !important;
-            border: 1px solid rgba(191, 201, 209, 0.4) !important;
-            border-radius: 16px !important;
-            padding: 20px !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03) !important;
-        }
-
-        /* 6. Typography */
-        h1, h2, h3 { color: #25343F !important; font-weight: 800 !important; }
         </style>
         """,
         unsafe_allow_html=True,
