@@ -801,12 +801,23 @@ def admin_grafik_nilai():
     pilih_skd = st.selectbox("Pilih Percobaan SKD (Attempt)", options, index=default_skd_idx)
 
     rentang_aktif = False
-    if pilih_skd == "Rentang":
+    if pilih_skd == "Rentang" or (pilih_skd == "Semua" and max_skd > 15):
+        st.markdown("### 🔍 Filter Rentang Data")
+        if pilih_skd == "Semua" and max_skd > 15:
+            st.info(f"Ditemukan {max_skd} data SKD. Silakan pilih rentang (Maksimal 15 data).")
+        
         col_r1, col_r2 = st.columns(2)
         with col_r1:
-            r_dari = st.number_input("Dari SKD ke-", min_value=1, max_value=max_skd, value=1)
+            # Default ke 15 data terakhir
+            default_dari = max(1, max_skd - 14)
+            r_dari = st.number_input("Dari SKD ke-", min_value=1, max_value=max_skd, value=default_dari, key="admin_r_dari")
         with col_r2:
-            r_sampai = st.number_input("Sampai SKD ke-", min_value=r_dari, max_value=max_skd, value=max_skd)
+            # Batasi input r_sampai maksimal r_dari + 14 (Total 15 data)
+            max_r_sampai_allowed = min(r_dari + 14, max_skd)
+            r_sampai = st.number_input("Sampai SKD ke-", min_value=r_dari, max_value=max_r_sampai_allowed, value=max_r_sampai_allowed, key="admin_r_sampai")
+        
+        st.info(f"💡 Menampilkan data SKD ke-{r_dari} sampai ke-{r_sampai} (Maksimal 15 data).")
+            
         rentang_aktif = True
 
     if pilih_user != "Semua User":
@@ -942,6 +953,24 @@ def user_personal_dashboard(user: dict):
         df = df.sort_values("created_at")
     df["skd_ke"] = range(1, len(df) + 1)
     df["label"] = "SKD ke-" + df["skd_ke"].astype(str)
+
+    # Filter Rentang jika data > 15
+    if total_skd > 15:
+        st.markdown("### 🔍 Filter Rentang Data")
+        st.info(f"Ditemukan {total_skd} data SKD. Silakan pilih rentang (Maksimal 15 data).")
+        col_r1, col_r2 = st.columns(2)
+        with col_r1:
+            # Default ke 15 data terakhir
+            default_dari = max(1, total_skd - 14)
+            r_dari = st.number_input("Dari SKD ke-", min_value=1, max_value=total_skd, value=default_dari, key="user_r_dari")
+        with col_r2:
+            # Batasi input r_sampai maksimal r_dari + 14 (Total 15 data)
+            max_r_sampai_allowed = min(r_dari + 14, total_skd)
+            r_sampai = st.number_input("Sampai SKD ke-", min_value=r_dari, max_value=max_r_sampai_allowed, value=max_r_sampai_allowed, key="user_r_sampai")
+        
+        st.info(f"💡 Menampilkan data SKD ke-{r_dari} sampai ke-{r_sampai} (Maksimal 15 data).")
+        
+        df = df[(df["skd_ke"] >= r_dari) & (df["skd_ke"] <= r_sampai)].copy()
 
     with st.container(border=True):
         st.subheader("Riwayat Nilai")
