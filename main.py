@@ -13,24 +13,24 @@ st.set_page_config(
 
 
 def inject_global_css():
-    """Menerapkan Design System baru: Bersih, Ramah, dan Modern."""
+    """Menerapkan Design System baru: Minimalis, Profesional, dan Modern."""
     st.markdown(
         """
         <style>
         /* 1. Global Background & Text */
         .stApp {
-            background-color: #F5F0CD !important;
-            color: #1F2937 !important;
+            background-color: #EAEFEF !important;
+            color: #25343F !important;
         }
         
         [data-testid="stSidebar"] {
             background-color: #FFFFFF !important;
-            border-right: 1px solid #E5E7EB !important;
+            border-right: 1px solid #BFC9D1 !important;
         }
 
         /* 2. Header / Top Navigation */
         header[data-testid="stHeader"] {
-            background-color: #3674B5 !important;
+            background-color: #25343F !important;
             color: #FFFFFF !important;
         }
         header[data-testid="stHeader"] svg {
@@ -40,10 +40,10 @@ def inject_global_css():
         /* 3. Cards Styling */
         .main-card {
             background-color: #FFFFFF !important;
-            border: 1px solid #E5E7EB !important;
-            border-radius: 12px !important;
-            padding: 24px !important;
-            margin-bottom: 24px !important;
+            border: 1px solid #BFC9D1 !important;
+            border-radius: 8px !important;
+            padding: 20px !important;
+            margin-bottom: 20px !important;
         }
 
         /* 4. Input Fields Styling */
@@ -52,95 +52,99 @@ def inject_global_css():
         div[data-baseweb="textarea"] textarea,
         .stTextInput input, .stNumberInput input, .stSelectbox div[role="button"] {
             background-color: #FFFFFF !important;
-            color: #1F2937 !important;
-            border: 1px solid #E5E7EB !important;
-            border-radius: 8px !important;
+            color: #25343F !important;
+            border: 1px solid #BFC9D1 !important;
+            border-radius: 6px !important;
         }
 
         /* 5. Typography */
         h1, h2, h3, h4, h5, h6, label, p, span, .stMarkdown {
-            color: #1F2937 !important;
+            color: #25343F !important;
         }
         [data-testid="stWidgetLabel"] p {
             font-weight: 500 !important;
-            color: #1F2937 !important;
+            color: #25343F !important;
+        }
+        /* Text Sekunder */
+        .stCaption, small {
+            color: rgba(37, 52, 63, 0.7) !important;
         }
 
-        /* 6. Buttons Styling (Primary & Secondary) */
+        /* 6. Buttons Styling (Primary, Secondary, Accent) */
         /* Primary Buttons */
         div.stButton > button, 
         div[data-testid="stFormSubmitButton"] > button,
         [data-testid="baseButton-primary"] {
-            background-color: #3674B5 !important;
+            background-color: #25343F !important;
             color: #FFFFFF !important;
             border: none !important;
-            border-radius: 8px !important;
-            padding: 12px 24px !important;
+            border-radius: 6px !important;
+            padding: 10px 20px !important;
             font-weight: 600 !important;
             transition: all 0.3s ease !important;
         }
         div.stButton > button:hover,
         div[data-testid="stFormSubmitButton"] > button:hover,
         [data-testid="baseButton-primary"]:hover {
-            background-color: #578FCA !important;
-            box-shadow: 0 4px 12px rgba(54, 116, 181, 0.2) !important;
+            background-color: #354a5a !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
         }
 
         /* Secondary / Download Buttons */
         div.stDownloadButton > button,
         [data-testid="baseButton-secondary"] {
             background-color: #FFFFFF !important;
-            color: #3674B5 !important;
-            border: 1px solid #3674B5 !important;
-            border-radius: 8px !important;
+            color: #25343F !important;
+            border: 1px solid #25343F !important;
+            border-radius: 6px !important;
         }
         div.stDownloadButton > button:hover,
         [data-testid="baseButton-secondary"]:hover {
-            background-color: #F5F0CD !important;
-            color: #578FCA !important;
-            border-color: #578FCA !important;
+            background-color: #f8f9f9 !important;
+            color: #25343F !important;
+            border-color: #354a5a !important;
         }
 
         /* Accent Elements */
         .accent-box {
-            background-color: #FADA7A !important;
-            color: #1F2937 !important;
+            background-color: #FF9B51 !important;
+            color: #FFFFFF !important;
             padding: 8px 12px !important;
             border-radius: 6px !important;
             font-weight: 600 !important;
         }
 
-        /* 7. Toast Notification (Centered, smooth fade) */
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, -60%); }
-            15% { opacity: 1; transform: translate(-50%, -50%); }
-            85% { opacity: 1; transform: translate(-50%, -50%); }
-            100% { opacity: 0; transform: translate(-50%, -40%); }
+        /* 7. Toast Notification (Top-Center, smooth fade) */
+        @keyframes fadeInOutTop {
+            0% { opacity: 0; transform: translate(-50%, -20px); }
+            10% { opacity: 1; transform: translate(-50%, 0); }
+            90% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
         }
         .custom-toast {
             position: fixed;
-            top: 50%;
+            top: 20px;
             left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #3674B5 !important;
+            transform: translateX(-50%);
+            background-color: #FF9B51 !important;
             color: #FFFFFF !important;
-            padding: 20px 40px !important;
-            border-radius: 12px !important;
+            padding: 12px 24px !important;
+            border-radius: 8px !important;
             z-index: 10000;
             display: flex;
             align-items: center;
-            gap: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2) !important;
-            animation: fadeInOut 4s ease-in-out forwards;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(255, 155, 81, 0.3) !important;
+            animation: fadeInOutTop 4s ease-in-out forwards;
             font-weight: 600 !important;
-            font-size: 1.1rem !important;
-            min-width: 300px;
+            font-size: 0.95rem !important;
+            min-width: 200px;
             justify-content: center;
         }
 
         /* 8. Table Styling */
         [data-testid="stDataFrame"], [data-testid="stTable"] {
-            border: 1px solid #E5E7EB !important;
+            border: 1px solid #BFC9D1 !important;
             border-radius: 8px !important;
             overflow: hidden !important;
         }
@@ -148,7 +152,7 @@ def inject_global_css():
         /* 9. Container Border (Cards) */
         [data-testid="stVerticalBlockBorderWrapper"] {
             background-color: #FFFFFF !important;
-            border: 1px solid #E5E7EB !important;
+            border: 1px solid #BFC9D1 !important;
             border-radius: 8px !important;
             padding: 10px !important;
         }
@@ -169,7 +173,7 @@ inject_global_css()
 # HELPER FUNCTIONS
 # ======================
 def show_toast(message: str):
-    """Menampilkan notifikasi toast custom di pojok kanan atas."""
+    """Menampilkan notifikasi toast custom di posisi top-center."""
     st.markdown(
         f"""
         <div class="custom-toast">
@@ -556,9 +560,9 @@ def grafik_dashboard():
     with st.container(border=True):
         st.subheader("Grafik Komponen Nilai")
         fig, ax = plt.subplots(figsize=(10, 5))
-        ax.plot(filtered["label"], filtered["twk"], marker="o", label="TWK", color="#3674B5")
-        ax.plot(filtered["label"], filtered["tiu"], marker="o", label="TIU", color="#578FCA")
-        ax.plot(filtered["label"], filtered["tkp"], marker="o", label="TKP", color="#FADA7A")
+        ax.plot(filtered["label"], filtered["twk"], marker="o", label="TWK", color="#25343F")
+        ax.plot(filtered["label"], filtered["tiu"], marker="o", label="TIU", color="#BFC9D1")
+        ax.plot(filtered["label"], filtered["tkp"], marker="o", label="TKP", color="#FF9B51")
         # ax.set_xlabel("User")
         ax.set_ylabel("Nilai")
         ax.set_title(f"Komponen Nilai SKD ({pilih_skd})")
@@ -570,7 +574,7 @@ def grafik_dashboard():
     with st.container(border=True):
         st.subheader("Grafik Total Nilai")
         fig2, ax2 = plt.subplots(figsize=(10, 5))
-        ax2.plot(filtered["label"], filtered["total"], marker="o", color='#3674B5')
+        ax2.plot(filtered["label"], filtered["total"], marker="o", color='#25343F')
         # ax2.set_xlabel("User")
         ax2.set_ylabel("Total Nilai")
         ax2.set_title(f"Total Nilai SKD ({pilih_skd})")
@@ -604,9 +608,9 @@ def user_personal_dashboard(user: dict):
         st.subheader("Grafik Komponen Nilai (Per Percobaan)")
         fig, ax = plt.subplots()
         x = df["skd_ke"]
-        ax.plot(x, df["twk"], marker="o", label="TWK", color="#3674B5")
-        ax.plot(x, df["tiu"], marker="o", label="TIU", color="#578FCA")
-        ax.plot(x, df["tkp"], marker="o", label="TKP", color="#FADA7A")
+        ax.plot(x, df["twk"], marker="o", label="TWK", color="#25343F")
+        ax.plot(x, df["tiu"], marker="o", label="TIU", color="#BFC9D1")
+        ax.plot(x, df["tkp"], marker="o", label="TKP", color="#FF9B51")
         # ax.set_xlabel("Percobaan (SKD ke-)")
         ax.set_ylabel("Nilai")
         ax.set_title("Perkembangan Nilai TWK / TIU / TKP")
@@ -620,7 +624,7 @@ def user_personal_dashboard(user: dict):
     with st.container(border=True):
         st.subheader("Grafik Total Nilai")
         fig2, ax2 = plt.subplots()
-        ax2.plot(x, df["total"], marker="o", color="#3674B5")
+        ax2.plot(x, df["total"], marker="o", color="#25343F")
         # ax2.set_xlabel("Percobaan (SKD ke-)")
         ax2.set_ylabel("Total Nilai")
         ax2.set_title("Perkembangan Total Nilai SKD")
