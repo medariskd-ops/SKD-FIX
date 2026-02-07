@@ -36,7 +36,7 @@ def inject_global_css():
         /* 1. Global Background & Text */
         .stApp {
             background-color: #EAEFEF !important;
-            color: #FFFFFF !important;
+            color: #25343F !important;
         }
         
         [data-testid="stSidebar"] {
@@ -111,7 +111,7 @@ def inject_global_css():
         [data-testid="baseButton-secondary"] {
             background-color: #FFFFFF !important;
             color: #FFFFFF !important;
-            border: 1px solid #25343F !important;
+            border: 1px solid #FFFFFF !important;
             border-radius: 6px !important;
         }
         div.stDownloadButton > button:hover,
