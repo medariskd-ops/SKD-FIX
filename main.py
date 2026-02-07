@@ -149,11 +149,6 @@ def inject_global_css():
 
 inject_global_css()
 
-# Cek apakah ada notifikasi tertunda di session state
-if "toast_msg" in st.session_state:
-    show_toast(st.session_state.toast_msg)
-    del st.session_state.toast_msg
-
 
 # ======================
 # HELPER FUNCTIONS
@@ -205,6 +200,12 @@ def fetch_latest_score(user_id: str):
     """Ambil nilai terbaru user dari tabel scores."""
     scores = fetch_user_scores(user_id)
     return scores[0] if scores else None
+
+
+# Cek apakah ada notifikasi tertunda di session state (setelah fungsi didefinisikan)
+if "toast_msg" in st.session_state:
+    show_toast(st.session_state.toast_msg)
+    del st.session_state.toast_msg
 
 
 def admin_user_management():
@@ -651,7 +652,7 @@ def admin_maintenance():
                 # 2. Hapus semua user dengan role 'user'
                 supabase.table("users").delete().eq("role", "user").execute()
                 
-                st.success("✅ Semua data SKD dan akun user berhasil dihapus!")
+                st.session_state.toast_msg = "Semua data berhasil direset"
                 st.balloons()
                 
                 # Beri sedikit jeda lalu rerun
