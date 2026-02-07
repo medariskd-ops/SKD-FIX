@@ -317,6 +317,93 @@ def render_skd_chart(df, title, is_component=True):
     return fig
 
 
+@st.cache_data(show_spinner=False)
+def render_full_report_as_bytes(df, title):
+    """
+    Render laporan lengkap (Tabel + Grafik) dalam satu gambar PNG dan kembalikan sebagai bytes.
+    """
+    if df.empty:
+        return None
+
+    # Pastikan data terurut
+    if "skd_ke" in df.columns:
+        df = df.sort_values("skd_ke")
+
+    num_data = len(df)
+
+    # Estimasi tinggi dinamis
+    table_height = max(2, (num_data + 1) * 0.4)
+    chart_height = 5
+    total_height = table_height + (chart_height * 2) + 1.5
+
+    # Lebar dinamis
+    dynamic_width = max(10, num_data * 0.8)
+
+    fig = plt.figure(figsize=(dynamic_width, total_height), dpi=100)
+    try:
+        # 3 bagian: Tabel, Grafik Komponen, Grafik Total
+        gs = fig.add_gridspec(3, 1, height_ratios=[table_height, chart_height, chart_height], hspace=0.3)
+
+        ax_table = fig.add_subplot(gs[0])
+        ax_comp = fig.add_subplot(gs[1])
+        ax_total = fig.add_subplot(gs[2])
+
+        # 1. TABEL
+        ax_table.axis('off')
+        cols_to_show = ["skd_ke", "twk", "tiu", "tkp", "total"]
+        if "nama" in df.columns and len(df["nama"].unique()) > 1:
+            cols_to_show = ["nama"] + cols_to_show
+
+        table_data = df[cols_to_show].copy()
+        rename_map = {"skd_ke": "SKD ke-", "twk": "TWK", "tiu": "TIU", "tkp": "TKP", "total": "Total", "nama": "Nama"}
+        table_data = table_data.rename(columns=rename_map)
+
+        the_table = ax_table.table(
+            cellText=table_data.values,
+            colLabels=table_data.columns,
+            cellLoc='center',
+            loc='center'
+        )
+        the_table.auto_set_font_size(False)
+        the_table.set_fontsize(10)
+        the_table.scale(1.0, 1.8)
+
+        # Styling header tabel
+        for (row, col), cell in the_table.get_celld().items():
+            if row == 0:
+                cell.set_text_props(weight='bold', color='white')
+                cell.set_facecolor('#25343F')
+            elif row > 0:
+                cell.set_facecolor('#F8F9F9')
+
+        # 2. GRAFIK KOMPONEN
+        ax_comp.plot(df["label"], df["twk"], marker="o", label="TWK", color="#25343F", linewidth=2)
+        ax_comp.plot(df["label"], df["tiu"], marker="o", label="TIU", color="#BFC9D1", linewidth=2)
+        ax_comp.plot(df["label"], df["tkp"], marker="o", label="TKP", color="#FF9B51", linewidth=2)
+        ax_comp.set_ylabel("Nilai")
+        ax_comp.set_title("Grafik Komponen Nilai SKD", fontsize=12, fontweight='bold', pad=10)
+        ax_comp.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        ax_comp.grid(True, linestyle='--', alpha=0.6)
+        ax_comp.tick_params(axis='x', rotation=45)
+
+        # 3. GRAFIK TOTAL
+        ax_total.plot(df["label"], df["total"], marker="o", color='#25343F', linewidth=2.5, label="Total")
+        ax_total.set_ylabel("Total Nilai")
+        ax_total.set_title("Grafik Total Nilai SKD", fontsize=12, fontweight='bold', pad=10)
+        ax_total.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        ax_total.grid(True, linestyle='--', alpha=0.6)
+        ax_total.tick_params(axis='x', rotation=45)
+
+        fig.suptitle(title, fontsize=16, fontweight='bold', y=0.98)
+        plt.tight_layout(rect=[0, 0, 1, 0.97])
+
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", bbox_inches="tight")
+        return buf.getvalue()
+    finally:
+        plt.close(fig)
+
+
 # Cek apakah ada notifikasi tertunda di session state (setelah fungsi didefinisikan)
 if "toast_msg" in st.session_state:
     show_toast(st.session_state.toast_msg)
@@ -742,15 +829,7 @@ def admin_grafik_nilai():
         st.warning(f"Tidak ada data untuk filter: {pilih_skd}")
         return
 
-    # Tampilkan Tabel
-    with st.container(border=True):
-        st.subheader("Data Riwayat SKD")
-        cols_to_show = ["nama", "skd_ke", "twk", "tiu", "tkp", "total"]
-        st.dataframe(filtered[cols_to_show], use_container_width=True, hide_index=True)
-
-        if st.button("🖨️ Cetak Nilai & Diagram"):
-            st.components.v1.html("<script>window.parent.print();</script>", height=0)
-
+    # Siapkan Label untuk Grafik & Report
     if pilih_skd in ["Semua", "Rentang"]:
         if pilih_user == "Semua User":
             filtered["label"] = filtered["nama"] + " (SKD " + filtered["skd_ke"].astype(str) + ")"
@@ -758,6 +837,30 @@ def admin_grafik_nilai():
             filtered["label"] = "SKD ke-" + filtered["skd_ke"].astype(str)
     else:
         filtered["label"] = filtered["nama"]
+
+    # Tampilkan Tabel
+    with st.container(border=True):
+        st.subheader("Data Riwayat SKD")
+        cols_to_show = ["nama", "skd_ke", "twk", "tiu", "tkp", "total"]
+        st.dataframe(filtered[cols_to_show], use_container_width=True, hide_index=True)
+
+        col_c1, col_c2 = st.columns(2)
+        with col_c1:
+            if st.button("🖨️ Cetak Halaman", use_container_width=True):
+                st.components.v1.html("<script>window.parent.print();</script>", height=0)
+
+        with col_c2:
+            # Tombol Download Laporan Gabungan (PNG)
+            report_title = f"Laporan SKD: {pilih_user} ({pilih_skd})"
+            report_bytes = render_full_report_as_bytes(filtered, report_title)
+            if report_bytes:
+                st.download_button(
+                    label="📥 Download Laporan (PNG)",
+                    data=report_bytes,
+                    file_name=f"laporan_skd_{pilih_user}_{pilih_skd}.png",
+                    mime="image/png",
+                    use_container_width=True
+                )
 
     with st.container(border=True):
         st.subheader("Grafik Komponen Nilai")
@@ -824,8 +927,24 @@ def user_personal_dashboard(user: dict):
         st.subheader("Riwayat Nilai")
         cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df.columns]
         st.dataframe(df[cols], use_container_width=True, hide_index=True)
-        if st.button("🖨️ Cetak Nilai & Diagram"):
-            st.components.v1.html("<script>window.parent.print();</script>", height=0)
+
+        col_c1, col_c2 = st.columns(2)
+        with col_c1:
+            if st.button("🖨️ Cetak Halaman", use_container_width=True):
+                st.components.v1.html("<script>window.parent.print();</script>", height=0)
+
+        with col_c2:
+            # Tombol Download Laporan Gabungan (PNG)
+            report_title = f"Laporan Hasil SKD: {user.get('nama')}"
+            report_bytes = render_full_report_as_bytes(df, report_title)
+            if report_bytes:
+                st.download_button(
+                    label="📥 Download Laporan (PNG)",
+                    data=report_bytes,
+                    file_name=f"laporan_skd_{user.get('nama')}.png",
+                    mime="image/png",
+                    use_container_width=True
+                )
 
     with st.container(border=True):
         st.subheader("Grafik Komponen Nilai (Per Percobaan)")
