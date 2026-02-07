@@ -91,9 +91,9 @@ def inject_global_css():
         div.stButton > button, 
         div[data-testid="stFormSubmitButton"] > button,
         [data-testid="baseButton-primary"] {
-            background-color: #FFFFFF !important;
+            background-color: #25343F !important;
             color: #FFFFFF !important;
-            border: 1px solid #BFC9D1 !important;
+            border: 1px solid #25343F !important;
             border-radius: 6px !important;
             padding: 10px 20px !important;
             font-weight: 600 !important;
@@ -110,15 +110,15 @@ def inject_global_css():
         div.stDownloadButton > button,
         [data-testid="baseButton-secondary"] {
             background-color: #FFFFFF !important;
-            color: #FFFFFF !important;
-            border: 1px solid #FFFFFF !important;
+            color: #25343F !important;
+            border: 1px solid #BFC9D1 !important;
             border-radius: 6px !important;
         }
         div.stDownloadButton > button:hover,
         [data-testid="baseButton-secondary"]:hover {
             background-color: #f8f9f9 !important;
-            color: #FFFFFF !important;
-            border-color: #354a5a !important;
+            color: #25343F !important;
+            border-color: #25343F !important;
         }
 
         /* Accent Elements */
@@ -348,6 +348,40 @@ def admin_user_management():
                     st.info("User ini belum memiliki riwayat nilai.")
             else:
                 st.info("Belum ada user untuk diedit nilainya.")
+
+    st.markdown("---")
+
+    # Hapus Nilai SKD User (Admin)
+    with st.container(border=True):
+        st.subheader("Hapus Nilai SKD User")
+        users = fetch_all_users()
+        if users:
+            nama_list_del_score = [u["nama"] for u in users if u["role"] != "admin"]
+            if nama_list_del_score:
+                nama_pilih_del_score = st.selectbox("Pilih User untuk dihapus nilainya", nama_list_del_score, key="admin_delete_score_user")
+                user_pilih_del_score = next(u for u in users if u["nama"] == nama_pilih_del_score)
+
+                user_scores = fetch_user_scores(user_pilih_del_score["id"])
+                if user_scores:
+                    df_user_scores_del = pd.DataFrame(user_scores)
+                    if "created_at" in df_user_scores_del.columns:
+                        df_user_scores_del = df_user_scores_del.sort_values("created_at")
+                    df_user_scores_del["skd_ke"] = range(1, len(df_user_scores_del) + 1)
+
+                    del_options_admin = [f"SKD ke-{row['skd_ke']}" for _, row in df_user_scores_del.iterrows()]
+                    pilih_skd_del_admin = st.selectbox("Pilih Percobaan yang akan dihapus", del_options_admin, key="admin_delete_score_week")
+
+                    idx_pilih_del_admin = int(pilih_skd_del_admin.split("-")[-1])
+                    data_pilih_del_admin = df_user_scores_del[df_user_scores_del["skd_ke"] == idx_pilih_del_admin].iloc[0]
+
+                    if st.button(f"Hapus {pilih_skd_del_admin} untuk {nama_pilih_del_score}", key="btn_del_score"):
+                        supabase.table("scores").delete().eq("id", data_pilih_del_admin["id"]).execute()
+                        st.session_state.toast_msg = f"Nilai {pilih_skd_del_admin} untuk {nama_pilih_del_score} berhasil dihapus"
+                        st.rerun()
+                else:
+                    st.info("User ini belum memiliki riwayat nilai.")
+            else:
+                st.info("Belum ada user untuk dihapus nilainya.")
 
 
 def user_self_page(user: dict):
