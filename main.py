@@ -13,70 +13,66 @@ st.set_page_config(
 
 
 def inject_global_css():
-    """Menerapkan Design System baru: Minimalis, Profesional, dan Modern."""
     st.markdown(
         """
         <style>
-        /* ... (kode bagian 1-6 tetap sama) ... */
-
-        /* 7. Toast Notification (Center Screen, High Contrast) */
-        @keyframes fadeInOutCenter {
-            0% { opacity: 0; transform: translate(-50%, -60%) scale(0.9); }
-            15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -40%) scale(0.9); }
+        /* 1. Global Background & Text */
+        .stApp {
+            background-color: #EAEFEF !important;
+            color: #25343F !important;
         }
         
+        /* 7. Toast Notification (Fixed Middle Screen) */
+        @keyframes fadeInOutCenter {
+            0% { opacity: 0; transform: translate(-50%, -60%) scale(0.9); }
+            10% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            90% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -40%) scale(0.9); }
+        }
+
         .custom-toast-container {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 99999; /* Sangat tinggi agar tidak tertutup elemen lain */
-            pointer-events: none; /* Agar tidak menghalangi klik di belakangnya */
+            z-index: 999999;
+            pointer-events: none;
         }
 
         .custom-toast {
-            background-color: #25343F !important; /* Warna gelap agar teks putih kontras */
-            color: #FFFFFF !important;
-            padding: 16px 32px !important;
+            background-color: #FF9B51 !important; /* Warna Orange Aksen */
+            color: #25343F !important;            /* Teks Navy agar kontras (Bukan Putih!) */
+            padding: 20px 40px !important;
             border-radius: 12px !important;
             display: flex;
             align-items: center;
             gap: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+            box-shadow: 0 15px 35px rgba(37, 52, 63, 0.2) !important;
             animation: fadeInOutCenter 4s ease-in-out forwards;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
             font-size: 1.1rem !important;
-            border: 2px solid #FF9B51 !important; /* Border accent agar tetap terlihat modern */
-            min-width: 300px;
-            text-align: center;
+            border: 2px solid #25343F;
+            min-width: 320px;
             justify-content: center;
         }
-
-        /* ... (kode bagian 8-10 tetap sama) ... */
         </style>
         """,
         unsafe_allow_html=True,
     )
 
-# ======================
-# HELPER FUNCTIONS
-# ======================
 def show_toast(message: str):
-    """Menampilkan notifikasi toast di tengah layar selama 4 detik."""
+    # Menggunakan st.chat_message atau placeholder agar tidak memakan space layout
     st.markdown(
         f"""
         <div class="custom-toast-container">
             <div class="custom-toast">
-                <span style="font-size: 1.5rem;">✨</span>
+                <span>⚡</span>
                 <span>{message}</span>
             </div>
         </div>
         """,
         unsafe_allow_html=True
     )
-
 def fetch_all_users():
     response = supabase.table("users").select("*").execute()
     return getattr(response, "data", []) or []
