@@ -231,249 +231,253 @@ if "toast_msg" in st.session_state:
 def admin_user_management():
     st.header("👤 User Management (Admin)")
 
-    users = fetch_all_users()
-    with st.container(border=True):
-        if users:
-            df = pd.DataFrame(users)
-            # Sesuai permintaan, daftar user hanya menampilkan nama dan role
-            cols = [c for c in ["nama", "role"] if c in df.columns]
+    tab1, tab2 = st.tabs(["👥 Kelola Akun", "📊 Kelola Nilai"])
 
-            st.subheader("Daftar User")
-            st.dataframe(df[cols], use_container_width=True)
-        else:
-            st.info("Belum ada user di database.")
-
-    st.markdown("---")
-
-    # Edit user
-    with st.container(border=True):
-        st.subheader("Edit User")
+    with tab1:
         users = fetch_all_users()
-        if users:
-            nama_list = [u["nama"] for u in users]
-            nama_pilih = st.selectbox("Pilih User", nama_list, key="edit_user_select")
-            user_pilih = next(u for u in users if u["nama"] == nama_pilih)
+        with st.container(border=True):
+            if users:
+                df = pd.DataFrame(users)
+                # Sesuai permintaan, daftar user hanya menampilkan nama dan role
+                cols = [c for c in ["nama", "role"] if c in df.columns]
 
-            current_role = user_pilih.get("role", "user")
+                st.subheader("Daftar User")
+                st.dataframe(df[cols], use_container_width=True)
+            else:
+                st.info("Belum ada user di database.")
 
-            with st.form("edit_user"):
-                new_password = st.text_input(
-                    "Password baru (kosongkan jika tidak diubah)", type="password"
+        st.markdown("---")
+
+        # Edit user
+        with st.container(border=True):
+            st.subheader("Edit User")
+            users = fetch_all_users()
+            if users:
+                nama_list = [u["nama"] for u in users]
+                nama_pilih = st.selectbox("Pilih User", nama_list, key="edit_user_select")
+                user_pilih = next(u for u in users if u["nama"] == nama_pilih)
+
+                current_role = user_pilih.get("role", "user")
+
+                with st.form("edit_user"):
+                    new_password = st.text_input(
+                        "Password baru (kosongkan jika tidak diubah)", type="password"
+                    )
+                    new_role = st.selectbox(
+                        "Role",
+                        ["admin", "user"],
+                        index=0 if current_role == "admin" else 1,
+                    )
+
+                    submitted_edit = st.form_submit_button("Simpan Perubahan")
+
+                if submitted_edit:
+                    update_data = {
+                        "role": new_role,
+                    }
+                    if new_password:
+                        password_hash = bcrypt.hashpw(
+                            new_password.encode("utf-8"), bcrypt.gensalt()
+                        ).decode("utf-8")
+                        update_data["password"] = password_hash
+
+                    supabase.table("users").update(update_data).eq(
+                        "id", user_pilih["id"]
+                    ).execute()
+                    st.session_state.toast_msg = "User berhasil diupdate"
+                    st.rerun()
+
+        st.markdown("---")
+
+        # Hapus user
+        with st.container(border=True):
+            st.subheader("Hapus User")
+            users = fetch_all_users()
+            if users:
+                nama_list_hapus = [u["nama"] for u in users]
+                nama_hapus = st.selectbox(
+                    "Pilih User untuk dihapus", nama_list_hapus, key="delete_user_select"
                 )
-                new_role = st.selectbox(
-                    "Role",
-                    ["admin", "user"],
-                    index=0 if current_role == "admin" else 1,
-                )
+                user_hapus = next(u for u in users if u["nama"] == nama_hapus)
 
-                submitted_edit = st.form_submit_button("Simpan Perubahan")
+                if st.button("Hapus User"):
+                    supabase.table("users").delete().eq("id", user_hapus["id"]).execute()
+                    st.session_state.toast_msg = "User berhasil dihapus"
+                    st.rerun()
 
-        if submitted_edit:
-            update_data = {
-                "role": new_role,
-            }
-            if new_password:
-                password_hash = bcrypt.hashpw(
-                    new_password.encode("utf-8"), bcrypt.gensalt()
-                ).decode("utf-8")
-                update_data["password"] = password_hash
-
-            supabase.table("users").update(update_data).eq(
-                "id", user_pilih["id"]
-            ).execute()
-            st.session_state.toast_msg = "User berhasil diupdate"
-            st.rerun()
-
-    st.markdown("---")
-
-    # Hapus user
-    with st.container(border=True):
-        st.subheader("Hapus User")
-        users = fetch_all_users()
-        if users:
-            nama_list_hapus = [u["nama"] for u in users]
-            nama_hapus = st.selectbox(
-                "Pilih User untuk dihapus", nama_list_hapus, key="delete_user_select"
-            )
-            user_hapus = next(u for u in users if u["nama"] == nama_hapus)
-
-            if st.button("Hapus User"):
-                supabase.table("users").delete().eq("id", user_hapus["id"]).execute()
-                st.session_state.toast_msg = "User berhasil dihapus"
-                st.rerun()
-
-    st.markdown("---")
-
-    # Edit Nilai User (Admin)
-    with st.container(border=True):
-        st.subheader("Edit Nilai SKD User")
-        users = fetch_all_users()
-        if users:
-            nama_list_score = [u["nama"] for u in users if u["role"] != "admin"]
-            if nama_list_score:
-                nama_pilih_score = st.selectbox("Pilih User untuk diedit nilainya", nama_list_score, key="admin_edit_score_user")
-                user_pilih_score = next(u for u in users if u["nama"] == nama_pilih_score)
-                
-                user_scores = fetch_user_scores(user_pilih_score["id"])
-                if user_scores:
-                    df_user_scores = pd.DataFrame(user_scores)
-                    if "created_at" in df_user_scores.columns:
-                        df_user_scores = df_user_scores.sort_values("created_at")
-                    df_user_scores["skd_ke"] = range(1, len(df_user_scores) + 1)
+    with tab2:
+        # Edit Nilai SKD User (Admin)
+        with st.container(border=True):
+            st.subheader("Edit Nilai SKD User")
+            users = fetch_all_users()
+            if users:
+                nama_list_score = [u["nama"] for u in users if u["role"] != "admin"]
+                if nama_list_score:
+                    nama_pilih_score = st.selectbox("Pilih User untuk diedit nilainya", nama_list_score, key="admin_edit_score_user")
+                    user_pilih_score = next(u for u in users if u["nama"] == nama_pilih_score)
                     
-                    edit_options_admin = [f"SKD ke-{row['skd_ke']}" for _, row in df_user_scores.iterrows()]
-                    pilih_skd_admin = st.selectbox("Pilih Percobaan (Minggu)", edit_options_admin, key="admin_edit_score_week")
-                    
-                    idx_pilih_admin = int(pilih_skd_admin.split("-")[-1])
-                    data_pilih_admin = df_user_scores[df_user_scores["skd_ke"] == idx_pilih_admin].iloc[0]
-
-                    with st.form("admin_edit_nilai_form"):
-                        ae_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih_admin["twk"]))
-                        ae_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih_admin["tiu"]))
-                        ae_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih_admin["tkp"]))
-                        submitted_admin_edit_score = st.form_submit_button("Simpan Perubahan Nilai User")
-
-                    if submitted_admin_edit_score:
-                        ae_total = ae_twk + ae_tiu + ae_tkp
-                        supabase.table("scores").update({
-                            "twk": ae_twk,
-                            "tiu": ae_tiu,
-                            "tkp": ae_tkp,
-                            "total": ae_total
-                        }).eq("id", data_pilih_admin["id"]).execute()
+                    user_scores = fetch_user_scores(user_pilih_score["id"])
+                    if user_scores:
+                        df_user_scores = pd.DataFrame(user_scores)
+                        if "created_at" in df_user_scores.columns:
+                            df_user_scores = df_user_scores.sort_values("created_at")
+                        df_user_scores["skd_ke"] = range(1, len(df_user_scores) + 1)
                         
-                        st.session_state.toast_msg = f"Nilai {nama_pilih_score} berhasil diperbarui"
-                        st.rerun()
+                        edit_options_admin = [f"SKD ke-{row['skd_ke']}" for _, row in df_user_scores.iterrows()]
+                        pilih_skd_admin = st.selectbox("Pilih Percobaan (Minggu)", edit_options_admin, key="admin_edit_score_week")
+                        
+                        idx_pilih_admin = int(pilih_skd_admin.split("-")[-1])
+                        data_pilih_admin = df_user_scores[df_user_scores["skd_ke"] == idx_pilih_admin].iloc[0]
+
+                        with st.form("admin_edit_nilai_form"):
+                            ae_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih_admin["twk"]))
+                            ae_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih_admin["tiu"]))
+                            ae_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih_admin["tkp"]))
+                            submitted_admin_edit_score = st.form_submit_button("Simpan Perubahan Nilai User")
+
+                        if submitted_admin_edit_score:
+                            ae_total = ae_twk + ae_tiu + ae_tkp
+                            supabase.table("scores").update({
+                                "twk": ae_twk,
+                                "tiu": ae_tiu,
+                                "tkp": ae_tkp,
+                                "total": ae_total
+                            }).eq("id", data_pilih_admin["id"]).execute()
+                            
+                            st.session_state.toast_msg = f"Nilai {nama_pilih_score} berhasil diperbarui"
+                            st.rerun()
+                    else:
+                        st.info("User ini belum memiliki riwayat nilai.")
                 else:
-                    st.info("User ini belum memiliki riwayat nilai.")
-            else:
-                st.info("Belum ada user untuk diedit nilainya.")
+                    st.info("Belum ada user untuk diedit nilainya.")
 
-    st.markdown("---")
+        st.markdown("---")
 
-    # Hapus Nilai SKD User (Admin)
-    with st.container(border=True):
-        st.subheader("Hapus Nilai SKD User")
-        users = fetch_all_users()
-        if users:
-            nama_list_del_score = [u["nama"] for u in users if u["role"] != "admin"]
-            if nama_list_del_score:
-                nama_pilih_del_score = st.selectbox("Pilih User untuk dihapus nilainya", nama_list_del_score, key="admin_delete_score_user")
-                user_pilih_del_score = next(u for u in users if u["nama"] == nama_pilih_del_score)
-                
-                user_scores = fetch_user_scores(user_pilih_del_score["id"])
-                if user_scores:
-                    df_user_scores_del = pd.DataFrame(user_scores)
-                    if "created_at" in df_user_scores_del.columns:
-                        df_user_scores_del = df_user_scores_del.sort_values("created_at")
-                    df_user_scores_del["skd_ke"] = range(1, len(df_user_scores_del) + 1)
+        # Hapus Nilai SKD User (Admin)
+        with st.container(border=True):
+            st.subheader("Hapus Nilai SKD User")
+            users = fetch_all_users()
+            if users:
+                nama_list_del_score = [u["nama"] for u in users if u["role"] != "admin"]
+                if nama_list_del_score:
+                    nama_pilih_del_score = st.selectbox("Pilih User untuk dihapus nilainya", nama_list_del_score, key="admin_delete_score_user")
+                    user_pilih_del_score = next(u for u in users if u["nama"] == nama_pilih_del_score)
                     
-                    del_options_admin = [f"SKD ke-{row['skd_ke']}" for _, row in df_user_scores_del.iterrows()]
-                    pilih_skd_del_admin = st.selectbox("Pilih Percobaan yang akan dihapus", del_options_admin, key="admin_delete_score_week")
-                    
-                    idx_pilih_del_admin = int(pilih_skd_del_admin.split("-")[-1])
-                    data_pilih_del_admin = df_user_scores_del[df_user_scores_del["skd_ke"] == idx_pilih_del_admin].iloc[0]
+                    user_scores = fetch_user_scores(user_pilih_del_score["id"])
+                    if user_scores:
+                        df_user_scores_del = pd.DataFrame(user_scores)
+                        if "created_at" in df_user_scores_del.columns:
+                            df_user_scores_del = df_user_scores_del.sort_values("created_at")
+                        df_user_scores_del["skd_ke"] = range(1, len(df_user_scores_del) + 1)
+                        
+                        del_options_admin = [f"SKD ke-{row['skd_ke']}" for _, row in df_user_scores_del.iterrows()]
+                        pilih_skd_del_admin = st.selectbox("Pilih Percobaan yang akan dihapus", del_options_admin, key="admin_delete_score_week")
+                        
+                        idx_pilih_del_admin = int(pilih_skd_del_admin.split("-")[-1])
+                        data_pilih_del_admin = df_user_scores_del[df_user_scores_del["skd_ke"] == idx_pilih_del_admin].iloc[0]
 
-                    if st.button(f"Hapus {pilih_skd_del_admin} untuk {nama_pilih_del_score}", key="btn_del_score"):
-                        supabase.table("scores").delete().eq("id", data_pilih_del_admin["id"]).execute()
-                        st.session_state.toast_msg = f"Nilai {pilih_skd_del_admin} untuk {nama_pilih_del_score} berhasil dihapus"
-                        st.rerun()
+                        if st.button(f"Hapus {pilih_skd_del_admin} untuk {nama_pilih_del_score}", key="btn_del_score"):
+                            supabase.table("scores").delete().eq("id", data_pilih_del_admin["id"]).execute()
+                            st.session_state.toast_msg = f"Nilai {pilih_skd_del_admin} untuk {nama_pilih_del_score} berhasil dihapus"
+                            st.rerun()
+                    else:
+                        st.info("User ini belum memiliki riwayat nilai.")
                 else:
-                    st.info("User ini belum memiliki riwayat nilai.")
-            else:
-                st.info("Belum ada user untuk dihapus nilainya.")
+                    st.info("Belum ada user untuk dihapus nilainya.")
 
 
 def user_self_page(user: dict):
     st.header("📑 Profil & Nilai Saya")
     
-    with st.container(border=True):
-        st.write(f"Nama: **{user.get('nama')}**")
-        st.write(f"Role: **{user.get('role', 'user')}**")
+    tab1, tab2 = st.tabs(["📊 Nilai SKD", "👤 Profil Saya"])
 
-    st.markdown("---")
-    
-    with st.container(border=True):
-        st.subheader("Input / Update Nilai SKD")
-
-        latest = fetch_latest_score(user["id"])
-        current_twk = (latest or {}).get("twk") or 0
-        current_tiu = (latest or {}).get("tiu") or 0
-        current_tkp = (latest or {}).get("tkp") or 0
-
-        with st.form("update_nilai_saya"):
-            twk = st.number_input("TWK", min_value=0, value=int(current_twk))
-            tiu = st.number_input("TIU", min_value=0, value=int(current_tiu))
-            tkp = st.number_input("TKP", min_value=0, value=int(current_tkp))
-            submitted_nilai = st.form_submit_button("Simpan Nilai")
-
-    if submitted_nilai:
-        total = twk + tiu + tkp
-        # Simpan sebagai percobaan baru di tabel scores
-        supabase.table("scores").insert(
-            {
-                "user_id": user["id"],
-                "twk": twk,
-                "tiu": tiu,
-                "tkp": tkp,
-                "total": total,
-            }
-        ).execute()
-
-        # Nilai sekarang hanya disimpan di tabel scores (history)
-        
-        # update juga di session supaya tampilan langsung ikut berubah
-        user.update({"twk": twk, "tiu": tiu, "tkp": tkp, "total": total})
-        st.session_state.user = user
-
-        st.session_state.toast_msg = "Nilai berhasil disimpan"
-        st.rerun()
-
-    st.markdown("---")
-
-    scores = fetch_user_scores(user["id"])
-    if scores:
-        df_scores = pd.DataFrame(scores)
-        if "created_at" in df_scores.columns:
-            df_scores = df_scores.sort_values("created_at")
-        df_scores["skd_ke"] = range(1, len(df_scores) + 1)
-        
+    with tab1:
         with st.container(border=True):
-            # Tampilkan riwayat
-            st.subheader("Riwayat Nilai SKD")
-            cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df_scores.columns]
-            st.dataframe(df_scores[cols], use_container_width=True)
+            st.subheader("Input / Update Nilai SKD")
 
-        st.markdown("---")
-        with st.container(border=True):
-            st.subheader("Edit Nilai Percobaan (SKD ke-n)")
-            
-            edit_options = [f"SKD ke-{row['skd_ke']}" for _, row in df_scores.iterrows()]
-            pilih_edit = st.selectbox("Pilih Percobaan yang Ingin Diubah", edit_options)
-            
-            idx_pilih = int(pilih_edit.split("-")[-1])
-            data_pilih = df_scores[df_scores["skd_ke"] == idx_pilih].iloc[0]
+            latest = fetch_latest_score(user["id"])
+            current_twk = (latest or {}).get("twk") or 0
+            current_tiu = (latest or {}).get("tiu") or 0
+            current_tkp = (latest or {}).get("tkp") or 0
 
-            with st.form("edit_nilai_user"):
-                e_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih["twk"]))
-                e_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih["tiu"]))
-                e_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih["tkp"]))
-                submitted_edit_score = st.form_submit_button("Simpan Perubahan Nilai")
+            with st.form("update_nilai_saya"):
+                twk = st.number_input("TWK", min_value=0, value=int(current_twk))
+                tiu = st.number_input("TIU", min_value=0, value=int(current_tiu))
+                tkp = st.number_input("TKP", min_value=0, value=int(current_tkp))
+                submitted_nilai = st.form_submit_button("Simpan Nilai")
 
-        if submitted_edit_score:
-            e_total = e_twk + e_tiu + e_tkp
-            supabase.table("scores").update({
-                "twk": e_twk,
-                "tiu": e_tiu,
-                "tkp": e_tkp,
-                "total": e_total
-            }).eq("id", data_pilih["id"]).execute()
+        if submitted_nilai:
+            total = twk + tiu + tkp
+            # Simpan sebagai percobaan baru di tabel scores
+            supabase.table("scores").insert(
+                {
+                    "user_id": user["id"],
+                    "twk": twk,
+                    "tiu": tiu,
+                    "tkp": tkp,
+                    "total": total,
+                }
+            ).execute()
+
+            # Nilai sekarang hanya disimpan di tabel scores (history)
             
-            st.session_state.toast_msg = f"Berhasil memperbarui {pilih_edit}"
+            # update juga di session supaya tampilan langsung ikut berubah
+            user.update({"twk": twk, "tiu": tiu, "tkp": tkp, "total": total})
+            st.session_state.user = user
+
+            st.session_state.toast_msg = "Nilai berhasil disimpan"
             st.rerun()
 
-    else:
-        st.info("Belum ada riwayat nilai. Silakan input nilai pertama Anda.")
+        st.markdown("---")
+
+        scores = fetch_user_scores(user["id"])
+        if scores:
+            df_scores = pd.DataFrame(scores)
+            if "created_at" in df_scores.columns:
+                df_scores = df_scores.sort_values("created_at")
+            df_scores["skd_ke"] = range(1, len(df_scores) + 1)
+            
+            with st.container(border=True):
+                # Tampilkan riwayat
+                st.subheader("Riwayat Nilai SKD")
+                cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df_scores.columns]
+                st.dataframe(df_scores[cols], use_container_width=True)
+
+            st.markdown("---")
+            with st.container(border=True):
+                st.subheader("Edit Nilai Percobaan (SKD ke-n)")
+                
+                edit_options = [f"SKD ke-{row['skd_ke']}" for _, row in df_scores.iterrows()]
+                pilih_edit = st.selectbox("Pilih Percobaan yang Ingin Diubah", edit_options)
+                
+                idx_pilih = int(pilih_edit.split("-")[-1])
+                data_pilih = df_scores[df_scores["skd_ke"] == idx_pilih].iloc[0]
+
+                with st.form("edit_nilai_user"):
+                    e_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih["twk"]))
+                    e_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih["tiu"]))
+                    e_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih["tkp"]))
+                    submitted_edit_score = st.form_submit_button("Simpan Perubahan Nilai")
+
+            if submitted_edit_score:
+                e_total = e_twk + e_tiu + e_tkp
+                supabase.table("scores").update({
+                    "twk": e_twk,
+                    "tiu": e_tiu,
+                    "tkp": e_tkp,
+                    "total": e_total
+                }).eq("id", data_pilih["id"]).execute()
+                
+                st.session_state.toast_msg = f"Berhasil memperbarui {pilih_edit}"
+                st.rerun()
+
+        else:
+            st.info("Belum ada riwayat nilai. Silakan input nilai pertama Anda.")
+
+    with tab2:
+        with st.container(border=True):
+            st.write(f"Nama: **{user.get('nama')}**")
+            st.write(f"Role: **{user.get('role', 'user')}**")
 
 
 def grafik_dashboard():
@@ -570,8 +574,12 @@ def grafik_dashboard():
     user_list = ["Semua User"] + sorted(df["nama"].unique().tolist())
     pilih_user = st.selectbox("Pilih User", user_list)
 
-    # Filter pilihan SKD
-    max_skd = int(df["skd_ke"].max()) if not df.empty else 0
+    # Filter pilihan SKD berdasarkan user terpilih
+    if pilih_user != "Semua User":
+        max_skd = int(df[df["nama"] == pilih_user]["skd_ke"].max()) if not df.empty else 0
+    else:
+        max_skd = int(df["skd_ke"].max()) if not df.empty else 0
+
     options = ["Terakhir", "Semua", "Rentang"] + [f"SKD ke-{i}" for i in range(1, max_skd + 1)]
     
     # Jika pilih user tertentu, default ke "Semua" riwayat dia
