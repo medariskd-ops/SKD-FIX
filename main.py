@@ -497,18 +497,31 @@ def grafik_dashboard():
     pilih_user = st.selectbox("Pilih User", user_list)
 
     # Filter pilihan SKD
-    max_skd = int(df["skd_ke"].max())
-    options = ["Terakhir"] + [f"SKD ke-{i}" for i in range(1, max_skd + 1)] + ["Semua"]
+    max_skd = int(df["skd_ke"].max()) if not df.empty else 0
+    options = ["Terakhir", "Semua", "Rentang"] + [f"SKD ke-{i}" for i in range(1, max_skd + 1)]
     
     # Jika pilih user tertentu, default ke "Semua" riwayat dia
-    default_skd_idx = 2 if pilih_user != "Semua User" else 0
+    default_skd_idx = 1 if pilih_user != "Semua User" else 0
     pilih_skd = st.selectbox("Pilih Percobaan SKD (Attempt)", options, index=default_skd_idx)
+
+    # Rentang Filter
+    rentang_aktif = False
+    if pilih_skd == "Rentang":
+        col_r1, col_r2 = st.columns(2)
+        with col_r1:
+            r_dari = st.number_input("Dari SKD ke-", min_value=1, max_value=max_skd, value=1)
+        with col_r2:
+            r_sampai = st.number_input("Sampai SKD ke-", min_value=r_dari, max_value=max_skd, value=max_skd)
+        rentang_aktif = True
 
     # Apply User Filter
     if pilih_user != "Semua User":
         df = df[df["nama"] == pilih_user]
 
-    if pilih_skd == "Terakhir":
+    if rentang_aktif:
+        filtered = df[(df["skd_ke"] >= r_dari) & (df["skd_ke"] <= r_sampai)]
+        st.subheader(f"Data SKD Rentang ke-{r_dari} sampai {r_sampai}")
+    elif pilih_skd == "Terakhir":
         # Ambil record terbaru untuk tiap user
         if "created_at" in df.columns:
             filtered = df.sort_values("created_at").groupby("user_id").tail(1)
@@ -540,13 +553,12 @@ def grafik_dashboard():
         
         st.dataframe(filtered[cols_to_show], use_container_width=True)
 
-        csv = filtered.to_csv(index=False).encode("utf-8")
-        st.download_button(
-            "Download CSV", 
-            csv, 
-            f"skd_data_{pilih_skd.replace(' ', '_')}.csv", 
-            "text/csv"
-        )
+        # Tombol Cetak
+        if st.button("🖨️ Cetak Nilai & Diagram"):
+            st.components.v1.html(
+                "<script>window.print();</script>",
+                height=0,
+            )
 
     # Label untuk grafik agar unik jika pilih "Semua"
     if pilih_skd == "Semua":
@@ -693,9 +705,7 @@ role = user.get("role", "user") if user else "user"
 # ======================
 # APP UTAMA
 # ======================
-st.title("📊 SKD Application")
 
-st.sidebar.title("Sidebar Navigation")
 menu_options = ["Dashboard", "User"]
 if role == "admin":
     menu_options.append("Maintenance")
