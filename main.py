@@ -91,7 +91,7 @@ def inject_global_css():
         div.stButton > button, 
         div[data-testid="stFormSubmitButton"] > button,
         [data-testid="baseButton-primary"] {
-            background-color: #25343F !important;
+            background-color: #FFFFFF !important;
             color: #FFFFFF !important;
             border: 1px solid #25343F !important;
             border-radius: 6px !important;
