@@ -36,7 +36,7 @@ def inject_global_css():
         /* 1. Global Background & Text */
         .stApp {
             background-color: #EAEFEF !important;
-            color: #25343F !important;
+            color: #FFFFFF !important;
         }
         
         [data-testid="stSidebar"] {
