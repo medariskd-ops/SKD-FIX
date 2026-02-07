@@ -97,7 +97,7 @@ def inject_global_css():
             border-radius: 6px !important;
             padding: 10px 20px !important;
             font-weight: 600 !important;
-            transition: all 0.3s ease !important;
+            transition: !important;
         }
         div.stButton > button:hover,
         div[data-testid="stFormSubmitButton"] > button:hover,
