@@ -309,9 +309,9 @@ def render_skd_chart(df, title, is_component=True):
     ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
     ax.grid(True, linestyle='--', alpha=0.6)
     
-    plt.xticks(rotation=45, ha='right', fontsize=9)
-    plt.yticks(fontsize=9)
-    plt.tight_layout()
+    ax.tick_params(axis='x', rotation=45, labelsize=9)
+    ax.tick_params(axis='y', labelsize=9)
+    fig.tight_layout()
     
     return fig
 
@@ -341,16 +341,20 @@ def render_report_page(df, title, content_type="table"):
         rename_map = {"skd_ke": "SKD ke-", "twk": "TWK", "tiu": "TIU", "tkp": "TKP", "total": "Total", "nama": "Nama"}
         table_data = table_data.rename(columns=rename_map)
         
+        num_rows = len(table_data)
+        # Dinamis font & scale agar tidak overlap dan pas di A4
+        dyn_font = max(6, min(10, 500 // (num_rows + 20)))
+        dyn_scale = max(1.1, min(2.5, 60 // (num_rows + 15)))
+
         the_table = ax.table(
             cellText=table_data.values,
             colLabels=table_data.columns,
             cellLoc='center',
-            loc='center'
+            loc='upper center'
         )
         the_table.auto_set_font_size(False)
-        the_table.set_fontsize(10)
-        # Scale lebih besar untuk mengisi halaman A4
-        the_table.scale(1.2, 2.5)
+        the_table.set_fontsize(dyn_font)
+        the_table.scale(1.2, dyn_scale)
         
         for (row, col), cell in the_table.get_celld().items():
             if row == 0:
@@ -359,8 +363,8 @@ def render_report_page(df, title, content_type="table"):
             elif row > 0:
                 cell.set_facecolor('#F8F9F9')
         
-        plt.title(title + "\n(Halaman 1: Tabel Nilai)", fontsize=16, fontweight='bold', pad=30, color=color_primary)
-        plt.subplots_adjust(top=0.9, bottom=0.1, left=0.1, right=0.9)
+        ax.set_title(title + "\n(Halaman 1: Tabel Nilai)", fontsize=16, fontweight='bold', pad=50, color=color_primary)
+        fig.subplots_adjust(top=0.85, bottom=0.05, left=0.1, right=0.9)
 
     else:
         # Grafik - 2 grafik ditumpuk vertikal
@@ -375,26 +379,32 @@ def render_report_page(df, title, content_type="table"):
         if "skd_ke" in df.columns:
             df = df.sort_values("skd_ke")
 
+        # Marker size & line width dinamis agar tidak berantakan saat data banyak
+        num_pts = len(df)
+        msize = max(2, min(8, 250 // (num_pts + 10)))
+        lwidth = max(1, min(3, 100 // (num_pts + 10)))
+        tick_size = max(5, min(9, 400 // (num_pts + 10)))
+
         # Grafik Komponen
-        ax_comp.plot(df["label"], df["twk"], marker="o", label="TWK", color=color_twk, linewidth=3)
-        ax_comp.plot(df["label"], df["tiu"], marker="o", label="TIU", color=color_tiu, linewidth=3)
-        ax_comp.plot(df["label"], df["tkp"], marker="o", label="TKP", color=color_tkp, linewidth=3)
+        ax_comp.plot(df["label"], df["twk"], marker="o", label="TWK", color=color_twk, linewidth=lwidth, markersize=msize)
+        ax_comp.plot(df["label"], df["tiu"], marker="o", label="TIU", color=color_tiu, linewidth=lwidth, markersize=msize)
+        ax_comp.plot(df["label"], df["tkp"], marker="o", label="TKP", color=color_tkp, linewidth=lwidth, markersize=msize)
         ax_comp.set_ylabel("Nilai", color=color_twk, fontweight='bold')
         ax_comp.set_title("Grafik Komponen Nilai SKD", fontsize=14, fontweight='bold', pad=10, color=color_twk)
         ax_comp.legend(loc='upper left', bbox_to_anchor=(1, 1))
         ax_comp.grid(True, linestyle='--', alpha=0.6)
-        ax_comp.tick_params(axis='x', rotation=45)
+        ax_comp.tick_params(axis='x', rotation=45, labelsize=tick_size)
 
         # Grafik Total
-        ax_total.plot(df["label"], df["total"], marker="o", color=color_twk, linewidth=3.5, label="Total")
+        ax_total.plot(df["label"], df["total"], marker="o", color=color_twk, linewidth=lwidth + 0.5, markersize=msize, label="Total")
         ax_total.set_ylabel("Total Nilai", color=color_twk, fontweight='bold')
         ax_total.set_title("Grafik Total Nilai SKD", fontsize=14, fontweight='bold', pad=10, color=color_twk)
         ax_total.legend(loc='upper left', bbox_to_anchor=(1, 1))
         ax_total.grid(True, linestyle='--', alpha=0.6)
-        ax_total.tick_params(axis='x', rotation=45)
+        ax_total.tick_params(axis='x', rotation=45, labelsize=tick_size)
         
         fig.suptitle(title + "\n(Halaman 2: Grafik Perkembangan)", fontsize=16, fontweight='bold', y=0.98, color=color_twk)
-        plt.subplots_adjust(top=0.88, bottom=0.12, left=0.15, right=0.85, hspace=0.4)
+        fig.subplots_adjust(top=0.88, bottom=0.12, left=0.15, right=0.85, hspace=0.4)
 
     buf = io.BytesIO()
     # Gunakan bbox_inches=None agar ukuran tetap A4 murni
