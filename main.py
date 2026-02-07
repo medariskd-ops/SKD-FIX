@@ -114,18 +114,18 @@ def inject_global_css():
             font-weight: 600 !important;
         }
 
-        /* 7. Toast Notification (Top-Center, smooth fade) */
-        @keyframes fadeInOutTop {
-            0% { opacity: 0; transform: translate(-50%, -20px); }
-            10% { opacity: 1; transform: translate(-50%, 0); }
-            90% { opacity: 1; transform: translate(-50%, 0); }
-            100% { opacity: 0; transform: translate(-50%, -20px); }
+        /* 7. Toast Notification (Center, smooth fade) */
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -60%); }
+            10% { opacity: 1; transform: translate(-50%, -50%); }
+            90% { opacity: 1; transform: translate(-50%, -50%); }
+            100% { opacity: 0; transform: translate(-50%, -40%); }
         }
         .custom-toast {
             position: fixed;
-            top: 20px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             background-color: #FF9B51 !important;
             color: #FFFFFF !important;
             padding: 12px 24px !important;
@@ -134,11 +134,11 @@ def inject_global_css():
             display: flex;
             align-items: center;
             gap: 12px;
-            box-shadow: 0 4px 12px rgba(255, 155, 81, 0.3) !important;
-            animation: fadeInOutTop 4s ease-in-out forwards;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+            animation: fadeInOut 4s ease-in-out forwards;
             font-weight: 600 !important;
-            font-size: 0.95rem !important;
-            min-width: 200px;
+            font-size: 1rem !important;
+            white-space: nowrap;
             justify-content: center;
         }
 
@@ -520,22 +520,24 @@ def grafik_dashboard():
 
     if rentang_aktif:
         filtered = df[(df["skd_ke"] >= r_dari) & (df["skd_ke"] <= r_sampai)]
+        filtered = filtered.sort_values(["skd_ke", "nama"])
         st.subheader(f"Data SKD Rentang ke-{r_dari} sampai {r_sampai}")
     elif pilih_skd == "Terakhir":
         # Ambil record terbaru untuk tiap user
         if "created_at" in df.columns:
-            filtered = df.sort_values("created_at").groupby("user_id").tail(1)
+            filtered = df.sort_values("created_at").groupby("user_id").tail(1).copy()
         else:
-            filtered = df.groupby("user_id").tail(1)
+            filtered = df.groupby("user_id").tail(1).copy()
         st.subheader("Data SKD Terakhir Setiap User")
     elif pilih_skd == "Semua":
         filtered = df.copy()
+        filtered = filtered.sort_values(["skd_ke", "nama"])
         st.subheader("Semua Riwayat Data SKD")
     else:
         # Ambil angka dari "SKD ke-n"
         try:
             n = int(pilih_skd.split("-")[-1])
-            filtered = df[df["skd_ke"] == n]
+            filtered = df[df["skd_ke"] == n].copy()
             st.subheader(f"Data SKD Percobaan ke-{n}")
         except:
             filtered = df.copy()
@@ -560,8 +562,8 @@ def grafik_dashboard():
                 height=0,
             )
 
-    # Label untuk grafik agar unik jika pilih "Semua"
-    if pilih_skd == "Semua":
+    # Label untuk grafik agar unik jika pilih "Semua" atau "Rentang"
+    if pilih_skd in ["Semua", "Rentang"]:
         if pilih_user == "Semua User":
             filtered["label"] = filtered["nama"] + " (SKD " + filtered["skd_ke"].astype(str) + ")"
         else:
