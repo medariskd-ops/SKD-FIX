@@ -818,7 +818,7 @@ def admin_grafik_nilai():
             r_sampai = st.number_input("Sampai SKD ke-", min_value=r_dari, max_value=max_val, value=max_val, key="admin_r_sampai")
         
         if max_skd > 15:
-            st.success(f"💡 Rentang Laporan: SKD ke-{r_dari} sampai ke-{r_sampai} (15 data).")
+            st.success(f"💡 Rentang Laporan: SKD ke-{r_dari} sampai ke-{r_sampai} (Max 15 data).")
 
     if pilih_user != "Semua User":
         df = df[df["nama"] == pilih_user]
@@ -979,7 +979,7 @@ def user_personal_dashboard(user: dict):
         with col_r2:
             max_val = min(r_dari + 14, total_skd)
             r_sampai = st.number_input("Sampai SKD ke-", min_value=r_dari, max_value=max_val, value=max_val, key="user_r_sampai")
-        st.success(f"💡 Rentang Laporan: SKD ke-{r_dari} sampai ke-{r_sampai} (15 data).")
+        st.success(f"💡 Rentang Laporan: SKD ke-{r_dari} sampai ke-{r_sampai} (Max 15 data).")
     
     report_df = df[(df["skd_ke"] >= r_dari) & (df["skd_ke"] <= r_sampai)].copy()
 
