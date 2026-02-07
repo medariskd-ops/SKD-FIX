@@ -654,7 +654,7 @@ def grafik_dashboard():
         fig, ax = plt.subplots(figsize=(10, 5))
         ax.plot(filtered["label"], filtered["twk"], marker="o", label="TWK", color="#25343F")
         ax.plot(filtered["label"], filtered["tiu"], marker="o", label="TIU", color="#BFC9D1")
-        ax.plot(filtered["label"], filtered["tkp"], marker="o", label="TKP", color="#A8FBD3")
+        ax.plot(filtered["label"], filtered["tkp"], marker="o", label="TKP", color="#FF9B51")
         # ax.set_xlabel("User")
         ax.set_ylabel("Nilai")
         ax.set_title(f"Komponen Nilai SKD ({pilih_skd})")
@@ -715,7 +715,7 @@ def user_personal_dashboard(user: dict):
         x = df["skd_ke"]
         ax.plot(x, df["twk"], marker="o", label="TWK", color="#25343F")
         ax.plot(x, df["tiu"], marker="o", label="TIU", color="#BFC9D1")
-        ax.plot(x, df["tkp"], marker="o", label="TKP", color="#A8FBD3")
+        ax.plot(x, df["tkp"], marker="o", label="TKP", color="#FF9B51")
         # ax.set_xlabel("Percobaan (SKD ke-)")
         ax.set_ylabel("Nilai")
         ax.set_title("Perkembangan Nilai TWK / TIU / TKP")
