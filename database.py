@@ -1,45 +1,45 @@
-import pandas as pd
+import os
 
-class MockResponse:
-    def __init__(self, data):
-        self.data = data
-    def execute(self):
-        return self
+import streamlit as st
+from supabase import create_client
+from dotenv import load_dotenv
 
-class MockTable:
-    def __init__(self, table_name):
-        self.table_name = table_name
-        self.filters = {}
+# Untuk development lokal: baca dari .env
+load_dotenv()
 
-    def select(self, *args): return self
-    def insert(self, *args): return self
-    def update(self, *args): return self
-    def delete(self, *args): return self
-    def eq(self, col, val):
-        self.filters[col] = val
-        return self
-    def neq(self, col, val): return self
-    def order(self, col, desc=False): return self
-    def limit(self, n): return self
-    def execute(self):
-        if self.table_name == "users":
-            if self.filters.get("nama") == "admin":
-                return MockResponse([{"id": "admin-id", "nama": "admin", "password": "admin", "role": "admin"}])
-            return MockResponse([
-                {"id": "u1", "nama": "Budi", "role": "user"},
-                {"id": "u2", "nama": "Ani", "role": "user"},
-                {"id": "admin-id", "nama": "admin", "role": "admin"}
-            ])
-        if self.table_name == "scores":
-            return MockResponse([
-                {"id": 1, "user_id": "u1", "twk": 100, "tiu": 110, "tkp": 150, "total": 360, "created_at": "2023-01-01T10:00:00"},
-                {"id": 2, "user_id": "u1", "twk": 110, "tiu": 120, "tkp": 160, "total": 390, "created_at": "2023-01-02T10:00:00"},
-                {"id": 3, "user_id": "u2", "twk": 90, "tiu": 100, "tkp": 140, "total": 330, "created_at": "2023-01-01T11:00:00"},
-            ])
-        return MockResponse([])
 
-class MockSupabase:
-    def table(self, table_name):
-        return MockTable(table_name)
+def _get_supabase_credentials():
+    """
+    Ambil SUPABASE_URL dan SUPABASE_KEY.
+    Prioritas:
+    1. st.secrets (Streamlit Cloud)
+    2. Environment variables / .env
+    """
+    url = None
+    key = None
 
-supabase = MockSupabase()
+    # 1) Coba dari st.secrets (Cloud)
+    try:
+        if "SUPABASE_URL" in st.secrets:
+            url = st.secrets["SUPABASE_URL"]
+        if "SUPABASE_KEY" in st.secrets:
+            key = st.secrets["SUPABASE_KEY"]
+    except Exception:
+        # st.secrets mungkin tidak ada saat running sebagai script biasa
+        pass
+
+    # 2) Fallback ke environment / .env
+    url = url or os.getenv("SUPABASE_URL")
+    key = key or os.getenv("SUPABASE_KEY")
+
+    if not url or not key:
+        raise RuntimeError(
+            "SUPABASE_URL dan SUPABASE_KEY harus di-set di st.secrets atau environment."
+        )
+
+    return url, key
+
+
+URL, KEY = _get_supabase_credentials()
+
+supabase = create_client(URL, KEY)
