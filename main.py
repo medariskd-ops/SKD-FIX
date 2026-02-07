@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import bcrypt
+import io
 
 from auth import login, logout
 from database import supabase
@@ -178,24 +179,37 @@ def inject_global_css():
             box-shadow: none !important;
         }
 
-        /* 11. Print Styles */
+        /* 11. Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .main .block-container {
+                padding: 1rem 0.5rem !important;
+            }
+            h1 { font-size: 1.8rem !important; }
+            h2 { font-size: 1.4rem !important; }
+            h3 { font-size: 1.2rem !important; }
+
+            /* Sembunyikan sidebar secara default jika diperlukan atau biarkan Streamlit handle */
+        }
+
+        /* 12. Print Styles */
         @media print {
             /* Sembunyikan elemen UI yang tidak diperlukan saat cetak */
             [data-testid="stSidebar"], 
             header[data-testid="stHeader"], 
             .stButton, 
+            .stDownloadButton,
             div[data-testid="stSelectbox"], 
             div[data-testid="stNumberInput"],
             .custom-toast,
             [data-testid="stSidebarNav"],
-            [data-testid="stHeader"] {
+            footer {
                 display: none !important;
             }
             
             /* Optimasi layout halaman cetak */
             .main .block-container {
-                padding-top: 1rem !important;
-                padding-bottom: 1rem !important;
+                padding: 0 !important;
+                margin: 0 !important;
                 max-width: 100% !important;
             }
             
@@ -203,10 +217,25 @@ def inject_global_css():
                 background-color: white !important;
             }
 
-            /* Hindari pemotongan chart/tabel di tengah halaman */
-            [data-testid="stVerticalBlockBorderWrapper"] {
+            /* Kartu dan Container */
+            .main-card, [data-testid="stVerticalBlockBorderWrapper"] {
+                width: 100% !important;
+                border: 1px solid #EEE !important; /* Border tipis saja untuk pemisah */
+                box-shadow: none !important;
+                margin-bottom: 10px !important;
                 page-break-inside: avoid !important;
-                margin-bottom: 20px !important;
+                padding: 10px !important;
+            }
+
+            /* Tabel: Paksa tampilkan semua tanpa scroll */
+            [data-testid="stDataFrame"], [data-testid="stTable"], .stTable {
+                overflow: visible !important;
+                width: 100% !important;
+            }
+
+            /* Sembunyikan elemen scrollbar */
+            ::-webkit-scrollbar {
+                display: none;
             }
         }
 
@@ -254,6 +283,40 @@ def fetch_latest_score(user_id: str):
     return scores[0] if scores else None
 
 
+def render_skd_chart(df, title, is_component=True):
+    """
+    Render grafik SKD dengan gaya seragam dan responsif.
+    """
+    if df.empty:
+        st.warning(f"Data kosong untuk {title}")
+        return None
+
+    # Hitung figsize dinamis berdasarkan jumlah data
+    num_data = len(df)
+    dynamic_width = max(8, num_data * 0.7)
+
+    fig, ax = plt.subplots(figsize=(dynamic_width, 5), dpi=100)
+
+    if is_component:
+        ax.plot(df["label"], df["twk"], marker="o", label="TWK", color="#25343F", linewidth=2)
+        ax.plot(df["label"], df["tiu"], marker="o", label="TIU", color="#BFC9D1", linewidth=2)
+        ax.plot(df["label"], df["tkp"], marker="o", label="TKP", color="#FF9B51", linewidth=2)
+        ax.set_ylabel("Nilai")
+    else:
+        ax.plot(df["label"], df["total"], marker="o", color='#25343F', linewidth=2.5, label="Total")
+        ax.set_ylabel("Total Nilai")
+
+    ax.set_title(title, fontsize=14, fontweight='bold', pad=15)
+    ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
+    ax.grid(True, linestyle='--', alpha=0.6)
+
+    plt.xticks(rotation=45, ha='right', fontsize=9)
+    plt.yticks(fontsize=9)
+    plt.tight_layout()
+
+    return fig
+
+
 # Cek apakah ada notifikasi tertunda di session state (setelah fungsi didefinisikan)
 if "toast_msg" in st.session_state:
     show_toast(st.session_state.toast_msg)
@@ -274,7 +337,7 @@ def admin_user_management():
                 cols = [c for c in ["nama", "role"] if c in df.columns]
 
                 st.subheader("Daftar User")
-                st.dataframe(df[cols], use_container_width=True)
+                st.dataframe(df[cols], use_container_width=True, hide_index=True)
             else:
                 st.info("Belum ada user di database.")
 
@@ -476,7 +539,7 @@ def user_self_page(user: dict):
             # Tampilkan riwayat
             st.subheader("Riwayat Nilai SKD")
             cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df_scores.columns]
-            st.dataframe(df_scores[cols], use_container_width=True)
+            st.dataframe(df_scores[cols], use_container_width=True, hide_index=True)
 
         st.markdown("---")
         with st.container(border=True):
@@ -683,7 +746,7 @@ def admin_grafik_nilai():
     with st.container(border=True):
         st.subheader("Data Riwayat SKD")
         cols_to_show = ["nama", "skd_ke", "twk", "tiu", "tkp", "total"]
-        st.dataframe(filtered[cols_to_show], use_container_width=True)
+        st.dataframe(filtered[cols_to_show], use_container_width=True, hide_index=True)
 
         if st.button("🖨️ Cetak Nilai & Diagram"):
             st.components.v1.html("<script>window.parent.print();</script>", height=0)
@@ -698,26 +761,33 @@ def admin_grafik_nilai():
 
     with st.container(border=True):
         st.subheader("Grafik Komponen Nilai")
-        fig, ax = plt.subplots(figsize=(10, 5))
-        ax.plot(filtered["label"], filtered["twk"], marker="o", label="TWK", color="#25343F")
-        ax.plot(filtered["label"], filtered["tiu"], marker="o", label="TIU", color="#BFC9D1")
-        ax.plot(filtered["label"], filtered["tkp"], marker="o", label="TKP", color="#FF9B51")
-        ax.set_ylabel("Nilai")
-        ax.set_title(f"Komponen Nilai SKD ({pilih_skd})")
-        ax.legend()
-        plt.xticks(rotation=45, ha='right')
-        plt.tight_layout()
-        st.pyplot(fig)
+        fig1 = render_skd_chart(filtered, f"Komponen Nilai SKD ({pilih_skd})", is_component=True)
+        if fig1:
+            st.pyplot(fig1)
+            # Tombol Download
+            buf1 = io.BytesIO()
+            fig1.savefig(buf1, format="png", bbox_inches="tight")
+            st.download_button(
+                label="📥 Download Grafik Komponen (PNG)",
+                data=buf1.getvalue(),
+                file_name=f"skd_komponen_{pilih_user}_{pilih_skd}.png",
+                mime="image/png"
+            )
 
     with st.container(border=True):
         st.subheader("Grafik Total Nilai")
-        fig2, ax2 = plt.subplots(figsize=(10, 5))
-        ax2.plot(filtered["label"], filtered["total"], marker="o", color='#25343F')
-        ax2.set_ylabel("Total Nilai")
-        ax2.set_title(f"Total Nilai SKD ({pilih_skd})")
-        plt.xticks(rotation=45, ha='right')
-        plt.tight_layout()
-        st.pyplot(fig2)
+        fig2 = render_skd_chart(filtered, f"Total Nilai SKD ({pilih_skd})", is_component=False)
+        if fig2:
+            st.pyplot(fig2)
+            # Tombol Download
+            buf2 = io.BytesIO()
+            fig2.savefig(buf2, format="png", bbox_inches="tight")
+            st.download_button(
+                label="📥 Download Grafik Total (PNG)",
+                data=buf2.getvalue(),
+                file_name=f"skd_total_{pilih_user}_{pilih_skd}.png",
+                mime="image/png"
+            )
 
 
 def user_personal_dashboard(user: dict):
@@ -748,43 +818,42 @@ def user_personal_dashboard(user: dict):
     if "created_at" in df.columns:
         df = df.sort_values("created_at")
     df["skd_ke"] = range(1, len(df) + 1)
+    df["label"] = "SKD ke-" + df["skd_ke"].astype(str)
 
     with st.container(border=True):
         st.subheader("Riwayat Nilai")
         cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df.columns]
-        st.dataframe(df[cols], use_container_width=True)
+        st.dataframe(df[cols], use_container_width=True, hide_index=True)
         if st.button("🖨️ Cetak Nilai & Diagram"):
             st.components.v1.html("<script>window.parent.print();</script>", height=0)
 
     with st.container(border=True):
         st.subheader("Grafik Komponen Nilai (Per Percobaan)")
-        fig, ax = plt.subplots()
-        x = df["skd_ke"]
-        ax.plot(x, df["twk"], marker="o", label="TWK", color="#25343F")
-        ax.plot(x, df["tiu"], marker="o", label="TIU", color="#BFC9D1")
-        ax.plot(x, df["tkp"], marker="o", label="TKP", color="#FF9B51")
-        # ax.set_xlabel("Percobaan (SKD ke-)")
-        ax.set_ylabel("Nilai")
-        ax.set_title("Perkembangan Nilai TWK / TIU / TKP")
-        ax.legend()
-        ax.set_xticks(x)
-        ax.set_xticklabels([f"SKD ke-{i}" for i in x])
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        st.pyplot(fig)
+        fig1 = render_skd_chart(df, "Perkembangan Nilai TWK / TIU / TKP", is_component=True)
+        if fig1:
+            st.pyplot(fig1)
+            buf1 = io.BytesIO()
+            fig1.savefig(buf1, format="png", bbox_inches="tight")
+            st.download_button(
+                label="📥 Download Grafik Komponen (PNG)",
+                data=buf1.getvalue(),
+                file_name=f"my_skd_komponen.png",
+                mime="image/png"
+            )
 
     with st.container(border=True):
         st.subheader("Grafik Total Nilai")
-        fig2, ax2 = plt.subplots()
-        ax2.plot(x, df["total"], marker="o", color="#25343F")
-        # ax2.set_xlabel("Percobaan (SKD ke-)")
-        ax2.set_ylabel("Total Nilai")
-        ax2.set_title("Perkembangan Total Nilai SKD")
-        ax2.set_xticks(x)
-        ax2.set_xticklabels([f"SKD ke-{i}" for i in x])
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        st.pyplot(fig2)
+        fig2 = render_skd_chart(df, "Perkembangan Total Nilai SKD", is_component=False)
+        if fig2:
+            st.pyplot(fig2)
+            buf2 = io.BytesIO()
+            fig2.savefig(buf2, format="png", bbox_inches="tight")
+            st.download_button(
+                label="📥 Download Grafik Total (PNG)",
+                data=buf2.getvalue(),
+                file_name=f"my_skd_total.png",
+                mime="image/png"
+            )
 
 
 def admin_maintenance():
