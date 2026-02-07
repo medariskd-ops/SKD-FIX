@@ -47,7 +47,7 @@ def inject_global_css():
         /* 2. Header / Top Navigation */
         header[data-testid="stHeader"] {
             background-color: #BFC9D1 !important;
-            color: #BFC9D1 !important;
+            color: #25343F !important;
         }
         header[data-testid="stHeader"] svg {
             fill: #FFFFFF !important;
