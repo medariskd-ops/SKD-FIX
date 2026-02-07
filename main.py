@@ -486,46 +486,85 @@ def grafik_dashboard():
         st.info("Belum ada data user.")
         return
 
+    df_users = pd.DataFrame(users)
+    total_user = len(df_users[df_users["role"] == "user"])
+    total_admin = len(df_users[df_users["role"] == "admin"])
+    
+    total_skd_max = 0
+    score_summary = pd.DataFrame(columns=["user_id", "total_skd", "max_score"])
+    df = pd.DataFrame()
+
+    if scores:
+        df_scores = pd.DataFrame(scores)
+        # Pastikan tipe data benar
+        for col in ["twk", "tiu", "tkp"]:
+            if col in df_scores.columns:
+                df_scores[col] = pd.to_numeric(df_scores[col], errors="coerce").fillna(0)
+        
+        # Hitung ulang total untuk memastikan kolom total ada dan akurat
+        df_scores["total"] = df_scores["twk"] + df_scores["tiu"] + df_scores["tkp"]
+
+        # Gabungkan dengan data user untuk mendapatkan nama dan role
+        df = pd.merge(
+            df_scores,
+            df_users[["id", "nama", "role"]],
+            left_on="user_id",
+            right_on="id",
+            how="inner"
+        )
+
+        # Hilangkan admin dari tampilan
+        if "role" in df.columns:
+            df = df[df["role"] != "admin"]
+
+        if not df.empty:
+            # Hitung SKD ke-n untuk tiap user
+            if "created_at" in df.columns:
+                df = df.sort_values(["user_id", "created_at"])
+            else:
+                df = df.sort_values(["user_id"])
+            
+            df["skd_ke"] = df.groupby("user_id").cumcount() + 1
+            total_skd_max = df["skd_ke"].max()
+            
+            score_summary = df.groupby("user_id").agg(
+                total_skd=("skd_ke", "max"),
+                max_score=("total", "max")
+            ).reset_index()
+
+    # --- Bagian Metrics Atas ---
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        with st.container(border=True):
+            st.metric("Total User", total_user)
+    with col2:
+        with st.container(border=True):
+            st.metric("Total Admin", total_admin)
+    with col3:
+        with st.container(border=True):
+            st.metric("SKD Terbanyak", total_skd_max)
+
+    # --- Tabel Ringkasan Aktivitas User ---
+    user_summary_df = df_users[df_users["role"] == "user"][["id", "nama"]].merge(
+        score_summary, left_on="id", right_on="user_id", how="left"
+    )
+    user_summary_df["total_skd"] = user_summary_df["total_skd"].fillna(0).astype(int)
+    user_summary_df["max_score"] = user_summary_df["max_score"].fillna(0).astype(int)
+    user_summary_df = user_summary_df[["nama", "total_skd", "max_score"]].sort_values("max_score", ascending=False)
+    user_summary_df.columns = ["Nama User", "Total SKD", "Nilai Tertinggi"]
+    
+    with st.container(border=True):
+        st.subheader("📊 Ringkasan Aktivitas User")
+        st.dataframe(user_summary_df, use_container_width=True, hide_index=True)
+
+    # --- Pengecekan jika data kosong untuk grafik ---
     if not scores:
         st.info("Belum ada data nilai (scores) di database.")
         return
 
-    df_users = pd.DataFrame(users)
-    df_scores = pd.DataFrame(scores)
-
-    # Pastikan tipe data benar
-    for col in ["twk", "tiu", "tkp"]:
-        if col in df_scores.columns:
-            df_scores[col] = pd.to_numeric(df_scores[col], errors="coerce").fillna(0)
-    
-    # Hitung ulang total untuk memastikan kolom total ada dan akurat
-    df_scores["total"] = df_scores["twk"] + df_scores["tiu"] + df_scores["tkp"]
-
-    # Gabungkan dengan data user untuk mendapatkan nama dan role
-    df = pd.merge(
-        df_scores,
-        df_users[["id", "nama", "role"]],
-        left_on="user_id",
-        right_on="id",
-        how="inner"
-    )
-
-    # Hilangkan admin dari tampilan
-    if "role" in df.columns:
-        df = df[df["role"] != "admin"]
-
     if df.empty:
         st.warning("Tidak ada data nilai dari user (non-admin).")
         return
-
-    # Hitung SKD ke-n untuk tiap user
-    # Pastikan created_at ada dan urutkan
-    if "created_at" in df.columns:
-        df = df.sort_values(["user_id", "created_at"])
-    else:
-        df = df.sort_values(["user_id"])
-    
-    df["skd_ke"] = df.groupby("user_id").cumcount() + 1
 
     # Filter Pilihan User
     user_list = ["Semua User"] + sorted(df["nama"].unique().tolist())
@@ -635,6 +674,19 @@ def user_personal_dashboard(user: dict):
     st.header("📊 Dashboard Nilai Saya")
 
     scores = fetch_user_scores(user["id"])
+    
+    # --- Bagian Metrics Atas ---
+    total_skd = len(scores)
+    max_score = max([s.get("total", 0) for s in scores]) if scores else 0
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        with st.container(border=True):
+            st.metric("Total SKD Saya", total_skd)
+    with col2:
+        with st.container(border=True):
+            st.metric("Nilai Tertinggi Saya", max_score)
+
     if not scores:
         st.info("Belum ada data nilai. Silakan input nilai terlebih dahulu di menu User.")
         return
