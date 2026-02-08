@@ -31,170 +31,169 @@ def show_toast(message: str):
 
 
 def inject_global_css():
-    """Menerapkan Design System baru: Minimalis, Profesional, dan Modern."""
+    """Menerapkan Design System baru: Minimalis, Profesional, dan Modern dengan Dark-Light Contrast."""
     st.markdown(
         """
         <style>
         /* 1. Global Background & Text */
         .stApp {
-            background-color: #EAEFEF !important;
-            color: #25343F !important;
+            background-color: #F8FAFC !important;
+            color: #1E293B !important;
         }
         
+        /* 2. Sidebar Styling - Dark Theme */
         [data-testid="stSidebar"] {
-            background-color: #FFFFFF !important;
-            border-right: 1px solid #BFC9D1 !important;
+            background-color: #1E293B !important;
+            color: #F8FAFC !important;
+            border-right: none !important;
+        }
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+        [data-testid="stSidebar"] .stRadio label p,
+        [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+            color: #F8FAFC !important;
+        }
+        [data-testid="stSidebarNav"] span {
+            color: #F8FAFC !important;
+        }
+        /* Sidebar item hover */
+        [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border-radius: 8px !important;
         }
 
-        /* 2. Header / Top Navigation */
+        /* 3. Header / Top Navigation */
         header[data-testid="stHeader"] {
-            background-color: #BFC9D1 !important;
-            color: #25343F !important;
+            background-color: rgba(248, 250, 252, 0.8) !important;
+            backdrop-filter: blur(10px) !important;
+            border-bottom: 1px solid #E2E8F0 !important;
         }
         header[data-testid="stHeader"] svg {
-            fill: #FFFFFF !important;
+            fill: #1E293B !important;
         }
 
-        /* 3. Cards Styling */
-        .main-card {
+        /* 4. Cards Styling - Soft Shadows */
+        .main-card, [data-testid="stVerticalBlockBorderWrapper"] {
             background-color: #FFFFFF !important;
-            border: 1px solid #BFC9D1 !important;
-            border-radius: 8px !important;
-            padding: 20px !important;
-            margin-bottom: 20px !important;
-        }
-
-        /* 4. Input Fields Styling */
-        div[data-baseweb="input"], 
-        div[data-baseweb="select"] > div, 
-        div[data-baseweb="textarea"] textarea,
-        .stTextInput input, .stNumberInput input, .stSelectbox div[role="button"] {
-            background-color: #FFFFFF !important;
-            color: #25343F !important;
-            border: 1px solid #BFC9D1 !important;
-            border-radius: 6px !important;
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 24px !important;
+            margin-bottom: 24px !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
         }
 
         /* 5. Typography */
         h1, h2, h3, h4, h5, h6, label, p, span, .stMarkdown {
-            color: #25343F !important;
+            color: #1E293B !important;
         }
         [data-testid="stWidgetLabel"] p {
-            font-weight: 500 !important;
-            color: #25343F !important;
-        }
-        /* Text Sekunder */
-        .stCaption, small {
-            color: rgba(37, 52, 63, 0.7) !important;
+            font-weight: 600 !important;
+            color: #334155 !important;
         }
 
-        /* 6. Buttons Styling (Unified for all types) */
+        /* 6. Buttons Styling - Modern Gradients & Soft Red */
         div.stButton > button, 
         div.stDownloadButton > button,
-        div[data-testid="stFormSubmitButton"] > button,
-        [data-testid="baseButton-primary"],
-        [data-testid="baseButton-secondary"] {
-            background-color: #FFFFFF !important;
-            color: #25343F !important;
-            border: 1px solid #BFC9D1 !important;
-            border-radius: 6px !important;
-            padding: 10px 20px !important;
+        div[data-testid="stFormSubmitButton"] > button {
+            border-radius: 8px !important;
             font-weight: 600 !important;
+            transition: all 0.3s ease !important;
             min-height: 45px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            transition: all 0.3s ease !important;
+            padding: 10px 24px !important;
         }
 
-        div.stButton > button:hover,
-        div.stDownloadButton > button:hover,
-        div[data-testid="stFormSubmitButton"] > button:hover,
-        [data-testid="baseButton-primary"]:hover,
-        [data-testid="baseButton-secondary"]:hover {
-            background-color: #f8f9f9 !important;
-            border-color: #25343F !important;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+        /* Primary Buttons - Gradient */
+        [data-testid^="stBaseButton-primary"] {
+            background: linear-gradient(135deg, #25343F 0%, #4A6171 100%) !important;
+            color: white !important;
+            border: none !important;
+            box-shadow: 0 4px 15px rgba(37, 52, 63, 0.2) !important;
+        }
+        [data-testid^="stBaseButton-primary"]:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 6px 20px rgba(37, 52, 63, 0.3) !important;
+            background: linear-gradient(135deg, #4A6171 0%, #25343F 100%) !important;
         }
 
-        /* Accent Elements */
-        .accent-box {
-            background-color: #FFFFFF !important;
-            color: #FFFFFF !important;
-            padding: 8px 12px !important;
-            border-radius: 6px !important;
-            font-weight: 600 !important;
+        /* Secondary Buttons - Soft Red (Danger/Cancel) */
+        [data-testid^="stBaseButton-secondary"] {
+            background-color: #FFF1F2 !important;
+            color: #E11D48 !important;
+            border: 1px solid #FECDD3 !important;
+        }
+        [data-testid^="stBaseButton-secondary"]:hover {
+            background-color: #FFE4E6 !important;
+            border-color: #FB7185 !important;
         }
 
-        /* 7. Toast Notification (Center, smooth fade) */
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, -60%); }
-            10% { opacity: 1; transform: translate(-50%, -50%); }
-            90% { opacity: 1; transform: translate(-50%, -50%); }
-            100% { opacity: 0; transform: translate(-50%, -40%); }
+        /* Context-aware: Green for "Iya" in Dialogs or Sidebar */
+        [data-testid="stDialog"] [data-testid^="stBaseButton-primary"],
+        [data-testid="stSidebar"] [data-testid^="stBaseButton-primary"] {
+            background: #10B981 !important;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2) !important;
+        }
+        [data-testid="stDialog"] [data-testid^="stBaseButton-primary"]:hover,
+        [data-testid="stSidebar"] [data-testid^="stBaseButton-primary"]:hover {
+            background: #059669 !important;
+        }
+
+
+        /* 7. Success Toast - Custom Animation & Position */
+        @keyframes toastAnimation {
+            0% { transform: translateX(-120%); opacity: 0; }
+            10% { transform: translateX(0); opacity: 1; }
+            90% { transform: translateX(0); opacity: 1; }
+            100% { transform: translateX(120%); opacity: 0; }
         }
         .custom-toast {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #A8FBD3 !important;
-            color: #FFFFFF !important;
-            padding: 12px 24px !important;
-            border-radius: 8px !important;
-            z-index: 10000;
+            top: 50px;
+            left: 20px;
+            background-color: #ECFDF5 !important;
+            color: #065F46 !important;
+            padding: 16px 24px !important;
+            border-radius: 12px !important;
+            border-left: 6px solid #10B981 !important;
+            z-index: 999999;
             display: flex;
             align-items: center;
             gap: 12px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-            animation: fadeInOut 4s ease-in-out forwards;
+            animation: toastAnimation 4s ease-in-out forwards;
             font-weight: 600 !important;
-            font-size: 1rem !important;
             white-space: nowrap;
-            justify-content: center;
         }
 
-        /* 8. Table Styling */
+        /* 8. Table & DataFrame Styling */
         [data-testid="stDataFrame"], [data-testid="stTable"] {
-            border: 1px solid #BFC9D1 !important;
-            border-radius: 8px !important;
+            border: none !important;
+            border-radius: 12px !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
             overflow: hidden !important;
         }
 
-        /* 9. Container Border (Cards) */
-        [data-testid="stVerticalBlockBorderWrapper"] {
-            background-color: #FFFFFF !important;
-            border: 1px solid #BFC9D1 !important;
+        /* 9. Input Styling */
+        div[data-baseweb="input"], div[data-baseweb="select"] > div {
             border-radius: 8px !important;
-            padding: 10px !important;
-        }
-        
-        /* 10. Sidebar Collapse Button Visibility */
-        [data-testid="stSidebarCollapseButton"] {
-            opacity: 1 !important;
-            visibility: visible !important;
-        }
-        
-        /* 11. Hilangkan shadow default Streamlit */
-        * {
-            box-shadow: none !important;
+            border: 1px solid #E2E8F0 !important;
         }
 
-        /* 12. Mobile Responsiveness */
+        /* 10. Sidebar Collapse Button Visibility */
+        [data-testid="stSidebarCollapseButton"] {
+            color: #F8FAFC !important;
+        }
+
+        /* 11. Mobile Responsiveness */
         @media (max-width: 768px) {
             .main .block-container {
                 padding: 1rem 0.5rem !important;
             }
-            h1 { font-size: 1.8rem !important; }
-            h2 { font-size: 1.4rem !important; }
-            h3 { font-size: 1.2rem !important; }
-            
-            /* Sembunyikan sidebar secara default jika diperlukan atau biarkan Streamlit handle */
         }
 
         /* 12. Print Styles */
         @media print {
-            /* Sembunyikan elemen UI yang tidak diperlukan saat cetak */
             [data-testid="stSidebar"], 
             header[data-testid="stHeader"], 
             .stButton, 
@@ -221,7 +220,7 @@ def inject_global_css():
             /* Kartu dan Container */
             .main-card, [data-testid="stVerticalBlockBorderWrapper"] {
                 width: 100% !important;
-                border: 1px solid #EEE !important; /* Border tipis saja untuk pemisah */
+                border: 1px solid #EEE !important;
                 box-shadow: none !important;
                 margin-bottom: 10px !important;
                 page-break-inside: avoid !important;
@@ -232,11 +231,6 @@ def inject_global_css():
             [data-testid="stDataFrame"], [data-testid="stTable"], .stTable {
                 overflow: visible !important;
                 width: 100% !important;
-            }
-            
-            /* Sembunyikan elemen scrollbar */
-            ::-webkit-scrollbar {
-                display: none;
             }
         }
 
@@ -423,7 +417,7 @@ def render_report_page(df, title, content_type="table"):
 @st.dialog("Konfirmasi Update")
 def confirm_update_dialog(message, session_key):
     st.write(message)
-    if st.button("Ya, Simpan", use_container_width=True):
+    if st.button("Iya, Simpan", use_container_width=True, type="primary"):
         st.session_state[session_key] = True
         st.rerun()
 
@@ -431,7 +425,7 @@ def confirm_update_dialog(message, session_key):
 @st.dialog("Konfirmasi Hapus")
 def confirm_delete_dialog(message, session_key):
     st.warning(message)
-    if st.button("Ya, Hapus", use_container_width=True):
+    if st.button("Iya, Hapus", use_container_width=True, type="primary"):
         st.session_state[session_key] = True
         st.rerun()
 
@@ -483,7 +477,7 @@ def admin_user_management():
                         index=0 if current_role == "admin" else 1,
                     )
 
-                    submitted_edit = st.form_submit_button("Simpan Perubahan")
+                    submitted_edit = st.form_submit_button("Simpan Perubahan", type="primary")
 
                 if submitted_edit:
                     update_data = {"role": new_role}
@@ -555,7 +549,7 @@ def admin_user_management():
                             ae_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih_admin["twk"]))
                             ae_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih_admin["tiu"]))
                             ae_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih_admin["tkp"]))
-                            submitted_admin_edit_score = st.form_submit_button("Simpan Perubahan Nilai User")
+                            submitted_admin_edit_score = st.form_submit_button("Simpan Perubahan Nilai User", type="primary")
 
                         if submitted_admin_edit_score:
                             ae_total = ae_twk + ae_tiu + ae_tkp
@@ -651,7 +645,7 @@ def user_self_page(user: dict):
                 twk = st.number_input("TWK", min_value=0, value=int(current_twk))
                 tiu = st.number_input("TIU", min_value=0, value=int(current_tiu))
                 tkp = st.number_input("TKP", min_value=0, value=int(current_tkp))
-                submitted_nilai = st.form_submit_button("Simpan Nilai")
+                submitted_nilai = st.form_submit_button("Simpan Nilai", type="primary")
 
         if submitted_nilai:
             total = twk + tiu + tkp
@@ -702,7 +696,7 @@ def user_self_page(user: dict):
                     e_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih["twk"]))
                     e_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih["tiu"]))
                     e_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih["tkp"]))
-                    submitted_edit_score = st.form_submit_button("Simpan Perubahan Nilai")
+                    submitted_edit_score = st.form_submit_button("Simpan Perubahan Nilai", type="primary")
 
             if submitted_edit_score:
                 e_total = e_twk + e_tiu + e_tkp
@@ -745,7 +739,7 @@ def user_self_page(user: dict):
             st.subheader("Edit Password")
             with st.form("user_edit_pass"):
                 new_password = st.text_input("Password baru (kosongkan jika tidak diubah)", type="password")
-                submitted_pass = st.form_submit_button("Simpan Perubahan Password")
+                submitted_pass = st.form_submit_button("Simpan Perubahan Password", type="primary")
             
             if submitted_pass:
                 if new_password:
