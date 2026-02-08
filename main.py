@@ -31,7 +31,7 @@ def show_toast(message: str):
 
 
 def inject_global_css():
-    """Menerapkan Design System baru: Modern, Dark-Light Contrast, dan Gradient."""
+    """Menerapkan Design System Modern: Dark Sidebar, Light Content, dan Contrast Palette."""
     st.markdown(
         """
         <style>
@@ -41,14 +41,14 @@ def inject_global_css():
             color: #334155 !important;
         }
         
-        /* Main Content Area - Bright */
+        /* Main Content Area - Light */
         section[data-testid="stMain"] {
             background-color: #F8FAFC !important;
         }
 
-        /* 2. Sidebar Styling - Full Dark */
+        /* 2. Sidebar Styling - Dark Theme */
         [data-testid="stSidebar"] {
-            background-color: #020617 !important;
+            background-color: #0B1120 !important;
             color: #E2E8F0 !important;
             border-right: none !important;
         }
@@ -67,20 +67,20 @@ def inject_global_css():
         }
         /* Highlight menu aktif */
         [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label[data-baseweb="radio"] div:first-child {
-            border-color: #3B82F6 !important;
+            border-color: #1E293B !important;
         }
 
         /* 3. Header / Top Navigation */
         header[data-testid="stHeader"] {
-            background-color: rgba(2, 6, 23, 0.5) !important;
+            background-color: rgba(11, 17, 32, 0.5) !important;
             backdrop-filter: blur(10px) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
         }
         header[data-testid="stHeader"] svg {
             fill: #E2E8F0 !important;
         }
 
-        /* 4. Cards Styling - Bright Content with Soft Shadows */
+        /* 4. Cards Styling - White with Professional Shadow */
         .main-card, [data-testid="stVerticalBlockBorderWrapper"] {
             background-color: #FFFFFF !important;
             border: none !important;
@@ -105,13 +105,13 @@ def inject_global_css():
             color: #0F172A !important;
         }
 
-        /* 6. Buttons Styling - Modern Gradients */
+        /* 6. Buttons Styling - Professional Gradients */
         div.stButton > button, 
         div.stDownloadButton > button,
         div[data-testid="stFormSubmitButton"] > button {
             border-radius: 8px !important;
             font-weight: 600 !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            transition: all 0.3s ease !important;
             min-height: 45px !important;
             display: flex !important;
             align-items: center !important;
@@ -119,64 +119,55 @@ def inject_global_css():
             padding: 10px 24px !important;
         }
 
-        /* Primary Buttons - Blue Gradient */
+        /* Primary Buttons - Blue Gradient (Aksi Utama) */
         [data-testid^="stBaseButton-primary"] {
             background: linear-gradient(135deg, #3B82F6, #6366F1) !important;
-            color: white !important;
+            color: #FFFFFF !important;
             border: none !important;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2) !important;
         }
         [data-testid^="stBaseButton-primary"]:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4) !important;
-            filter: brightness(1.1) !important;
+            background: #2563EB !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3) !important;
         }
 
-        /* Secondary Buttons - Soft Gray */
+        /* Secondary Buttons - Light Gray */
         [data-testid^="stBaseButton-secondary"] {
             background-color: #F8FAFC !important;
-            color: #475569 !important;
+            color: #334155 !important;
             border: 1px solid #E2E8F0 !important;
         }
         [data-testid^="stBaseButton-secondary"]:hover {
             background-color: #F1F5F9 !important;
-            color: #1E293B !important;
+            color: #0F172A !important;
         }
 
-        /* Context-aware: Green for "Iya" in Dialogs or Sidebar */
+        /* Context-aware: Success/Green for "Iya" (Aksi Positif) */
         [data-testid="stDialog"] [data-testid^="stBaseButton-primary"],
         [data-testid="stSidebar"] [data-testid^="stBaseButton-primary"] {
             background: #22C55E !important;
-            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3) !important;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2) !important;
         }
         [data-testid="stDialog"] [data-testid^="stBaseButton-primary"]:hover,
         [data-testid="stSidebar"] [data-testid^="stBaseButton-primary"]:hover {
             background: #16A34A !important;
         }
 
-        /* Context-aware: Red for "Tidak" or Logout in Sidebar/Dialogs */
+        /* Context-aware: Error/Red for "Tidak" or Logout (Aksi Berbahaya) */
         [data-testid="stDialog"] [data-testid^="stBaseButton-secondary"],
         [data-testid="stSidebar"] [data-testid^="stBaseButton-secondary"] {
-            background-color: #FEE2E2 !important;
-            color: #991B1B !important;
-            border: 1px solid #EF4444 !important;
+            background-color: #EF4444 !important;
+            color: #FFFFFF !important;
+            border: none !important;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2) !important;
         }
         [data-testid="stDialog"] [data-testid^="stBaseButton-secondary"]:hover,
         [data-testid="stSidebar"] [data-testid^="stBaseButton-secondary"]:hover {
-            background-color: #FECACA !important;
+            background-color: #DC2626 !important;
         }
 
-        /* 7. Success Toast - Custom Animation & Position */
-        @keyframes slideInLeft {
-            from { transform: translateX(-120%); opacity: 0; }
-            to   { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes slideOutRight {
-            from { transform: translateX(0); opacity: 1; }
-            to   { transform: translateX(120%); opacity: 0; }
-        }
-
+        /* 7. Success Toast - Redesigned Palette */
         @keyframes toastTimeline {
             0% { transform: translateX(-120%); opacity: 0; }
             10% { transform: translateX(0); opacity: 1; }
@@ -188,8 +179,8 @@ def inject_global_css():
             position: fixed;
             top: 20px;
             left: 20px;
-            background-color: #DCFCE7 !important;
-            color: #166534 !important;
+            background-color: #064E3B !important;
+            color: #E2E8F0 !important;
             padding: 16px 24px !important;
             border-radius: 12px !important;
             border: 1px solid #22C55E !important;
@@ -198,7 +189,7 @@ def inject_global_css():
             display: flex;
             align-items: center;
             gap: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
             animation: toastTimeline 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             font-weight: 600 !important;
             white-space: nowrap;
