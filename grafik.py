@@ -13,9 +13,9 @@ def tampil_grafik():
 
     # Grafik 1
     plt.figure()
-    plt.plot(nama, twk, marker='o', label='TWK')
-    plt.plot(nama, tiu, marker='o', label='TIU')
-    plt.plot(nama, tkp, marker='o', label='TKP')
+    plt.plot(nama, twk, marker='o', label='TWK', color="#1E293B")
+    plt.plot(nama, tiu, marker='o', label='TIU', color="#64748B")
+    plt.plot(nama, tkp, marker='o', label='TKP', color="#10B981")
 
     plt.title("Nilai SKD")
     plt.legend()
@@ -23,6 +23,6 @@ def tampil_grafik():
 
     # Grafik 2
     plt.figure()
-    plt.plot(nama, total, marker='o')
+    plt.plot(nama, total, marker='o', color="#1E293B")
     plt.title("Total SKD")
     plt.show()
