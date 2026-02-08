@@ -10,19 +10,22 @@ from database import supabase
 
 st.set_page_config(
     page_title="SKD App",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
 
 # ======================
 # HELPER FUNCTIONS
 # ======================
-def show_toast(message: str):
-    """Menampilkan notifikasi toast custom di posisi top-left dengan gaya SaaS."""
+def show_toast(message: str, type="success"):
+    """Menampilkan notifikasi toast custom dengan gaya Prompt 5."""
+    icon = '✅' if type == 'success' else '❌'
+    color = "#16A34A" if type == "success" else "#DC2626"
     st.markdown(
         f"""
-        <div class="custom-toast">
-            <span>ℹ️</span>
+        <div class="custom-toast" style="border-left: 6px solid {color};">
+            <span style="font-size: 20px;">{icon}</span>
             <span>{message}</span>
         </div>
         """,
@@ -31,194 +34,243 @@ def show_toast(message: str):
 
 
 def inject_global_css():
-    """Menerapkan Design System SaaS Modern (incident.io style)."""
+    """Menerapkan Layout Top Navbar Modern dan SaaS Theme."""
     st.markdown(
         """
         <style>
-        /* 1. Global Background & Text */
+        /* Global Background */
         .stApp {
             background-color: #F8FAFC !important;
-            color: #334155 !important;
+            color: #1E293B !important;
         }
         
-        /* Main Content Area */
         section[data-testid="stMain"] {
             background-color: #F8FAFC !important;
+            padding-top: 60px !important;
         }
 
-        /* 2. Sidebar Styling - Dark SaaS Theme */
-        [data-testid="stSidebar"] {
-            background-color: #0B1120 !important;
-            color: #E2E8F0 !important;
-            border-right: 1px solid #1E293B !important;
-        }
-        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
-        [data-testid="stSidebar"] .stRadio label p,
-        [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
-            color: #E2E8F0 !important;
-        }
-        [data-testid="stSidebarNav"] span {
-            color: #E2E8F0 !important;
-        }
-        /* Sidebar item hover */
-        [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label:hover {
-            background-color: #1E293B !important;
-            border-radius: 8px !important;
-        }
-        /* Highlight menu aktif */
-        [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label[data-baseweb="radio"] div:first-child {
-            border-color: #3B82F6 !important;
-        }
+        /* Hide Streamlit Header & Sidebar default visuals */
+        header[data-testid="stHeader"] { display: none !important; }
+        [data-testid="stSidebar"] { border-right: none !important; width: 0 !important; }
 
-        /* 3. Header Styling */
-        header[data-testid="stHeader"] {
-            background-color: rgba(248, 250, 252, 0.8) !important;
-            backdrop-filter: blur(8px) !important;
-            border-bottom: 1px solid #E2E8F0 !important;
-        }
-
-        /* 4. Cards & Containers - SaaS Style */
-        .main-card, [data-testid="stVerticalBlockBorderWrapper"] {
-            background-color: #FFFFFF !important;
-            border: 1px solid #E2E8F0 !important;
-            border-radius: 10px !important;
-            padding: 24px !important;
-            margin-bottom: 24px !important;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06) !important;
-        }
-
-        /* 5. Typography */
-        h1, h2, h3, h4, h5, h6 {
-            color: #0F172A !important;
-            font-weight: 700 !important;
-        }
-        p, span, .stMarkdown {
-            color: #334155 !important;
-        }
-
-        /* 6. Buttons Styling - Flat SaaS Design */
-        div.stButton > button, 
-        div.stDownloadButton > button,
-        div[data-testid="stFormSubmitButton"] > button {
-            border-radius: 8px !important;
-            font-weight: 600 !important;
-            transition: all 0.2s ease !important;
-            min-height: 42px !important;
-            padding: 8px 20px !important;
-            border: 1px solid transparent !important;
-        }
-
-        /* Primary Buttons - Solid Blue */
-        [data-testid^="stBaseButton-primary"],
-        div[data-testid="stFormSubmitButton"] > button {
-            background-color: #3B82F6 !important;
-            color: #FFFFFF !important;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
-        }
-        [data-testid^="stBaseButton-primary"]:hover,
-        div[data-testid="stFormSubmitButton"] > button:hover {
-            background-color: #2563EB !important;
-            border-color: #2563EB !important;
-        }
-
-        /* Secondary Buttons (Normal Context) - Soft Blue Look */
-        [data-testid^="stBaseButton-secondary"],
-        div.stButton > button,
-        div.stDownloadButton > button {
-            background-color: #EFF6FF !important;
-            color: #1D4ED8 !important;
-            border: 1px solid #DBEAFE !important;
-        }
-        [data-testid^="stBaseButton-secondary"]:hover,
-        div.stButton > button:hover {
-            background-color: #DBEAFE !important;
-            border-color: #BFDBFE !important;
-        }
-
-        /* Logout & Danger Actions Context - Solid Red */
-        /* Targets secondary buttons in sidebar and specific dialog buttons */
-        [data-testid="stSidebar"] [data-testid^="stBaseButton-secondary"],
-        [data-testid="stDialog"] [data-testid^="stBaseButton-secondary"] {
-            background-color: #EF4444 !important;
-            color: #FFFFFF !important;
-            border: none !important;
-        }
-        [data-testid="stSidebar"] [data-testid^="stBaseButton-secondary"]:hover,
-        [data-testid="stDialog"] [data-testid^="stBaseButton-secondary"]:hover {
-            background-color: #DC2626 !important;
-        }
-
-        /* 7. Notifications & Toasts - Top Left SaaS Style */
-        @keyframes slideIn {
-            from { transform: translateX(-100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-
-        .custom-toast {
+        /* Top Navbar Styling */
+        .top-navbar {
             position: fixed;
-            top: 20px;
-            left: 20px;
-            background-color: #EFF6FF !important;
-            color: #1E40AF !important;
-            padding: 12px 20px !important;
-            border-radius: 8px !important;
-            border-left: 6px solid #3B82F6 !important;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-            z-index: 999999;
+            top: 0; left: 0; right: 0;
+            height: 70px;
+            background-color: transparent;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-weight: 600 !important;
-            animation: slideIn 0.5s ease-out, fadeOut 0.5s ease-in 3.5s forwards;
+            justify-content: space-between;
+            padding: 0 5%;
+            z-index: 999999;
+            transition: all 0.3s ease;
         }
 
-        /* Streamlit Alerts Override */
-        div[data-testid="stNotificationContentSuccess"],
-        div[data-testid="stNotificationContentInfo"] {
-            background-color: #EFF6FF !important;
-            color: #1E40AF !important;
-            border: 1px solid #DBEAFE !important;
-            border-radius: 8px !important;
-        }
-        div[data-testid="stNotificationContentSuccess"] svg,
-        div[data-testid="stNotificationContentInfo"] svg {
-            fill: #3B82F6 !important;
+        .navbar-scrolled {
+            background-color: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(12px) !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+            height: 60px !important;
         }
 
-        div[data-testid="stNotificationContentWarning"],
-        div[data-testid="stNotificationContentError"] {
-            background-color: #FEE2E2 !important;
-            color: #991B1B !important;
-            border: 1px solid #FECACA !important;
-            border-radius: 8px !important;
-        }
-        div[data-testid="stNotificationContentWarning"] svg,
-        div[data-testid="stNotificationContentError"] svg {
-            fill: #EF4444 !important;
+        .nav-logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: #2563EB;
+            text-decoration: none;
+            letter-spacing: -0.5px;
         }
 
-        /* 8. Table & DataFrame Styling */
-        [data-testid="stDataFrame"], [data-testid="stTable"] {
-            border: 1px solid #E2E8F0 !important;
-            border-radius: 8px !important;
-            overflow: hidden !important;
+        .nav-links { display: flex; gap: 32px; }
+
+        .nav-item {
+            color: #475569;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 15px;
+            text-decoration: none;
+        }
+        .nav-item:hover { color: #2563EB; }
+        .nav-active { color: #2563EB !important; border-bottom: 2px solid #2563EB; padding-bottom: 4px; }
+
+        /* User Menu & Dropdown */
+        .user-dropdown { position: relative; }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: white;
+            min-width: 160px;
+            box-shadow: 0 10px 15px -3px rgba(0,10,0,0.1);
+            border-radius: 12px;
+            margin-top: 8px;
+            border: 1px solid #E2E8F0;
+            overflow: hidden;
+        }
+        .user-dropdown:hover .dropdown-content { display: block; }
+        .dropdown-item {
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            color: #475569;
+        }
+        .dropdown-item:hover { background: #F1F5F9; }
+        .logout-btn { color: #DC2626 !important; }
+        .logout-btn:hover { background: #FEF2F2 !important; }
+
+        /* Cards & UI Elements */
+        .main-card, [data-testid="stVerticalBlockBorderWrapper"] {
+            background: white !important;
+            border-radius: 16px !important;
+            padding: 32px !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03) !important;
+            border: none !important;
+            margin-bottom: 24px !important;
         }
 
-        /* 9. Input Styling */
-        div[data-baseweb="input"], div[data-baseweb="select"] > div {
-            border-radius: 6px !important;
-            border: 1px solid #E2E8F0 !important;
-            background-color: #FFFFFF !important;
+        /* Buttons Styling */
+        div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {
+            border-radius: 12px !important;
+            font-weight: 700 !important;
+            min-height: 46px !important;
+            transition: all 0.2s !important;
+            border: none !important;
+        }
+
+        /* Primary (Blue) */
+        [data-testid^="stBaseButton-primary"], div[data-testid="stFormSubmitButton"] > button {
+            background: #2563EB !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.2) !important;
+        }
+        [data-testid^="stBaseButton-primary"]:hover, div[data-testid="stFormSubmitButton"] > button:hover {
+            background: #1D4ED8 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37,99,235,0.3) !important;
+        }
+
+        /* Gray Buttons */
+        [data-testid^="stBaseButton-secondary"], div.stButton > button {
+            background: #F1F5F9 !important;
+            color: #475569 !important;
+        }
+        [data-testid^="stBaseButton-secondary"]:hover { background: #E2E8F0 !important; }
+
+        /* Status Colors */
+        .btn-green { background: #16A34A !important; color: white !important; }
+        .btn-red { background: #DC2626 !important; color: white !important; }
+
+        /* Notifications (Left Slide) */
+        @keyframes slideInL {
+            0% { transform: translateX(-150%); opacity: 0; }
+            10% { transform: translateX(0); opacity: 1; }
+            90% { transform: translateX(0); opacity: 1; }
+            100% { transform: translateX(150%); opacity: 0; }
+        }
+        .custom-toast {
+            position: fixed;
+            top: 25px; left: 25px;
+            background: white;
+            padding: 16px 28px;
+            border-radius: 12px;
+            z-index: 9999999;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            animation: slideInL 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            font-weight: 600;
+        }
+
+        /* Burger Menu for Mobile */
+        .burger { display: none; cursor: pointer; font-size: 24px; color: #475569; }
+        @media (max-width: 900px) {
+            .nav-links { display: none; }
+            .burger { display: block; }
+            .top-navbar { padding: 0 20px; }
         }
 
         </style>
+
+        <script>
+        // Scroll Effect
+        const nav = window.parent.document.querySelector('.top-navbar');
+        window.parent.addEventListener('scroll', () => {
+            if (window.parent.scrollY > 30) nav.classList.add('navbar-scrolled');
+            else nav.classList.remove('navbar-scrolled');
+        });
+
+        // Button Colorizer
+        function colorizeButtons() {
+            const btns = window.parent.document.querySelectorAll('button');
+            btns.forEach(btn => {
+                const txt = btn.innerText.trim().toLowerCase();
+                if (txt === 'iya' || txt === 'simpan' || txt === 'daftar') {
+                    if (txt === 'iya') {
+                        btn.style.background = '#16A34A';
+                        btn.style.color = 'white';
+                        btn.style.boxShadow = '0 4px 12px rgba(22,163,74,0.2)';
+                    }
+                } else if (txt === 'tidak' || txt === 'hapus' || txt === 'keluar' || txt === 'logout') {
+                    btn.style.background = '#DC2626';
+                    btn.style.color = 'white';
+                    btn.style.boxShadow = '0 4px 12px rgba(220,38,38,0.2)';
+                }
+            });
+        }
+        setInterval(colorizeButtons, 500);
+
+        // Navigation Bridge
+        window.parent.addEventListener('message', (e) => {
+            if(e.data.type === 'nav') {
+                const radios = window.parent.document.querySelectorAll('input[type="radio"]');
+                for(let r of radios) if(r.value === e.data.val) { r.click(); break; }
+            }
+            if(e.data.type === 'logout') {
+                const btn = window.parent.document.querySelector('button[key="btn_logout_side"]');
+                if(btn) btn.click();
+            }
+            if(e.data.type === 'burger') {
+                const b = window.parent.document.querySelector('button[aria-label="Open sidebar"]');
+                if(b) b.click();
+            }
+        });
+        </script>
         """,
         unsafe_allow_html=True,
     )
+
+
+def render_top_navbar(user, active):
+    import html
+    role = user.get("role", "user")
+    if role == "admin":
+        items = ["Dashboard", "Grafik Nilai", "User Management", "Laporan", "Maintenance"]
+    else:
+        items = ["Dashboard", "Profil & Nilai Saya", "Laporan"]
+
+    links = "".join([f'<div class="nav-item {"nav-active" if i == active else ""}" onclick="parent.postMessage({{"type": "nav", "val": "{i}"}}, "*")">{i}</div>' for i in items])
+    safe_name = html.escape(user.get('nama', 'User'))
+
+    st.markdown(f"""
+    <div class="top-navbar">
+        <a href="#" class="nav-logo">SKD App</a>
+        <div class="nav-links">{links}</div>
+        <div class="nav-user">
+            <div class="burger" onclick="parent.postMessage({{"type": "burger"}}, "*")">☰</div>
+            <div class="user-dropdown">
+                <div class="nav-item">{safe_name} ▾</div>
+                <div class="dropdown-content">
+                    <div class="dropdown-item logout-btn" onclick="parent.postMessage({{"type": "logout"}}, "*")">Logout</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    return items
 
 inject_global_css()
 
@@ -398,23 +450,22 @@ def render_report_page(df, title, content_type="table"):
 @st.dialog("Konfirmasi Update")
 def confirm_update_dialog(message, session_key):
     st.write(message)
-    col1, col2 = st.columns(2)
-    if col1.button("Iya, Simpan", use_container_width=True, type="primary"):
+    c1, c2 = st.columns(2)
+    if c1.button("Iya", use_container_width=True, type="primary"):
         st.session_state[session_key] = True
         st.rerun()
-    if col2.button("Tidak", use_container_width=True):
+    if c2.button("Tidak", use_container_width=True):
         st.rerun()
 
 
 @st.dialog("Konfirmasi Hapus")
 def confirm_delete_dialog(message, session_key):
     st.warning(message)
-    col1, col2 = st.columns(2)
-    # Gunakan type="secondary" agar menjadi Merah di dialog per CSS kita
-    if col1.button("Iya, Hapus", use_container_width=True, type="secondary"):
+    c1, c2 = st.columns(2)
+    if c1.button("Iya", use_container_width=True, type="primary"):
         st.session_state[session_key] = True
         st.rerun()
-    if col2.button("Tidak", use_container_width=True, type="primary"):
+    if c2.button("Tidak", use_container_width=True):
         st.rerun()
 
 
@@ -465,7 +516,7 @@ def admin_user_management():
                         index=0 if current_role == "admin" else 1,
                     )
 
-                    submitted_edit = st.form_submit_button("Simpan Perubahan", type="primary")
+                    submitted_edit = st.form_submit_button("Simpan Perubahan")
 
                 if submitted_edit:
                     update_data = {"role": new_role}
@@ -537,7 +588,7 @@ def admin_user_management():
                             ae_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih_admin["twk"]))
                             ae_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih_admin["tiu"]))
                             ae_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih_admin["tkp"]))
-                            submitted_admin_edit_score = st.form_submit_button("Simpan Perubahan Nilai User", type="primary")
+                            submitted_admin_edit_score = st.form_submit_button("Simpan Perubahan Nilai User")
 
                         if submitted_admin_edit_score:
                             ae_total = ae_twk + ae_tiu + ae_tkp
@@ -633,7 +684,7 @@ def user_self_page(user: dict):
                 twk = st.number_input("TWK", min_value=0, value=int(current_twk))
                 tiu = st.number_input("TIU", min_value=0, value=int(current_tiu))
                 tkp = st.number_input("TKP", min_value=0, value=int(current_tkp))
-                submitted_nilai = st.form_submit_button("Simpan Nilai", type="primary")
+                submitted_nilai = st.form_submit_button("Simpan Nilai")
 
         if submitted_nilai:
             total = twk + tiu + tkp
@@ -684,7 +735,7 @@ def user_self_page(user: dict):
                     e_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih["twk"]))
                     e_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih["tiu"]))
                     e_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih["tkp"]))
-                    submitted_edit_score = st.form_submit_button("Simpan Perubahan Nilai", type="primary")
+                    submitted_edit_score = st.form_submit_button("Simpan Perubahan Nilai")
 
             if submitted_edit_score:
                 e_total = e_twk + e_tiu + e_tkp
@@ -727,7 +778,7 @@ def user_self_page(user: dict):
             st.subheader("Edit Password")
             with st.form("user_edit_pass"):
                 new_password = st.text_input("Password baru (kosongkan jika tidak diubah)", type="password")
-                submitted_pass = st.form_submit_button("Simpan Perubahan Password", type="primary")
+                submitted_pass = st.form_submit_button("Simpan Perubahan Password")
             
             if submitted_pass:
                 if new_password:
@@ -920,7 +971,7 @@ def admin_grafik_nilai():
             filtered = df.copy()
 
     if filtered.empty:
-        st.warning(f"Tidak ada data untuk filter: {pilih_skd}")
+        st.warning(f"Tidak ada data for filter: {pilih_skd}")
         return
 
     # Pastikan filtered adalah copy untuk menghindari SettingWithCopyWarning
@@ -1226,19 +1277,18 @@ role = user.get("role", "user") if user else "user"
 # APP UTAMA
 # ======================
 
-if role == "admin":
-    menu_options = ["Dashboard", "Grafik Nilai", "User Management", "Laporan", "Maintenance"]
-else:
-    menu_options = ["Dashboard", "Profil & Nilai Saya", "Laporan"]
+# Render Top Navbar and get menu items
+items = render_top_navbar(user, st.session_state.get("active_menu", "Dashboard"))
 
 with st.sidebar:
-    st.markdown("### 🧭 Menu Utama")
+    # Logic only - sidebar is hidden by CSS but used for state management
     menu = st.radio(
-        "Pilih Halaman",
-        menu_options,
-        index=0,
+        "Navigation",
+        items,
+        key="menu_radio",
+        label_visibility="collapsed"
     )
-    st.markdown("---")
+    st.session_state.active_menu = menu
     logout()
 
 # ======================
