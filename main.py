@@ -640,7 +640,7 @@ def user_self_page(user: dict):
         st.markdown("---")
         
         with st.container(border=True):
-            st.subheader("Input / Update Nilai SKD")
+            st.subheader("Input Nilai SKD")
 
             latest = fetch_latest_score(user["id"])
             current_twk = (latest or {}).get("twk") or 0
