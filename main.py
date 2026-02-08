@@ -580,93 +580,119 @@ def admin_user_management():
 def user_self_page(user: dict):
     st.header("📑 Profil & Nilai Saya")
     
-    with st.container(border=True):
-        st.write(f"Nama: **{user.get('nama')}**")
-        st.write(f"Role: **{user.get('role', 'user')}**")
-
-    st.markdown("---")
+    tab1, tab2 = st.tabs(["👥 Kelola Akun", "📊 Kelola Nilai"])
     
-    with st.container(border=True):
-        st.subheader("Input / Update Nilai SKD")
-
-        latest = fetch_latest_score(user["id"])
-        current_twk = (latest or {}).get("twk") or 0
-        current_tiu = (latest or {}).get("tiu") or 0
-        current_tkp = (latest or {}).get("tkp") or 0
-
-        with st.form("update_nilai_saya"):
-            twk = st.number_input("TWK", min_value=0, value=int(current_twk))
-            tiu = st.number_input("TIU", min_value=0, value=int(current_tiu))
-            tkp = st.number_input("TKP", min_value=0, value=int(current_tkp))
-            submitted_nilai = st.form_submit_button("Simpan Nilai")
-
-    if submitted_nilai:
-        total = twk + tiu + tkp
-        # Simpan sebagai percobaan baru di tabel scores
-        supabase.table("scores").insert(
-            {
-                "user_id": user["id"],
-                "twk": twk,
-                "tiu": tiu,
-                "tkp": tkp,
-                "total": total,
-            }
-        ).execute()
-
-        # Nilai sekarang hanya disimpan di tabel scores (history)
-        
-        # update juga di session supaya tampilan langsung ikut berubah
-        user.update({"twk": twk, "tiu": tiu, "tkp": tkp, "total": total})
-        st.session_state.user = user
-
-        st.session_state.toast_msg = "Nilai berhasil disimpan"
-        st.rerun()
-
-    st.markdown("---")
-
-    scores = fetch_user_scores(user["id"])
-    if scores:
-        df_scores = pd.DataFrame(scores)
-        if "created_at" in df_scores.columns:
-            df_scores = df_scores.sort_values("created_at")
-        df_scores["skd_ke"] = range(1, len(df_scores) + 1)
-        
+    with tab1:
         with st.container(border=True):
-            # Tampilkan riwayat
-            st.subheader("Riwayat Nilai SKD")
-            cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df_scores.columns]
-            st.dataframe(df_scores[cols], use_container_width=True, hide_index=True)
+            st.write(f"Nama: **{user.get('nama')}**")
+            st.write(f"Role: **{user.get('role', 'user')}**")
 
         st.markdown("---")
+        
+        # Edit Password
         with st.container(border=True):
-            st.subheader("Edit Nilai Percobaan (SKD ke-n)")
+            st.subheader("Edit Password")
+            with st.form("user_edit_pass"):
+                new_password = st.text_input("Password baru (kosongkan jika tidak diubah)", type="password")
+                submitted_pass = st.form_submit_button("Simpan Perubahan Password")
             
-            edit_options = [f"SKD ke-{row['skd_ke']}" for _, row in df_scores.iterrows()]
-            pilih_edit = st.selectbox("Pilih Percobaan yang Ingin Diubah", edit_options)
-            
-            idx_pilih = int(pilih_edit.split("-")[-1])
-            data_pilih = df_scores[df_scores["skd_ke"] == idx_pilih].iloc[0]
+            if submitted_pass:
+                if new_password:
+                    password_hash = bcrypt.hashpw(
+                        new_password.encode("utf-8"), bcrypt.gensalt()
+                    ).decode("utf-8")
+                    supabase.table("users").update({"password": password_hash}).eq("id", user["id"]).execute()
+                    st.session_state.toast_msg = "Password berhasil diupdate"
+                    st.rerun()
+                else:
+                    st.info("Masukkan password baru jika ingin mengubah.")
 
-            with st.form("edit_nilai_user"):
-                e_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih["twk"]))
-                e_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih["tiu"]))
-                e_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih["tkp"]))
-                submitted_edit_score = st.form_submit_button("Simpan Perubahan Nilai")
+    with tab2:
+        with st.container(border=True):
+            st.write(f"Nama: **{user.get('nama')}**")
+            st.write(f"Role: **{user.get('role', 'user')}**")
 
-        if submitted_edit_score:
-            e_total = e_twk + e_tiu + e_tkp
-            supabase.table("scores").update({
-                "twk": e_twk,
-                "tiu": e_tiu,
-                "tkp": e_tkp,
-                "total": e_total
-            }).eq("id", data_pilih["id"]).execute()
-            
-            st.session_state.toast_msg = f"Berhasil memperbarui {pilih_edit}"
+        st.markdown("---")
+        
+        with st.container(border=True):
+            st.subheader("Input / Update Nilai SKD")
+
+            latest = fetch_latest_score(user["id"])
+            current_twk = (latest or {}).get("twk") or 0
+            current_tiu = (latest or {}).get("tiu") or 0
+            current_tkp = (latest or {}).get("tkp") or 0
+
+            with st.form("update_nilai_saya"):
+                twk = st.number_input("TWK", min_value=0, value=int(current_twk))
+                tiu = st.number_input("TIU", min_value=0, value=int(current_tiu))
+                tkp = st.number_input("TKP", min_value=0, value=int(current_tkp))
+                submitted_nilai = st.form_submit_button("Simpan Nilai")
+
+        if submitted_nilai:
+            total = twk + tiu + tkp
+            # Simpan sebagai percobaan baru di tabel scores
+            supabase.table("scores").insert(
+                {
+                    "user_id": user["id"],
+                    "twk": twk,
+                    "tiu": tiu,
+                    "tkp": tkp,
+                    "total": total,
+                }
+            ).execute()
+
+            # update juga di session supaya tampilan langsung ikut berubah
+            user.update({"twk": twk, "tiu": tiu, "tkp": tkp, "total": total})
+            st.session_state.user = user
+
+            st.session_state.toast_msg = "Nilai berhasil disimpan"
             st.rerun()
 
-    else:
-        st.info("Belum ada riwayat nilai. Silakan input nilai pertama Anda.")
+        st.markdown("---")
+
+        scores = fetch_user_scores(user["id"])
+        if scores:
+            df_scores = pd.DataFrame(scores)
+            if "created_at" in df_scores.columns:
+                df_scores = df_scores.sort_values("created_at")
+            df_scores["skd_ke"] = range(1, len(df_scores) + 1)
+            
+            with st.container(border=True):
+                # Tampilkan riwayat
+                st.subheader("Riwayat Nilai SKD")
+                cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df_scores.columns]
+                st.dataframe(df_scores[cols], use_container_width=True, hide_index=True)
+
+            st.markdown("---")
+            with st.container(border=True):
+                st.subheader("Edit Nilai Percobaan (SKD ke-n)")
+                
+                edit_options = [f"SKD ke-{row['skd_ke']}" for _, row in df_scores.iterrows()]
+                pilih_edit = st.selectbox("Pilih Percobaan yang Ingin Diubah", edit_options)
+                
+                idx_pilih = int(pilih_edit.split("-")[-1])
+                data_pilih = df_scores[df_scores["skd_ke"] == idx_pilih].iloc[0]
+
+                with st.form("edit_nilai_user"):
+                    e_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih["twk"]))
+                    e_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih["tiu"]))
+                    e_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih["tkp"]))
+                    submitted_edit_score = st.form_submit_button("Simpan Perubahan Nilai")
+
+            if submitted_edit_score:
+                e_total = e_twk + e_tiu + e_tkp
+                supabase.table("scores").update({
+                    "twk": e_twk,
+                    "tiu": e_tiu,
+                    "tkp": e_tkp,
+                    "total": e_total
+                }).eq("id", data_pilih["id"]).execute()
+                
+                st.session_state.toast_msg = f"Berhasil memperbarui {pilih_edit}"
+                st.rerun()
+
+        else:
+            st.info("Belum ada riwayat nilai. Silakan input nilai pertama Anda.")
 
 
 def prepare_admin_data():
@@ -764,8 +790,6 @@ def admin_dashboard_summary():
     with st.container(border=True):
         st.subheader("📊 Ringkasan Aktivitas User")
         st.dataframe(user_summary_df, use_container_width=True, hide_index=True)
-        if st.button("🖨️ Cetak Ringkasan"):
-            st.components.v1.html("<script>window.parent.print();</script>", height=0)
 
 
 def admin_grafik_nilai():
@@ -800,31 +824,18 @@ def admin_grafik_nilai():
     default_skd_idx = 1 if pilih_user != "Semua User" else 0
     pilih_skd = st.selectbox("Pilih Percobaan SKD (Attempt)", options, index=default_skd_idx)
 
-    # Range selector logic (always shown if data > 15 or "Rentang" selected)
-    r_dari, r_sampai = 1, max_skd
-    show_range = (max_skd > 15) or (pilih_skd == "Rentang")
-    
-    if show_range:
-        st.markdown("### 🔍 Tentukan rentang data")
-        if max_skd > 15:
-            st.info(f"Jumlah data: {max_skd}. Semua data dapat dilihat di layar, namun saat mencetak atau membuat laporan, hanya 15 data yang akan ditampilkan per halaman.")
-        
-        col_r1, col_r2 = st.columns(2)
-        with col_r1:
-            default_dari = max(1, max_skd - 14) if max_skd > 15 else 1
-            r_dari = st.number_input("Dari SKD ke-", min_value=1, max_value=max_skd, value=default_dari, key="admin_r_dari")
-        with col_r2:
-            max_val = min(r_dari + 14, max_skd) if max_skd > 15 else max_skd
-            r_sampai = st.number_input("Sampai SKD ke-", min_value=r_dari, max_value=max_val, value=max_val, key="admin_r_sampai")
-        
-        if max_skd > 15:
-            st.success(f"💡 Rentang Laporan: SKD ke-{r_dari} sampai ke-{r_sampai} (Max 15 data).")
-
     if pilih_user != "Semua User":
         df = df[df["nama"] == pilih_user]
 
     # Main Filtering for UI Display
     if pilih_skd == "Rentang":
+        st.markdown("### 🔍 Filter Rentang")
+        col_r1, col_r2 = st.columns(2)
+        with col_r1:
+            r_dari = st.number_input("Dari SKD ke-", min_value=1, max_value=max_skd, value=1, key="admin_r_dari")
+        with col_r2:
+            r_sampai = st.number_input("Sampai SKD ke-", min_value=r_dari, max_value=max_skd, value=max_skd, key="admin_r_sampai")
+
         filtered = df[(df["skd_ke"] >= r_dari) & (df["skd_ke"] <= r_sampai)].copy()
         filtered = filtered.sort_values(["skd_ke", "nama"])
         st.subheader(f"Data SKD Rentang ke-{r_dari} sampai {r_sampai}")
@@ -862,26 +873,112 @@ def admin_grafik_nilai():
     else:
         filtered["label"] = filtered["nama"]
 
-    # Preparation for Report (Limited to 15 if data > 15)
-    if max_skd > 15:
-        report_df = df[(df["skd_ke"] >= r_dari) & (df["skd_ke"] <= r_sampai)].copy()
-    else:
-        report_df = filtered.copy()
-    
-    if not report_df.empty:
-        if pilih_user == "Semua User":
-            report_df["label"] = report_df["nama"] + " (SKD " + report_df["skd_ke"].astype(str) + ")"
-        else:
-            report_df["label"] = "SKD ke-" + report_df["skd_ke"].astype(str)
-
     # Tampilkan Tabel UI
     with st.container(border=True):
         st.subheader("Data Riwayat SKD")
         cols_to_show = ["nama", "skd_ke", "twk", "tiu", "tkp", "total"]
         st.dataframe(filtered[cols_to_show], use_container_width=True, hide_index=True)
 
-        # Tombol Download Laporan PNG (Uses report_df)
-        report_title = f"Laporan SKD: {pilih_user} (SKD {r_dari}-{r_sampai})"
+    with st.container(border=True):
+        st.subheader("Grafik Komponen Nilai")
+        fig1 = render_skd_chart(filtered, f"Komponen Nilai SKD ({pilih_skd})", is_component=True)
+        if fig1:
+            st.pyplot(fig1)
+
+    with st.container(border=True):
+        st.subheader("Grafik Total Nilai")
+        fig2 = render_skd_chart(filtered, f"Total Nilai SKD ({pilih_skd})", is_component=False)
+        if fig2:
+            st.pyplot(fig2)
+
+
+def render_laporan_page(user, role):
+    """Halaman Laporan dan Cetak khusus untuk download file laporan A4."""
+    st.header("🖨️ Laporan & Cetak")
+    
+    if role == "admin":
+        data = prepare_admin_data()
+        if not data:
+            st.info("Belum ada data user.")
+            return
+            
+        tab_rep1, tab_rep2 = st.tabs(["📊 Laporan Individu", "📋 Ringkasan Aktivitas"])
+        
+        with tab_rep1:
+            if data["df"].empty:
+                st.warning("Tidak ada data nilai user untuk dibuat laporan.")
+            else:
+                df = data["df"]
+                user_list = sorted(df["nama"].unique().tolist())
+                pilih_user_rep = st.selectbox("Pilih User untuk Laporan", user_list)
+                df_target = df[df["nama"] == pilih_user_rep].copy()
+                _render_individual_report_ui(df_target, pilih_user_rep)
+        
+        with tab_rep2:
+            st.subheader("Ringkasan Aktivitas Semua User")
+            df_users = data["df_users"]
+            df = data["df"]
+            
+            score_summary = pd.DataFrame(columns=["user_id", "total_skd", "max_score"])
+            if not df.empty:
+                score_summary = df.groupby("user_id").agg(
+                    total_skd=("skd_ke", "max"),
+                    max_score=("total", "max")
+                ).reset_index()
+
+            user_summary_df = df_users[df_users["role"] == "user"][["id", "nama"]].merge(
+                score_summary, left_on="id", right_on="user_id", how="left"
+            )
+            user_summary_df["total_skd"] = user_summary_df["total_skd"].fillna(0).astype(int)
+            user_summary_df["max_score"] = user_summary_df["max_score"].fillna(0).astype(int)
+            user_summary_df = user_summary_df[["nama", "total_skd", "max_score"]].sort_values("max_score", ascending=False)
+            user_summary_df.columns = ["Nama User", "Total SKD", "Nilai Tertinggi"]
+            
+            st.dataframe(user_summary_df, use_container_width=True, hide_index=True)
+            if st.button("🖨️ Cetak Ringkasan Aktivitas"):
+                st.components.v1.html("<script>window.parent.print();</script>", height=0)
+    else:
+        scores = fetch_user_scores(user["id"])
+        if not scores:
+            st.info("Belum ada data nilai. Silakan input nilai terlebih dahulu di menu Profil.")
+            return
+        df_target = pd.DataFrame(scores)
+        if "created_at" in df_target.columns:
+            df_target = df_target.sort_values("created_at")
+        df_target["skd_ke"] = range(1, len(df_target) + 1)
+        pilih_user_rep = user.get("nama")
+        _render_individual_report_ui(df_target, pilih_user_rep)
+
+
+def _render_individual_report_ui(df_target, pilih_user):
+    """Helper untuk menampilkan UI laporan individu."""
+    max_skd = len(df_target)
+    df_target["label"] = "SKD ke-" + df_target["skd_ke"].astype(str)
+    
+    with st.container(border=True):
+        st.subheader("🔍 Tentukan Rentang Data")
+        st.info(f"Jumlah data: {max_skd}. Untuk hasil terbaik (A4), laporan dibatasi maksimal 15 data per halaman.")
+        
+        col_r1, col_r2 = st.columns(2)
+        with col_r1:
+            default_dari = max(1, max_skd - 14)
+            r_dari = st.number_input("Dari SKD ke-", min_value=1, max_value=max_skd, value=default_dari, key=f"rep_r_dari_{pilih_user}")
+        with col_r2:
+            max_val = min(r_dari + 14, max_skd)
+            r_sampai = st.number_input("Sampai SKD ke-", min_value=r_dari, max_value=max_val, value=max_val, key=f"rep_r_sampai_{pilih_user}")
+        
+        st.success(f"💡 Rentang Laporan: SKD ke-{r_dari} sampai ke-{r_sampai}")
+
+    report_df = df_target[(df_target["skd_ke"] >= r_dari) & (df_target["skd_ke"] <= r_sampai)].copy()
+
+    with st.container(border=True):
+        st.subheader(f"Pratinjau Data: {pilih_user}")
+        cols = ["skd_ke", "twk", "tiu", "tkp", "total"]
+        st.dataframe(report_df[cols], use_container_width=True, hide_index=True)
+
+        st.markdown("---")
+        # Tombol Download Laporan PNG
+        report_title = f"Laporan Hasil SKD: {pilih_user} (SKD {r_dari}-{r_sampai})"
         filename_base = f"laporan_skd_{pilih_user}_{r_dari}_{r_sampai}".replace(" ", "_")
         
         col_btn1, col_btn2 = st.columns(2)
@@ -889,52 +986,27 @@ def admin_grafik_nilai():
             report_table = render_report_page(report_df, report_title, "table")
             if report_table:
                 st.download_button(
-                    label="📄 Download Tabel (Maks 15 Data)",
+                    label="📄 Download Tabel (PNG)",
                     data=report_table,
                     file_name=f"{filename_base}_tabel.png",
                     mime="image/png",
-                    use_container_width=True
+                    use_container_width=True,
+                    key=f"btn_dl_table_{pilih_user}"
                 )
         with col_btn2:
             report_charts = render_report_page(report_df, report_title, "charts")
             if report_charts:
                 st.download_button(
-                    label="📊 Download Grafik (Maks 15 Data)",
+                    label="📊 Download Grafik (PNG)",
                     data=report_charts,
                     file_name=f"{filename_base}_grafik.png",
                     mime="image/png",
-                    use_container_width=True
+                    use_container_width=True,
+                    key=f"btn_dl_charts_{pilih_user}"
                 )
-
-    with st.container(border=True):
-        st.subheader("Grafik Komponen Nilai")
-        fig1 = render_skd_chart(filtered, f"Komponen Nilai SKD ({pilih_skd})", is_component=True)
-        if fig1:
-            st.pyplot(fig1)
-            # Tombol Download
-            buf1 = io.BytesIO()
-            fig1.savefig(buf1, format="png", bbox_inches="tight")
-            st.download_button(
-                label="📥 Download Grafik Komponen (PNG)",
-                data=buf1.getvalue(),
-                file_name=f"skd_komponen_{pilih_user}_{pilih_skd}.png",
-                mime="image/png"
-            )
-
-    with st.container(border=True):
-        st.subheader("Grafik Total Nilai")
-        fig2 = render_skd_chart(filtered, f"Total Nilai SKD ({pilih_skd})", is_component=False)
-        if fig2:
-            st.pyplot(fig2)
-            # Tombol Download
-            buf2 = io.BytesIO()
-            fig2.savefig(buf2, format="png", bbox_inches="tight")
-            st.download_button(
-                label="📥 Download Grafik Total (PNG)",
-                data=buf2.getvalue(),
-                file_name=f"skd_total_{pilih_user}_{pilih_skd}.png",
-                mime="image/png"
-            )
+    
+    if st.button("🖨️ Cetak Halaman Ini", key=f"btn_print_{pilih_user}"):
+        st.components.v1.html("<script>window.parent.print();</script>", height=0)
 
 
 def user_personal_dashboard(user: dict):
@@ -967,80 +1039,22 @@ def user_personal_dashboard(user: dict):
     df["skd_ke"] = range(1, len(df) + 1)
     df["label"] = "SKD ke-" + df["skd_ke"].astype(str)
 
-    # Range selector for Reports
-    r_dari, r_sampai = 1, total_skd
-    if total_skd > 15:
-        st.markdown("### 🔍 Tentukan rentang data")
-        st.info(f"Jumlah data: {total_skd}. Semua data dapat dilihat di layar, namun saat mencetak atau membuat laporan, hanya 15 data yang akan ditampilkan per halaman.")
-        col_r1, col_r2 = st.columns(2)
-        with col_r1:
-            default_dari = max(1, total_skd - 14)
-            r_dari = st.number_input("Dari SKD ke-", min_value=1, max_value=total_skd, value=default_dari, key="user_r_dari")
-        with col_r2:
-            max_val = min(r_dari + 14, total_skd)
-            r_sampai = st.number_input("Sampai SKD ke-", min_value=r_dari, max_value=max_val, value=max_val, key="user_r_sampai")
-        st.success(f"💡 Rentang Laporan: SKD ke-{r_dari} sampai ke-{r_sampai} (Max 15 data).")
-    
-    report_df = df[(df["skd_ke"] >= r_dari) & (df["skd_ke"] <= r_sampai)].copy()
-
     with st.container(border=True):
         st.subheader("Riwayat Nilai")
         cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df.columns]
         st.dataframe(df[cols], use_container_width=True, hide_index=True)
-        
-        # Tombol Download Laporan PNG (Uses report_df)
-        report_title = f"Laporan Hasil SKD: {user.get('nama')} (SKD {r_dari}-{r_sampai})"
-        filename_base = f"laporan_skd_{user.get('nama')}_{r_dari}_{r_sampai}".replace(" ", "_")
-        
-        col_btn1, col_btn2 = st.columns(2)
-        with col_btn1:
-            report_table = render_report_page(report_df, report_title, "table")
-            if report_table:
-                st.download_button(
-                    label="📄 Download Tabel (Maks 15 Data)",
-                    data=report_table,
-                    file_name=f"{filename_base}_tabel.png",
-                    mime="image/png",
-                    use_container_width=True
-                )
-        with col_btn2:
-            report_charts = render_report_page(report_df, report_title, "charts")
-            if report_charts:
-                st.download_button(
-                    label="📊 Download Grafik (Maks 15 Data)",
-                    data=report_charts,
-                    file_name=f"{filename_base}_grafik.png",
-                    mime="image/png",
-                    use_container_width=True
-                )
 
     with st.container(border=True):
         st.subheader("Grafik Komponen Nilai (Per Percobaan)")
         fig1 = render_skd_chart(df, "Perkembangan Nilai TWK / TIU / TKP", is_component=True)
         if fig1:
             st.pyplot(fig1)
-            buf1 = io.BytesIO()
-            fig1.savefig(buf1, format="png", bbox_inches="tight")
-            st.download_button(
-                label="📥 Download Grafik Komponen (PNG)",
-                data=buf1.getvalue(),
-                file_name=f"my_skd_komponen.png",
-                mime="image/png"
-            )
 
     with st.container(border=True):
         st.subheader("Grafik Total Nilai")
         fig2 = render_skd_chart(df, "Perkembangan Total Nilai SKD", is_component=False)
         if fig2:
             st.pyplot(fig2)
-            buf2 = io.BytesIO()
-            fig2.savefig(buf2, format="png", bbox_inches="tight")
-            st.download_button(
-                label="📥 Download Grafik Total (PNG)",
-                data=buf2.getvalue(),
-                file_name=f"my_skd_total.png",
-                mime="image/png"
-            )
 
 
 def admin_maintenance():
@@ -1103,9 +1117,9 @@ role = user.get("role", "user") if user else "user"
 # ======================
 
 if role == "admin":
-    menu_options = ["Dashboard", "Grafik Nilai", "User", "Maintenance"]
+    menu_options = ["Dashboard", "Grafik Nilai", "User Management", "Laporan", "Maintenance"]
 else:
-    menu_options = ["Dashboard", "User"]
+    menu_options = ["Dashboard", "Profil & Nilai Saya", "Laporan"]
 
 with st.sidebar:
     st.markdown("### 🧭 Menu Utama")
@@ -1136,9 +1150,9 @@ elif menu == "Grafik Nilai":
         st.error("Hanya Admin yang dapat mengakses halaman ini.")
 
 # ======================
-# HALAMAN USER
+# HALAMAN USER MANAGEMENT / PROFIL & NILAI
 # ======================
-elif menu == "User":
+elif menu in ["User Management", "Profil & Nilai Saya"]:
     if role == "admin":
         admin_user_management()
     else:
@@ -1146,6 +1160,12 @@ elif menu == "User":
             st.error("Data user tidak ditemukan di session.")
         else:
             user_self_page(user)
+
+# ======================
+# HALAMAN LAPORAN
+# ======================
+elif menu == "Laporan":
+    render_laporan_page(user, role)
 
 # ======================
 # HALAMAN MAINTENANCE
