@@ -18,11 +18,11 @@ st.set_page_config(
 # HELPER FUNCTIONS
 # ======================
 def show_toast(message: str):
-    """Menampilkan notifikasi toast custom di posisi top-center."""
+    """Menampilkan notifikasi toast custom di posisi top-left dengan gaya SaaS."""
     st.markdown(
         f"""
         <div class="custom-toast">
-            <span>✅</span>
+            <span>ℹ️</span>
             <span>{message}</span>
         </div>
         """,
@@ -31,26 +31,26 @@ def show_toast(message: str):
 
 
 def inject_global_css():
-    """Menerapkan Design System Modern: Dark Sidebar, Light Content, dan Contrast Palette."""
+    """Menerapkan Design System SaaS Modern (incident.io style)."""
     st.markdown(
         """
         <style>
         /* 1. Global Background & Text */
         .stApp {
-            background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%) !important;
+            background-color: #F8FAFC !important;
             color: #334155 !important;
         }
         
-        /* Main Content Area - Light */
+        /* Main Content Area */
         section[data-testid="stMain"] {
             background-color: #F8FAFC !important;
         }
 
-        /* 2. Sidebar Styling - Dark Theme */
+        /* 2. Sidebar Styling - Dark SaaS Theme */
         [data-testid="stSidebar"] {
             background-color: #0B1120 !important;
             color: #E2E8F0 !important;
-            border-right: none !important;
+            border-right: 1px solid #1E293B !important;
         }
         [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
         [data-testid="stSidebar"] .stRadio label p,
@@ -62,7 +62,7 @@ def inject_global_css():
         }
         /* Sidebar item hover */
         [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label:hover {
-            background-color: #0F172A !important;
+            background-color: #1E293B !important;
             border-radius: 8px !important;
         }
         /* Highlight menu aktif */
@@ -70,132 +70,131 @@ def inject_global_css():
             border-color: #3B82F6 !important;
         }
 
-        /* 3. Header / Top Navigation */
+        /* 3. Header Styling */
         header[data-testid="stHeader"] {
-            background-color: rgba(11, 17, 32, 0.5) !important;
-            backdrop-filter: blur(10px) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-        }
-        header[data-testid="stHeader"] svg {
-            fill: #E2E8F0 !important;
+            background-color: rgba(248, 250, 252, 0.8) !important;
+            backdrop-filter: blur(8px) !important;
+            border-bottom: 1px solid #E2E8F0 !important;
         }
 
-        /* 4. Cards Styling - White with Professional Shadow */
+        /* 4. Cards & Containers - SaaS Style */
         .main-card, [data-testid="stVerticalBlockBorderWrapper"] {
             background-color: #FFFFFF !important;
-            border: none !important;
-            border-radius: 12px !important;
+            border: 1px solid #E2E8F0 !important;
+            border-radius: 10px !important;
             padding: 24px !important;
             margin-bottom: 24px !important;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06) !important;
         }
 
         /* 5. Typography */
         h1, h2, h3, h4, h5, h6 {
             color: #0F172A !important;
+            font-weight: 700 !important;
         }
         p, span, .stMarkdown {
             color: #334155 !important;
         }
-        small, .stCaption {
-            color: #64748B !important;
-        }
-        [data-testid="stWidgetLabel"] p {
-            font-weight: 600 !important;
-            color: #0F172A !important;
-        }
 
-        /* 6. Buttons Styling - Professional Refined Colors */
+        /* 6. Buttons Styling - Flat SaaS Design */
         div.stButton > button, 
         div.stDownloadButton > button,
         div[data-testid="stFormSubmitButton"] > button {
             border-radius: 8px !important;
             font-weight: 600 !important;
-            transition: all 0.3s ease !important;
-            min-height: 45px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            padding: 10px 24px !important;
+            transition: all 0.2s ease !important;
+            min-height: 42px !important;
+            padding: 8px 20px !important;
+            border: 1px solid transparent !important;
         }
 
-        /* Primary & All Normal Buttons - Unified Blue */
+        /* Primary Buttons - Solid Blue */
         [data-testid^="stBaseButton-primary"],
+        div[data-testid="stFormSubmitButton"] > button {
+            background-color: #3B82F6 !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        }
+        [data-testid^="stBaseButton-primary"]:hover,
+        div[data-testid="stFormSubmitButton"] > button:hover {
+            background-color: #2563EB !important;
+            border-color: #2563EB !important;
+        }
+
+        /* Secondary Buttons (Normal Context) - Soft Blue Look */
         [data-testid^="stBaseButton-secondary"],
         div.stButton > button,
         div.stDownloadButton > button {
-            background-color: #3B82F6 !important;
-            color: #FFFFFF !important;
-            border: none !important;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2) !important;
+            background-color: #EFF6FF !important;
+            color: #1D4ED8 !important;
+            border: 1px solid #DBEAFE !important;
         }
-        [data-testid^="stBaseButton-primary"]:hover,
         [data-testid^="stBaseButton-secondary"]:hover,
         div.stButton > button:hover {
-            background-color: #2563EB !important;
-            transform: translateY(-1px) !important;
-            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3) !important;
+            background-color: #DBEAFE !important;
+            border-color: #BFDBFE !important;
         }
 
-        /* Logout & "Tidak" (Danger Actions) - Targeted Red Overrides */
-        /* Targets secondary buttons in sidebar and dialogs specifically */
+        /* Logout & Danger Actions Context - Solid Red */
+        /* Targets secondary buttons in sidebar and specific dialog buttons */
         [data-testid="stSidebar"] [data-testid^="stBaseButton-secondary"],
         [data-testid="stDialog"] [data-testid^="stBaseButton-secondary"] {
             background-color: #EF4444 !important;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2) !important;
+            color: #FFFFFF !important;
+            border: none !important;
         }
         [data-testid="stSidebar"] [data-testid^="stBaseButton-secondary"]:hover,
         [data-testid="stDialog"] [data-testid^="stBaseButton-secondary"]:hover {
             background-color: #DC2626 !important;
         }
 
-        /* 7. Notifications & Alerts Refinement */
-        @keyframes toastTimeline {
-            0% { transform: translateX(-120%); opacity: 0; }
-            10% { transform: translateX(0); opacity: 1; }
-            90% { transform: translateX(0); opacity: 1; }
-            100% { transform: translateX(120%); opacity: 0; }
+        /* 7. Notifications & Toasts - Top Left SaaS Style */
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
         }
 
-        /* Custom Toast - Unified Blue */
         .custom-toast {
             position: fixed;
             top: 20px;
             left: 20px;
-            background-color: #DBEAFE !important;
-            color: #1E3A8A !important;
-            padding: 16px 24px !important;
-            border-radius: 12px !important;
-            border: 1px solid #3B82F6 !important;
+            background-color: #EFF6FF !important;
+            color: #1E40AF !important;
+            padding: 12px 20px !important;
+            border-radius: 8px !important;
             border-left: 6px solid #3B82F6 !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
             z-index: 999999;
             display: flex;
             align-items: center;
-            gap: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-            animation: toastTimeline 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            gap: 10px;
             font-weight: 600 !important;
-            white-space: nowrap;
+            animation: slideIn 0.5s ease-out, fadeOut 0.5s ease-in 3.5s forwards;
         }
 
-        /* Streamlit Alerts - Unified Blue */
+        /* Streamlit Alerts Override */
         div[data-testid="stNotificationContentSuccess"],
         div[data-testid="stNotificationContentInfo"] {
-            background-color: #DBEAFE !important;
-            color: #1E3A8A !important;
-            border: 1px solid #3B82F6 !important;
+            background-color: #EFF6FF !important;
+            color: #1E40AF !important;
+            border: 1px solid #DBEAFE !important;
+            border-radius: 8px !important;
         }
         div[data-testid="stNotificationContentSuccess"] svg,
         div[data-testid="stNotificationContentInfo"] svg {
             fill: #3B82F6 !important;
         }
 
-        /* Streamlit Warnings (Danger Actions Context) - Danger Red */
         div[data-testid="stNotificationContentWarning"],
         div[data-testid="stNotificationContentError"] {
             background-color: #FEE2E2 !important;
             color: #991B1B !important;
-            border: 1px solid #EF4444 !important;
+            border: 1px solid #FECACA !important;
+            border-radius: 8px !important;
         }
         div[data-testid="stNotificationContentWarning"] svg,
         div[data-testid="stNotificationContentError"] svg {
@@ -204,70 +203,16 @@ def inject_global_css():
 
         /* 8. Table & DataFrame Styling */
         [data-testid="stDataFrame"], [data-testid="stTable"] {
-            border: none !important;
-            border-radius: 12px !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+            border: 1px solid #E2E8F0 !important;
+            border-radius: 8px !important;
             overflow: hidden !important;
         }
 
         /* 9. Input Styling */
         div[data-baseweb="input"], div[data-baseweb="select"] > div {
-            border-radius: 8px !important;
+            border-radius: 6px !important;
             border: 1px solid #E2E8F0 !important;
-        }
-
-        /* 10. Sidebar Collapse Button Visibility */
-        [data-testid="stSidebarCollapseButton"] {
-            color: #F8FAFC !important;
-        }
-
-        /* 11. Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .main .block-container {
-                padding: 1rem 0.5rem !important;
-            }
-        }
-
-        /* 12. Print Styles */
-        @media print {
-            [data-testid="stSidebar"], 
-            header[data-testid="stHeader"], 
-            .stButton, 
-            .stDownloadButton,
-            div[data-testid="stSelectbox"], 
-            div[data-testid="stNumberInput"],
-            .custom-toast,
-            [data-testid="stSidebarNav"],
-            footer {
-                display: none !important;
-            }
-            
-            /* Optimasi layout halaman cetak */
-            .main .block-container {
-                padding: 0 !important;
-                margin: 0 !important;
-                max-width: 100% !important;
-            }
-            
-            .stApp {
-                background-color: white !important;
-            }
-
-            /* Kartu dan Container */
-            .main-card, [data-testid="stVerticalBlockBorderWrapper"] {
-                width: 100% !important;
-                border: 1px solid #EEE !important;
-                box-shadow: none !important;
-                margin-bottom: 10px !important;
-                page-break-inside: avoid !important;
-                padding: 10px !important;
-            }
-
-            /* Tabel: Paksa tampilkan semua tanpa scroll */
-            [data-testid="stDataFrame"], [data-testid="stTable"], .stTable {
-                overflow: visible !important;
-                width: 100% !important;
-            }
+            background-color: #FFFFFF !important;
         }
 
         </style>
@@ -453,16 +398,23 @@ def render_report_page(df, title, content_type="table"):
 @st.dialog("Konfirmasi Update")
 def confirm_update_dialog(message, session_key):
     st.write(message)
-    if st.button("Iya, Simpan", use_container_width=True, type="primary"):
+    col1, col2 = st.columns(2)
+    if col1.button("Iya, Simpan", use_container_width=True, type="primary"):
         st.session_state[session_key] = True
+        st.rerun()
+    if col2.button("Tidak", use_container_width=True):
         st.rerun()
 
 
 @st.dialog("Konfirmasi Hapus")
 def confirm_delete_dialog(message, session_key):
     st.warning(message)
-    if st.button("Iya, Hapus", use_container_width=True, type="primary"):
+    col1, col2 = st.columns(2)
+    # Gunakan type="secondary" agar menjadi Merah di dialog per CSS kita
+    if col1.button("Iya, Hapus", use_container_width=True, type="secondary"):
         st.session_state[session_key] = True
+        st.rerun()
+    if col2.button("Tidak", use_container_width=True, type="primary"):
         st.rerun()
 
 
