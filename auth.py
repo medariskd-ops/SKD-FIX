@@ -118,18 +118,27 @@ def logout():
     if "confirm_logout" not in st.session_state:
         st.session_state.confirm_logout = False
 
-    if not st.session_state.confirm_logout:
-        if st.sidebar.button("Logout"):
-            st.session_state.confirm_logout = True
-            st.rerun()
-    else:
-        st.sidebar.warning("Yakin ingin keluar?")
-        col1, col2 = st.sidebar.columns(2)
-        if col1.button("Ya", use_container_width=True):
-            for key in ("user", "role", "logged_in", "confirm_logout", "toast_msg"):
-                if key in st.session_state:
-                    del st.session_state[key]
-            st.rerun()
-        if col2.button("Tidak", use_container_width=True):
-            st.session_state.confirm_logout = False
-            st.rerun()
+    def trigger_confirm():
+        st.session_state.confirm_logout = True
+
+    def cancel_confirm():
+        st.session_state.confirm_logout = False
+
+    def do_logout():
+        for key in ("user", "role", "logged_in", "confirm_logout", "toast_msg"):
+            st.session_state.pop(key, None)
+
+    # Gunakan sidebar.container agar tetap di sidebar dan transisi lebih bersih
+    with st.sidebar.container():
+        if not st.session_state.confirm_logout:
+            st.button(
+                "Logout",
+                key="btn_logout_side",
+                use_container_width=True,
+                on_click=trigger_confirm
+            )
+        else:
+            st.warning("Yakin ingin keluar?")
+            col1, col2 = st.columns(2)
+            col1.button("Ya", key="btn_logout_ya", use_container_width=True, on_click=do_logout)
+            col2.button("Tidak", key="btn_logout_tidak", use_container_width=True, on_click=cancel_confirm)
