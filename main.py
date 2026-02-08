@@ -34,7 +34,7 @@ def show_toast(message: str, type="success"):
 
 
 def inject_global_css():
-    """Menerapkan Redesign UI Streamlit dengan Overlay Burger Menu."""
+    """Menerapkan Modern Light Glassmorphism UI."""
     st.markdown(
         """
         <style>
@@ -55,20 +55,23 @@ def inject_global_css():
             padding-right: 5% !important;
         }
 
-        /* Re-enable Streamlit Header but make it transparent */
-        header[data-testid="stHeader"] {
-            display: flex !important;
-            background: transparent !important;
-            color: #1E293B !important;
-        }
-
-        /* Modern Overlay Sidebar */
+        /* Modern Glass Sidebar */
         [data-testid="stSidebar"] {
-            background-color: #111827 !important;
-            color: white !important;
-            box-shadow: 4px 0 20px rgba(0,0,0,0.15) !important;
+            background-color: rgba(203, 213, 225, 0.5) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.4) !important;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.05) !important;
             z-index: 1000001 !important;
             transition: transform 0.3s ease !important;
+        }
+
+        /* Force Sidebar Text Color */
+        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p,
+        [data-testid="stSidebar"] .stMarkdown p,
+        [data-testid="stSidebar"] label p {
+            color: #1E293B !important;
+            font-weight: 600 !important;
         }
 
         /* Prevent content shift */
@@ -83,15 +86,12 @@ def inject_global_css():
             content: "";
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.25);
+            background: rgba(0,0,0,0.1);
             z-index: 99999;
             pointer-events: none;
         }
 
-        /* Hide Default Sidebar Visuals (Border) */
-        [data-testid="stSidebar"] { border-right: none !important; }
-
-        /* Sidebar Navigation Styling (st.radio) */
+        /* Sidebar Navigation Styling (Pills) */
         [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
             display: none;
         }
@@ -103,8 +103,8 @@ def inject_global_css():
 
         [data-testid="stSidebar"] div[role="radiogroup"] label {
             background-color: transparent !important;
-            padding: 12px 16px !important;
-            border-radius: 10px !important;
+            padding: 10px 20px !important;
+            border-radius: 24px !important;
             border: none !important;
             width: 100% !important;
             cursor: pointer !important;
@@ -112,35 +112,24 @@ def inject_global_css():
             margin: 0 !important;
         }
 
-        /* Hide radio circle - target the first div child of the label */
+        /* Hide radio circle */
         [data-testid="stSidebar"] div[role="radiogroup"] label > div:first-child {
             display: none !important;
         }
 
-        /* Sidebar Item Text */
         [data-testid="stSidebar"] div[role="radiogroup"] label p {
-            color: #E2E8F0 !important;
-            font-weight: 600 !important;
             font-size: 15px !important;
             margin: 0 !important;
         }
 
         [data-testid="stSidebar"] div[role="radiogroup"] label:hover {
-            background-color: rgba(255, 255, 255, 0.05) !important;
+            background-color: rgba(0, 0, 0, 0.03) !important;
         }
         
-        [data-testid="stSidebar"] div[role="radiogroup"] label:hover p {
-            color: white !important;
-        }
-
-        /* Active Sidebar Item */
+        /* Active Sidebar Item (Pill) */
         [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
-            background-color: #2563EB !important;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
-        }
-        
-        [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) p {
-            color: white !important;
+            background-color: rgba(0, 0, 0, 0.05) !important;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05) !important;
         }
 
         /* Cards & UI Elements */
@@ -149,46 +138,57 @@ def inject_global_css():
             border-radius: 16px !important;
             padding: 32px !important;
             box-shadow: 0 4px 20px rgba(0,0,0,0.03) !important;
-            border: none !important;
+            border: 1px solid rgba(0,0,0,0.05) !important;
             margin-bottom: 24px !important;
         }
 
-        /* Buttons Styling */
-        [data-testid="stSidebar"] button[data-testid="stBaseButton-secondary"] {
-            background-color: #DC2626 !important;
-            color: white !important;
-            box-shadow: 0 4px 12px rgba(220,38,38,0.2) !important;
-        }
-        [data-testid="stSidebar"] button[data-testid="stBaseButton-secondary"] p {
-            color: white !important;
-        }
-
+        /* Global Buttons Styling */
         div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {
-            border-radius: 12px !important;
-            font-weight: 700 !important;
-            min-height: 46px !important;
+            border-radius: 24px !important;
+            font-weight: 600 !important;
+            min-height: 44px !important;
             transition: all 0.2s !important;
             border: none !important;
+            padding: 0.5rem 2rem !important;
         }
         
-        /* Primary (Blue) */
-        [data-testid^="stBaseButton-primary"], div[data-testid="stFormSubmitButton"] > button {
-            background: #2563EB !important;
+        /* Primary (Emerald) */
+        button[data-testid^="stBaseButton-primary"],
+        div.stDownloadButton > button,
+        div[data-testid="stFormSubmitButton"] > button {
+            background-color: #10B981 !important;
             color: white !important;
-            box-shadow: 0 4px 12px rgba(37,99,235,0.2) !important;
+            box-shadow: 0 4px 12px rgba(16,185,129,0.2) !important;
         }
-        [data-testid^="stBaseButton-primary"]:hover, div[data-testid="stFormSubmitButton"] > button:hover {
-            background: #1D4ED8 !important;
+        button[data-testid^="stBaseButton-primary"]:hover,
+        div.stDownloadButton > button:hover,
+        div[data-testid="stFormSubmitButton"] > button:hover {
+            background-color: #059669 !important;
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(37,99,235,0.3) !important;
+            box-shadow: 0 6px 16px rgba(16,185,129,0.3) !important;
         }
 
-        /* Gray Buttons */
-        [data-testid^="stBaseButton-secondary"], div.stButton > button {
-            background: #F1F5F9 !important;
-            color: #475569 !important;
+        /* Secondary/Logout (Rose) */
+        button[data-testid^="stBaseButton-secondary"] {
+            background-color: #F43F5E !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(244,63,94,0.2) !important;
         }
-        [data-testid^="stBaseButton-secondary"]:hover { background: #E2E8F0 !important; }
+        button[data-testid^="stBaseButton-secondary"]:hover {
+            background-color: #E11D48 !important;
+            transform: translateY(-1px);
+        }
+        button[data-testid^="stBaseButton-secondary"] p {
+            color: white !important;
+        }
+
+        /* Inputs & Selectboxes */
+        div[data-baseweb="input"], div[data-baseweb="select"] {
+            border-radius: 12px !important;
+        }
+        [data-testid="stNumberInput"] input, [data-testid="stTextInput"] input {
+            border-radius: 12px !important;
+        }
 
         /* Notifications (Left Slide) */
         @keyframes slideInL {
@@ -213,26 +213,6 @@ def inject_global_css():
         }
 
         </style>
-        
-        <script>
-        // Button Colorizer
-        function colorizeButtons() {
-            const btns = window.parent.document.querySelectorAll('button');
-            btns.forEach(btn => {
-                const txt = btn.innerText.trim().toLowerCase();
-                if (txt === 'iya' || txt === 'simpan' || txt === 'daftar') {
-                    btn.style.setProperty('background-color', '#2563EB', 'important');
-                    btn.style.setProperty('color', 'white', 'important');
-                    btn.style.setProperty('box-shadow', '0 4px 12px rgba(37,99,235,0.2)', 'important');
-                } else if (txt === 'tidak' || txt === 'hapus' || txt === 'keluar' || txt === 'logout') {
-                    btn.style.setProperty('background-color', '#DC2626', 'important');
-                    btn.style.setProperty('color', 'white', 'important');
-                    btn.style.setProperty('box-shadow', '0 4px 12px rgba(220,38,38,0.2)', 'important');
-                }
-            });
-        }
-        setInterval(colorizeButtons, 500);
-        </script>
         """,
         unsafe_allow_html=True,
     )
@@ -279,7 +259,7 @@ def fetch_latest_score(user_id: str):
 
 def render_skd_chart(df, title, is_component=True):
     """
-    Render grafik SKD dengan gaya seragam dan responsif.
+    Render grafik SKD dengan gaya seragam dan responsif (Modern Theme).
     """
     if df.empty:
         st.warning(f"Data kosong untuk {title}")
@@ -291,10 +271,10 @@ def render_skd_chart(df, title, is_component=True):
     
     fig, ax = plt.subplots(figsize=(dynamic_width, 5), dpi=100)
     
-    # Warna yang lebih "tebal" (bold) agar tidak samar
-    color_twk = "#25343F"  # Navy
-    color_tiu = "#78909C"  # Darker Blue-Gray
-    color_tkp = "#FB8C00"  # Darker Orange
+    # Palette Modern Emerald & Dark Slate
+    color_twk = "#1E293B"  # Dark Slate
+    color_tiu = "#64748B"  # Slate
+    color_tkp = "#10B981"  # Emerald
     
     if is_component:
         ax.plot(df["label"], df["twk"], marker="o", label="TWK", color=color_twk, linewidth=3)
@@ -327,7 +307,7 @@ def render_report_page(df, title, content_type="table"):
     figsize_a4 = (8.27, 11.69)
     fig = plt.figure(figsize=figsize_a4, dpi=100)
     
-    color_primary = "#25343F"
+    color_primary = "#1E293B"
     
     if content_type == "table":
         ax = fig.add_subplot(111)
@@ -371,9 +351,9 @@ def render_report_page(df, title, content_type="table"):
         ax_comp = fig.add_subplot(2, 1, 1)
         ax_total = fig.add_subplot(2, 1, 2)
         
-        color_twk = "#25343F"
-        color_tiu = "#78909C"
-        color_tkp = "#FB8C00"
+        color_twk = "#1E293B"
+        color_tiu = "#64748B"
+        color_tkp = "#10B981"
 
         # Pastikan data terurut
         if "skd_ke" in df.columns:
