@@ -477,6 +477,21 @@ def confirm_update_dialog(message, session_key):
         st.rerun()
 
 
+@st.dialog("🎨 Pilih Mode UI")
+def theme_selection_dialog():
+    """Popup untuk memilih mode UI setelah login."""
+    st.markdown("### Silakan pilih mode UI yang sesuai dengan perangkat Anda.")
+    st.write("Mode ini dapat disesuaikan kembali nanti jika diperlukan.")
+    
+    col1, col2 = st.columns(2)
+    if col1.button("☀️ Terang", use_container_width=True, type="primary"):
+        st.session_state.ui_mode = "Terang"
+        st.rerun()
+    if col2.button("🌙 Gelap", use_container_width=True):
+        st.session_state.ui_mode = "Gelap"
+        st.rerun()
+
+
 @st.dialog("Konfirmasi Hapus")
 def confirm_delete_dialog(message, session_key):
     st.warning(message)
@@ -1292,6 +1307,11 @@ def admin_maintenance():
 if not login():
     st.stop()
 
+# Jika sudah login tapi belum pilih mode UI, tampilkan popup
+if "ui_mode" not in st.session_state:
+    theme_selection_dialog()
+    st.stop()
+
 user = st.session_state.get("user")
 role = user.get("role", "user") if user else "user"
 
@@ -1307,18 +1327,11 @@ else:
     items = ["Beranda Saya", "Profil & Nilai Saya", "Cetak Laporan"]
 
 with st.sidebar:
-    # Selector Mode UI
-    st.markdown("### 🎨 Mode UI")
-    ui_mode = st.radio(
-        "Pilih Mode",
-        ["Terang", "Gelap"],
-        index=0 if st.session_state.get("ui_mode", "Terang") == "Terang" else 1,
-        horizontal=True,
-        key="ui_mode_selector",
-        label_visibility="collapsed"
-    )
-    if ui_mode != st.session_state.get("ui_mode"):
-        st.session_state.ui_mode = ui_mode
+    # Tampilkan info mode saat ini di sidebar (opsional, tapi bagus untuk navigasi)
+    current_mode = st.session_state.get("ui_mode", "Terang")
+    icon = "☀️" if current_mode == "Terang" else "🌙"
+    if st.button(f"{icon} Ubah Mode UI", use_container_width=True):
+        del st.session_state.ui_mode
         st.rerun()
 
     st.markdown("---")
