@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import bcrypt
 import io
+import datetime
 
 from auth import login, logout
 from database import supabase
@@ -419,6 +420,22 @@ def render_report_page(df, title, content_type="table"):
     return buf.getvalue()
 
 
+@st.dialog("Konfirmasi Update")
+def confirm_update_dialog(message, session_key):
+    st.write(message)
+    if st.button("Ya, Simpan", use_container_width=True):
+        st.session_state[session_key] = True
+        st.rerun()
+
+
+@st.dialog("Konfirmasi Hapus")
+def confirm_delete_dialog(message, session_key):
+    st.warning(message)
+    if st.button("Ya, Hapus", use_container_width=True):
+        st.session_state[session_key] = True
+        st.rerun()
+
+
 # Cek apakah ada notifikasi tertunda di session state (setelah fungsi didefinisikan)
 if "toast_msg" in st.session_state:
     show_toast(st.session_state.toast_msg)
@@ -469,19 +486,23 @@ def admin_user_management():
                     submitted_edit = st.form_submit_button("Simpan Perubahan")
 
                 if submitted_edit:
-                    update_data = {
-                        "role": new_role,
-                    }
+                    update_data = {"role": new_role}
                     if new_password:
                         password_hash = bcrypt.hashpw(
                             new_password.encode("utf-8"), bcrypt.gensalt()
                         ).decode("utf-8")
                         update_data["password"] = password_hash
 
-                    supabase.table("users").update(update_data).eq(
+                    st.session_state.pending_user_update = update_data
+                    confirm_update_dialog(f"Simpan perubahan untuk user {user_pilih['nama']}?", "do_update_user")
+
+                if st.session_state.get("do_update_user"):
+                    supabase.table("users").update(st.session_state.pending_user_update).eq(
                         "id", user_pilih["id"]
                     ).execute()
                     st.session_state.toast_msg = "User berhasil diupdate"
+                    del st.session_state.do_update_user
+                    del st.session_state.pending_user_update
                     st.rerun()
 
         st.markdown("---")
@@ -498,8 +519,12 @@ def admin_user_management():
                 user_hapus = next(u for u in users if u["nama"] == nama_hapus)
 
                 if st.button("Hapus User"):
+                    confirm_delete_dialog(f"Apakah Anda yakin ingin menghapus user {user_hapus['nama']}?", "do_delete_user")
+
+                if st.session_state.get("do_delete_user"):
                     supabase.table("users").delete().eq("id", user_hapus["id"]).execute()
                     st.session_state.toast_msg = "User berhasil dihapus"
+                    del st.session_state.do_delete_user
                     st.rerun()
 
     with tab2:
@@ -534,14 +559,29 @@ def admin_user_management():
 
                         if submitted_admin_edit_score:
                             ae_total = ae_twk + ae_tiu + ae_tkp
-                            supabase.table("scores").update({
+                            st.session_state.pending_admin_score_edit = {
                                 "twk": ae_twk,
                                 "tiu": ae_tiu,
                                 "tkp": ae_tkp,
-                                "total": ae_total
-                            }).eq("id", data_pilih_admin["id"]).execute()
+                                "total": ae_total,
+                                "id": data_pilih_admin["id"],
+                                "nama": nama_pilih_score,
+                                "pilih_skd": pilih_skd_admin
+                            }
+                            confirm_update_dialog(f"Simpan perubahan nilai untuk {nama_pilih_score} ({pilih_skd_admin})?", "do_update_admin_score")
+
+                        if st.session_state.get("do_update_admin_score"):
+                            ps = st.session_state.pending_admin_score_edit
+                            supabase.table("scores").update({
+                                "twk": ps["twk"],
+                                "tiu": ps["tiu"],
+                                "tkp": ps["tkp"],
+                                "total": ps["total"]
+                            }).eq("id", ps["id"]).execute()
                             
-                            st.session_state.toast_msg = f"Nilai {nama_pilih_score} berhasil diperbarui"
+                            st.session_state.toast_msg = f"Nilai {ps['nama']} berhasil diperbarui"
+                            del st.session_state.do_update_admin_score
+                            del st.session_state.pending_admin_score_edit
                             st.rerun()
                     else:
                         st.info("User ini belum memiliki riwayat nilai.")
@@ -574,8 +614,12 @@ def admin_user_management():
                         data_pilih_del_admin = df_user_scores_del[df_user_scores_del["skd_ke"] == idx_pilih_del_admin].iloc[0]
 
                         if st.button(f"Hapus {pilih_skd_del_admin} untuk {nama_pilih_del_score}", key="btn_del_score"):
+                            confirm_delete_dialog(f"Hapus {pilih_skd_del_admin} untuk {nama_pilih_del_score}?", "do_delete_admin_score")
+
+                        if st.session_state.get("do_delete_admin_score"):
                             supabase.table("scores").delete().eq("id", data_pilih_del_admin["id"]).execute()
                             st.session_state.toast_msg = f"Nilai {pilih_skd_del_admin} untuk {nama_pilih_del_score} berhasil dihapus"
+                            del st.session_state.do_delete_admin_score
                             st.rerun()
                     else:
                         st.info("User ini belum memiliki riwayat nilai.")
@@ -662,14 +706,28 @@ def user_self_page(user: dict):
 
             if submitted_edit_score:
                 e_total = e_twk + e_tiu + e_tkp
-                supabase.table("scores").update({
+                st.session_state.pending_user_score_edit = {
                     "twk": e_twk,
                     "tiu": e_tiu,
                     "tkp": e_tkp,
-                    "total": e_total
-                }).eq("id", data_pilih["id"]).execute()
+                    "total": e_total,
+                    "id": data_pilih["id"],
+                    "pilih_edit": pilih_edit
+                }
+                confirm_update_dialog(f"Simpan perubahan untuk {pilih_edit}?", "do_update_user_score")
+
+            if st.session_state.get("do_update_user_score"):
+                pus = st.session_state.pending_user_score_edit
+                supabase.table("scores").update({
+                    "twk": pus["twk"],
+                    "tiu": pus["tiu"],
+                    "tkp": pus["tkp"],
+                    "total": pus["total"]
+                }).eq("id", pus["id"]).execute()
                 
-                st.session_state.toast_msg = f"Berhasil memperbarui {pilih_edit}"
+                st.session_state.toast_msg = f"Berhasil memperbarui {pus['pilih_edit']}"
+                del st.session_state.do_update_user_score
+                del st.session_state.pending_user_score_edit
                 st.rerun()
 
         else:
@@ -694,11 +752,17 @@ def user_self_page(user: dict):
                     password_hash = bcrypt.hashpw(
                         new_password.encode("utf-8"), bcrypt.gensalt()
                     ).decode("utf-8")
-                    supabase.table("users").update({"password": password_hash}).eq("id", user["id"]).execute()
-                    st.session_state.toast_msg = "Password berhasil diupdate"
-                    st.rerun()
+                    st.session_state.pending_password_update = password_hash
+                    confirm_update_dialog("Apakah Anda yakin ingin mengubah password?", "do_update_password")
                 else:
                     st.info("Masukkan password baru jika ingin mengubah.")
+
+            if st.session_state.get("do_update_password"):
+                supabase.table("users").update({"password": st.session_state.pending_password_update}).eq("id", user["id"]).execute()
+                st.session_state.toast_msg = "Password berhasil diupdate"
+                del st.session_state.do_update_password
+                del st.session_state.pending_password_update
+                st.rerun()
 
 
 def prepare_admin_data():
@@ -846,11 +910,22 @@ def admin_grafik_nilai():
         filtered = filtered.sort_values(["skd_ke", "nama"])
         st.subheader(f"Data SKD Rentang ke-{r_dari} sampai {r_sampai}")
     elif pilih_skd == "Terakhir":
+        show_this_week = st.radio("Filter Waktu:", ["Semua", "Minggu Ini"], horizontal=True, key="admin_time_filter")
+
+        if show_this_week == "Minggu Ini" and "created_at" in df.columns:
+            df = df.copy()
+            df['created_at_dt'] = pd.to_datetime(df['created_at'])
+            today = datetime.date.today()
+            monday = today - datetime.timedelta(days=today.weekday())
+            df = df[df['created_at_dt'].dt.date >= monday]
+            st.subheader("Data SKD Terakhir User (Minggu Ini)")
+        else:
+            st.subheader("Data SKD Terakhir Setiap User")
+
         if "created_at" in df.columns:
             filtered = df.sort_values("created_at").groupby("user_id").tail(1).copy()
         else:
             filtered = df.groupby("user_id").tail(1).copy()
-        st.subheader("Data SKD Terakhir Setiap User")
     elif pilih_skd == "Semua":
         filtered = df.copy()
         filtered = filtered.sort_values(["skd_ke", "nama"])
@@ -1123,11 +1198,12 @@ def admin_maintenance():
     is_confirmed = (input_confirm == confirm_phrase)
     
     if st.button("🚀 Jalankan Reset Data Sekarang", disabled=not is_confirmed):
+        confirm_delete_dialog("Yakin ingin menghapus seluruh data score dan user? Tindakan ini permanen!", "do_reset_all_data")
+
+    if st.session_state.get("do_reset_all_data"):
         with st.spinner("Sedang memproses reset data..."):
             try:
                 # 1. Hapus semua data scores
-                # Di Supabase, .delete().neq("id", 0) atau semacamnya bisa digunakan untuk "hapus semua" jika diizinkan
-                # Namun cara paling umum untuk hapus semua jika tidak ada filter spesifik:
                 supabase.table("scores").delete().neq("twk", -1).execute()
                 
                 # 2. Hapus semua user dengan role 'user'
@@ -1136,8 +1212,8 @@ def admin_maintenance():
                 st.session_state.toast_msg = "Semua data berhasil direset"
                 st.balloons()
                 
-                # Beri sedikit jeda lalu rerun
-                st.info("Sistem akan memuat ulang dalam sekejap...")
+                del st.session_state.do_reset_all_data
+                st.rerun()
             except Exception as e:
                 st.error(f"Terjadi kesalahan saat melakukan reset: {e}")
 
