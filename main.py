@@ -46,7 +46,13 @@ def inject_global_css():
         
         section[data-testid="stMain"] {
             background-color: #F8FAFC !important;
-            padding-top: 20px !important;
+            padding-top: 0px !important;
+        }
+
+        [data-testid="stAppViewBlockContainer"] {
+            padding-top: 0rem !important;
+            padding-left: 5% !important;
+            padding-right: 5% !important;
         }
 
         /* Re-enable Streamlit Header but make it transparent */
