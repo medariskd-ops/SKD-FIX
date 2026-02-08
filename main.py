@@ -66,6 +66,13 @@ def inject_global_css():
             transition: transform 0.3s ease !important;
         }
 
+        /* Always show sidebar collapse button (<<) */
+        [data-testid="stSidebar"] [data-testid="stBaseButton-headerNoPadding"] {
+            opacity: 1 !important;
+            visibility: visible !important;
+            color: #1E293B !important;
+        }
+
         /* Force Sidebar Text Color */
         [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p,
         [data-testid="stSidebar"] .stMarkdown p,
