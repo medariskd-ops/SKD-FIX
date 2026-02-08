@@ -15,95 +15,35 @@ Collecting usage statistics. To deactivate, set browser.gatherUsageStats to fals
 [31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
 [31m [0m [2mcriptrunner/[0m[1mscript_runner.py[0m:689 in code_to_exec                                     [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:1251 in <module>                                                        [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:1265 in <module>                                                        [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m   [2m1248 [0m[2m# ======================[0m                                                      [31m [0m
-[31m [0m   [2m1249 [0m[94mif[0m menu == [33m"[0m[33mDashboard[0m[33m"[0m:                                                       [31m [0m
-[31m [0m   [2m1250 [0m[2m│   [0m[94mif[0m role == [33m"[0m[33madmin[0m[33m"[0m:                                                       [31m [0m
-[31m [0m [31m❱ [0m1251 [2m│   │   [0m[1;4madmin_dashboard_summary()[0m                                             [31m [0m
-[31m [0m   [2m1252 [0m[2m│   [0m[94melse[0m:                                                                     [31m [0m
-[31m [0m   [2m1253 [0m[2m│   │   [0muser_personal_dashboard(user)                                         [31m [0m
-[31m [0m   [2m1254 [0m                                                                              [31m [0m
+[31m [0m   [2m1262 [0m[2m# ======================[0m                                                      [31m [0m
+[31m [0m   [2m1263 [0m[94mif[0m menu == [33m"[0m[33mDashboard[0m[33m"[0m:                                                       [31m [0m
+[31m [0m   [2m1264 [0m[2m│   [0m[94mif[0m role == [33m"[0m[33madmin[0m[33m"[0m:                                                       [31m [0m
+[31m [0m [31m❱ [0m1265 [2m│   │   [0m[1;4madmin_dashboard_summary()[0m                                             [31m [0m
+[31m [0m   [2m1266 [0m[2m│   [0m[94melse[0m:                                                                     [31m [0m
+[31m [0m   [2m1267 [0m[2m│   │   [0muser_personal_dashboard(user)                                         [31m [0m
+[31m [0m   [2m1268 [0m                                                                              [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:800 in admin_dashboard_summary                                          [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:815 in admin_dashboard_summary                                          [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 797 [0m                                                                              [31m [0m
-[31m [0m   [2m 798 [0m[94mdef[0m[90m [0m[92madmin_dashboard_summary[0m():                                                [31m [0m
-[31m [0m   [2m 799 [0m[2m│   [0mst.header([33m"[0m[33m📈 Dashboard Summary[0m[33m"[0m)                                         [31m [0m
-[31m [0m [31m❱ [0m 800 [2m│   [0mdata = [1;4mprepare_admin_data()[0m                                               [31m [0m
-[31m [0m   [2m 801 [0m[2m│   [0m[94mif[0m [95mnot[0m data:                                                              [31m [0m
-[31m [0m   [2m 802 [0m[2m│   │   [0mst.info([33m"[0m[33mBelum ada data user.[0m[33m"[0m)                                       [31m [0m
-[31m [0m   [2m 803 [0m[2m│   │   [0m[94mreturn[0m                                                                [31m [0m
+[31m [0m   [2m 812 [0m                                                                              [31m [0m
+[31m [0m   [2m 813 [0m[94mdef[0m[90m [0m[92madmin_dashboard_summary[0m():                                                [31m [0m
+[31m [0m   [2m 814 [0m[2m│   [0mst.header([33m"[0m[33m📈 Dashboard Summary[0m[33m"[0m)                                         [31m [0m
+[31m [0m [31m❱ [0m 815 [2m│   [0mdata = [1;4mprepare_admin_data()[0m                                               [31m [0m
+[31m [0m   [2m 816 [0m[2m│   [0m[94mif[0m [95mnot[0m data:                                                              [31m [0m
+[31m [0m   [2m 817 [0m[2m│   │   [0mst.info([33m"[0m[33mBelum ada data user.[0m[33m"[0m)                                       [31m [0m
+[31m [0m   [2m 818 [0m[2m│   │   [0m[94mreturn[0m                                                                [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:758 in prepare_admin_data                                               [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:783 in prepare_admin_data                                               [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 755 [0m[2m│   │   [0m[94mreturn[0m [94mNone[0m                                                           [31m [0m
-[31m [0m   [2m 756 [0m[2m│   [0m                                                                          [31m [0m
-[31m [0m   [2m 757 [0m[2m│   [0mdf_users = pd.DataFrame(users)                                            [31m [0m
-[31m [0m [31m❱ [0m 758 [2m│   [0mtotal_user = [96mlen[0m(df_users[[1;4mdf_users[[0m[1;4;33m"[0m[1;4;33mrole[0m[1;4;33m"[0m[1;4m][0m == [33m"[0m[33muser[0m[33m"[0m])                    [31m [0m
-[31m [0m   [2m 759 [0m[2m│   [0mtotal_admin = [96mlen[0m(df_users[df_users[[33m"[0m[33mrole[0m[33m"[0m] == [33m"[0m[33madmin[0m[33m"[0m])                  [31m [0m
-[31m [0m   [2m 760 [0m[2m│   [0m                                                                          [31m [0m
-[31m [0m   [2m 761 [0m[2m│   [0mdf = pd.DataFrame()                                                       [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/[0m[1mframe.p[0m [31m [0m
-[31m [0m [1my[0m:4113 in __getitem__                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 4110 [0m[2m│   │   [0m[94mif[0m is_single_key:                                                    [31m [0m
-[31m [0m   [2m 4111 [0m[2m│   │   │   [0m[94mif[0m [96mself[0m.columns.nlevels > [94m1[0m:                                     [31m [0m
-[31m [0m   [2m 4112 [0m[2m│   │   │   │   [0m[94mreturn[0m [96mself[0m._getitem_multilevel(key)                         [31m [0m
-[31m [0m [31m❱ [0m 4113 [2m│   │   │   [0mindexer = [1;4;96mself[0m[1;4m.columns.get_loc(key)[0m                              [31m [0m
-[31m [0m   [2m 4114 [0m[2m│   │   │   [0m[94mif[0m is_integer(indexer):                                          [31m [0m
-[31m [0m   [2m 4115 [0m[2m│   │   │   │   [0mindexer = [indexer]                                          [31m [0m
-[31m [0m   [2m 4116 [0m[2m│   │   [0m[94melse[0m:                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/indexes[0m [31m [0m
-[31m [0m [2m/[0m[1mrange.py[0m:417 in get_loc                                                             [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 414 [0m[2m│   │   │   [0m[94mexcept[0m [96mValueError[0m [94mas[0m err:                                         [31m [0m
-[31m [0m   [2m 415 [0m[2m│   │   │   │   [0m[94mraise[0m [96mKeyError[0m(key) [94mfrom[0m[90m [0m[4;96merr[0m                                  [31m [0m
-[31m [0m   [2m 416 [0m[2m│   │   [0m[94mif[0m [96misinstance[0m(key, Hashable):                                         [31m [0m
-[31m [0m [31m❱ [0m 417 [2m│   │   │   [0m[1;4;94mraise[0m[1;4m [0m[1;4;96mKeyError[0m[1;4m(key)[0m                                               [31m [0m
-[31m [0m   [2m 418 [0m[2m│   │   [0m[96mself[0m._check_indexing_error(key)                                       [31m [0m
-[31m [0m   [2m 419 [0m[2m│   │   [0m[94mraise[0m [96mKeyError[0m(key)                                                   [31m [0m
-[31m [0m   [2m 420 [0m                                                                              [31m [0m
-[31m────────────────────────────────────────────────────────────────────────────────────────[0m
-[1;91mKeyError: [0m[32m'role'[0m
-[31m──[0m[31m────────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────────[0m[31m──[0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
-[31m [0m [2mcriptrunner/[0m[1mexec_code.py[0m:129 in exec_func_with_error_handling                        [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
-[31m [0m [2mcriptrunner/[0m[1mscript_runner.py[0m:689 in code_to_exec                                     [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:1251 in <module>                                                        [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m1248 [0m[2m# ======================[0m                                                      [31m [0m
-[31m [0m   [2m1249 [0m[94mif[0m menu == [33m"[0m[33mDashboard[0m[33m"[0m:                                                       [31m [0m
-[31m [0m   [2m1250 [0m[2m│   [0m[94mif[0m role == [33m"[0m[33madmin[0m[33m"[0m:                                                       [31m [0m
-[31m [0m [31m❱ [0m1251 [2m│   │   [0m[1;4madmin_dashboard_summary()[0m                                             [31m [0m
-[31m [0m   [2m1252 [0m[2m│   [0m[94melse[0m:                                                                     [31m [0m
-[31m [0m   [2m1253 [0m[2m│   │   [0muser_personal_dashboard(user)                                         [31m [0m
-[31m [0m   [2m1254 [0m                                                                              [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:800 in admin_dashboard_summary                                          [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 797 [0m                                                                              [31m [0m
-[31m [0m   [2m 798 [0m[94mdef[0m[90m [0m[92madmin_dashboard_summary[0m():                                                [31m [0m
-[31m [0m   [2m 799 [0m[2m│   [0mst.header([33m"[0m[33m📈 Dashboard Summary[0m[33m"[0m)                                         [31m [0m
-[31m [0m [31m❱ [0m 800 [2m│   [0mdata = [1;4mprepare_admin_data()[0m                                               [31m [0m
-[31m [0m   [2m 801 [0m[2m│   [0m[94mif[0m [95mnot[0m data:                                                              [31m [0m
-[31m [0m   [2m 802 [0m[2m│   │   [0mst.info([33m"[0m[33mBelum ada data user.[0m[33m"[0m)                                       [31m [0m
-[31m [0m   [2m 803 [0m[2m│   │   [0m[94mreturn[0m                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:758 in prepare_admin_data                                               [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 755 [0m[2m│   │   [0m[94mreturn[0m [94mNone[0m                                                           [31m [0m
-[31m [0m   [2m 756 [0m[2m│   [0m                                                                          [31m [0m
-[31m [0m   [2m 757 [0m[2m│   [0mdf_users = pd.DataFrame(users)                                            [31m [0m
-[31m [0m [31m❱ [0m 758 [2m│   [0mtotal_user = [96mlen[0m(df_users[[1;4mdf_users[[0m[1;4;33m"[0m[1;4;33mrole[0m[1;4;33m"[0m[1;4m][0m == [33m"[0m[33muser[0m[33m"[0m])                    [31m [0m
-[31m [0m   [2m 759 [0m[2m│   [0mtotal_admin = [96mlen[0m(df_users[df_users[[33m"[0m[33mrole[0m[33m"[0m] == [33m"[0m[33madmin[0m[33m"[0m])                  [31m [0m
-[31m [0m   [2m 760 [0m[2m│   [0m                                                                          [31m [0m
-[31m [0m   [2m 761 [0m[2m│   [0mdf = pd.DataFrame()                                                       [31m [0m
+[31m [0m   [2m 780 [0m[2m│   │   │   [0m[94mif[0m col [95min[0m df_scores.columns:                                      [31m [0m
+[31m [0m   [2m 781 [0m[2m│   │   │   │   [0mdf_scores[col] = pd.to_numeric(df_scores[col], errors=[33m"[0m[33mcoerce[0m [31m [0m
+[31m [0m   [2m 782 [0m[2m│   │   [0m                                                                      [31m [0m
+[31m [0m [31m❱ [0m 783 [2m│   │   [0mdf_scores[[33m"[0m[33mtotal[0m[33m"[0m] = [1;4mdf_scores[[0m[1;4;33m"[0m[1;4;33mtwk[0m[1;4;33m"[0m[1;4m][0m + df_scores[[33m"[0m[33mtiu[0m[33m"[0m] + df_scores[ [31m [0m
+[31m [0m   [2m 784 [0m[2m│   │   [0m                                                                      [31m [0m
+[31m [0m   [2m 785 [0m[2m│   │   [0mdf = pd.merge(                                                        [31m [0m
+[31m [0m   [2m 786 [0m[2m│   │   │   [0mdf_scores,                                                        [31m [0m
 [31m [0m                                                                                      [31m [0m
 [31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/[0m[1mframe.p[0m [31m [0m
 [31m [0m [1my[0m:4113 in __getitem__                                                                [31m [0m
@@ -127,244 +67,4 @@ Collecting usage statistics. To deactivate, set browser.gatherUsageStats to fals
 [31m [0m   [2m 419 [0m[2m│   │   [0m[94mraise[0m [96mKeyError[0m(key)                                                   [31m [0m
 [31m [0m   [2m 420 [0m                                                                              [31m [0m
 [31m────────────────────────────────────────────────────────────────────────────────────────[0m
-[1;91mKeyError: [0m[32m'role'[0m
-[31m──[0m[31m────────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────────[0m[31m──[0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
-[31m [0m [2mcriptrunner/[0m[1mexec_code.py[0m:129 in exec_func_with_error_handling                        [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
-[31m [0m [2mcriptrunner/[0m[1mscript_runner.py[0m:689 in code_to_exec                                     [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:1251 in <module>                                                        [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m1248 [0m[2m# ======================[0m                                                      [31m [0m
-[31m [0m   [2m1249 [0m[94mif[0m menu == [33m"[0m[33mDashboard[0m[33m"[0m:                                                       [31m [0m
-[31m [0m   [2m1250 [0m[2m│   [0m[94mif[0m role == [33m"[0m[33madmin[0m[33m"[0m:                                                       [31m [0m
-[31m [0m [31m❱ [0m1251 [2m│   │   [0m[1;4madmin_dashboard_summary()[0m                                             [31m [0m
-[31m [0m   [2m1252 [0m[2m│   [0m[94melse[0m:                                                                     [31m [0m
-[31m [0m   [2m1253 [0m[2m│   │   [0muser_personal_dashboard(user)                                         [31m [0m
-[31m [0m   [2m1254 [0m                                                                              [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:800 in admin_dashboard_summary                                          [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 797 [0m                                                                              [31m [0m
-[31m [0m   [2m 798 [0m[94mdef[0m[90m [0m[92madmin_dashboard_summary[0m():                                                [31m [0m
-[31m [0m   [2m 799 [0m[2m│   [0mst.header([33m"[0m[33m📈 Dashboard Summary[0m[33m"[0m)                                         [31m [0m
-[31m [0m [31m❱ [0m 800 [2m│   [0mdata = [1;4mprepare_admin_data()[0m                                               [31m [0m
-[31m [0m   [2m 801 [0m[2m│   [0m[94mif[0m [95mnot[0m data:                                                              [31m [0m
-[31m [0m   [2m 802 [0m[2m│   │   [0mst.info([33m"[0m[33mBelum ada data user.[0m[33m"[0m)                                       [31m [0m
-[31m [0m   [2m 803 [0m[2m│   │   [0m[94mreturn[0m                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:758 in prepare_admin_data                                               [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 755 [0m[2m│   │   [0m[94mreturn[0m [94mNone[0m                                                           [31m [0m
-[31m [0m   [2m 756 [0m[2m│   [0m                                                                          [31m [0m
-[31m [0m   [2m 757 [0m[2m│   [0mdf_users = pd.DataFrame(users)                                            [31m [0m
-[31m [0m [31m❱ [0m 758 [2m│   [0mtotal_user = [96mlen[0m(df_users[[1;4mdf_users[[0m[1;4;33m"[0m[1;4;33mrole[0m[1;4;33m"[0m[1;4m][0m == [33m"[0m[33muser[0m[33m"[0m])                    [31m [0m
-[31m [0m   [2m 759 [0m[2m│   [0mtotal_admin = [96mlen[0m(df_users[df_users[[33m"[0m[33mrole[0m[33m"[0m] == [33m"[0m[33madmin[0m[33m"[0m])                  [31m [0m
-[31m [0m   [2m 760 [0m[2m│   [0m                                                                          [31m [0m
-[31m [0m   [2m 761 [0m[2m│   [0mdf = pd.DataFrame()                                                       [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/[0m[1mframe.p[0m [31m [0m
-[31m [0m [1my[0m:4113 in __getitem__                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 4110 [0m[2m│   │   [0m[94mif[0m is_single_key:                                                    [31m [0m
-[31m [0m   [2m 4111 [0m[2m│   │   │   [0m[94mif[0m [96mself[0m.columns.nlevels > [94m1[0m:                                     [31m [0m
-[31m [0m   [2m 4112 [0m[2m│   │   │   │   [0m[94mreturn[0m [96mself[0m._getitem_multilevel(key)                         [31m [0m
-[31m [0m [31m❱ [0m 4113 [2m│   │   │   [0mindexer = [1;4;96mself[0m[1;4m.columns.get_loc(key)[0m                              [31m [0m
-[31m [0m   [2m 4114 [0m[2m│   │   │   [0m[94mif[0m is_integer(indexer):                                          [31m [0m
-[31m [0m   [2m 4115 [0m[2m│   │   │   │   [0mindexer = [indexer]                                          [31m [0m
-[31m [0m   [2m 4116 [0m[2m│   │   [0m[94melse[0m:                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/indexes[0m [31m [0m
-[31m [0m [2m/[0m[1mrange.py[0m:417 in get_loc                                                             [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 414 [0m[2m│   │   │   [0m[94mexcept[0m [96mValueError[0m [94mas[0m err:                                         [31m [0m
-[31m [0m   [2m 415 [0m[2m│   │   │   │   [0m[94mraise[0m [96mKeyError[0m(key) [94mfrom[0m[90m [0m[4;96merr[0m                                  [31m [0m
-[31m [0m   [2m 416 [0m[2m│   │   [0m[94mif[0m [96misinstance[0m(key, Hashable):                                         [31m [0m
-[31m [0m [31m❱ [0m 417 [2m│   │   │   [0m[1;4;94mraise[0m[1;4m [0m[1;4;96mKeyError[0m[1;4m(key)[0m                                               [31m [0m
-[31m [0m   [2m 418 [0m[2m│   │   [0m[96mself[0m._check_indexing_error(key)                                       [31m [0m
-[31m [0m   [2m 419 [0m[2m│   │   [0m[94mraise[0m [96mKeyError[0m(key)                                                   [31m [0m
-[31m [0m   [2m 420 [0m                                                                              [31m [0m
-[31m────────────────────────────────────────────────────────────────────────────────────────[0m
-[1;91mKeyError: [0m[32m'role'[0m
-[31m──[0m[31m────────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────────[0m[31m──[0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
-[31m [0m [2mcriptrunner/[0m[1mexec_code.py[0m:129 in exec_func_with_error_handling                        [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
-[31m [0m [2mcriptrunner/[0m[1mscript_runner.py[0m:689 in code_to_exec                                     [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:1251 in <module>                                                        [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m1248 [0m[2m# ======================[0m                                                      [31m [0m
-[31m [0m   [2m1249 [0m[94mif[0m menu == [33m"[0m[33mDashboard[0m[33m"[0m:                                                       [31m [0m
-[31m [0m   [2m1250 [0m[2m│   [0m[94mif[0m role == [33m"[0m[33madmin[0m[33m"[0m:                                                       [31m [0m
-[31m [0m [31m❱ [0m1251 [2m│   │   [0m[1;4madmin_dashboard_summary()[0m                                             [31m [0m
-[31m [0m   [2m1252 [0m[2m│   [0m[94melse[0m:                                                                     [31m [0m
-[31m [0m   [2m1253 [0m[2m│   │   [0muser_personal_dashboard(user)                                         [31m [0m
-[31m [0m   [2m1254 [0m                                                                              [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:800 in admin_dashboard_summary                                          [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 797 [0m                                                                              [31m [0m
-[31m [0m   [2m 798 [0m[94mdef[0m[90m [0m[92madmin_dashboard_summary[0m():                                                [31m [0m
-[31m [0m   [2m 799 [0m[2m│   [0mst.header([33m"[0m[33m📈 Dashboard Summary[0m[33m"[0m)                                         [31m [0m
-[31m [0m [31m❱ [0m 800 [2m│   [0mdata = [1;4mprepare_admin_data()[0m                                               [31m [0m
-[31m [0m   [2m 801 [0m[2m│   [0m[94mif[0m [95mnot[0m data:                                                              [31m [0m
-[31m [0m   [2m 802 [0m[2m│   │   [0mst.info([33m"[0m[33mBelum ada data user.[0m[33m"[0m)                                       [31m [0m
-[31m [0m   [2m 803 [0m[2m│   │   [0m[94mreturn[0m                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:758 in prepare_admin_data                                               [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 755 [0m[2m│   │   [0m[94mreturn[0m [94mNone[0m                                                           [31m [0m
-[31m [0m   [2m 756 [0m[2m│   [0m                                                                          [31m [0m
-[31m [0m   [2m 757 [0m[2m│   [0mdf_users = pd.DataFrame(users)                                            [31m [0m
-[31m [0m [31m❱ [0m 758 [2m│   [0mtotal_user = [96mlen[0m(df_users[[1;4mdf_users[[0m[1;4;33m"[0m[1;4;33mrole[0m[1;4;33m"[0m[1;4m][0m == [33m"[0m[33muser[0m[33m"[0m])                    [31m [0m
-[31m [0m   [2m 759 [0m[2m│   [0mtotal_admin = [96mlen[0m(df_users[df_users[[33m"[0m[33mrole[0m[33m"[0m] == [33m"[0m[33madmin[0m[33m"[0m])                  [31m [0m
-[31m [0m   [2m 760 [0m[2m│   [0m                                                                          [31m [0m
-[31m [0m   [2m 761 [0m[2m│   [0mdf = pd.DataFrame()                                                       [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/[0m[1mframe.p[0m [31m [0m
-[31m [0m [1my[0m:4113 in __getitem__                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 4110 [0m[2m│   │   [0m[94mif[0m is_single_key:                                                    [31m [0m
-[31m [0m   [2m 4111 [0m[2m│   │   │   [0m[94mif[0m [96mself[0m.columns.nlevels > [94m1[0m:                                     [31m [0m
-[31m [0m   [2m 4112 [0m[2m│   │   │   │   [0m[94mreturn[0m [96mself[0m._getitem_multilevel(key)                         [31m [0m
-[31m [0m [31m❱ [0m 4113 [2m│   │   │   [0mindexer = [1;4;96mself[0m[1;4m.columns.get_loc(key)[0m                              [31m [0m
-[31m [0m   [2m 4114 [0m[2m│   │   │   [0m[94mif[0m is_integer(indexer):                                          [31m [0m
-[31m [0m   [2m 4115 [0m[2m│   │   │   │   [0mindexer = [indexer]                                          [31m [0m
-[31m [0m   [2m 4116 [0m[2m│   │   [0m[94melse[0m:                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/indexes[0m [31m [0m
-[31m [0m [2m/[0m[1mrange.py[0m:417 in get_loc                                                             [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 414 [0m[2m│   │   │   [0m[94mexcept[0m [96mValueError[0m [94mas[0m err:                                         [31m [0m
-[31m [0m   [2m 415 [0m[2m│   │   │   │   [0m[94mraise[0m [96mKeyError[0m(key) [94mfrom[0m[90m [0m[4;96merr[0m                                  [31m [0m
-[31m [0m   [2m 416 [0m[2m│   │   [0m[94mif[0m [96misinstance[0m(key, Hashable):                                         [31m [0m
-[31m [0m [31m❱ [0m 417 [2m│   │   │   [0m[1;4;94mraise[0m[1;4m [0m[1;4;96mKeyError[0m[1;4m(key)[0m                                               [31m [0m
-[31m [0m   [2m 418 [0m[2m│   │   [0m[96mself[0m._check_indexing_error(key)                                       [31m [0m
-[31m [0m   [2m 419 [0m[2m│   │   [0m[94mraise[0m [96mKeyError[0m(key)                                                   [31m [0m
-[31m [0m   [2m 420 [0m                                                                              [31m [0m
-[31m────────────────────────────────────────────────────────────────────────────────────────[0m
-[1;91mKeyError: [0m[32m'role'[0m
-[31m──[0m[31m────────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────────[0m[31m──[0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
-[31m [0m [2mcriptrunner/[0m[1mexec_code.py[0m:129 in exec_func_with_error_handling                        [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
-[31m [0m [2mcriptrunner/[0m[1mscript_runner.py[0m:689 in code_to_exec                                     [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:1251 in <module>                                                        [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m1248 [0m[2m# ======================[0m                                                      [31m [0m
-[31m [0m   [2m1249 [0m[94mif[0m menu == [33m"[0m[33mDashboard[0m[33m"[0m:                                                       [31m [0m
-[31m [0m   [2m1250 [0m[2m│   [0m[94mif[0m role == [33m"[0m[33madmin[0m[33m"[0m:                                                       [31m [0m
-[31m [0m [31m❱ [0m1251 [2m│   │   [0m[1;4madmin_dashboard_summary()[0m                                             [31m [0m
-[31m [0m   [2m1252 [0m[2m│   [0m[94melse[0m:                                                                     [31m [0m
-[31m [0m   [2m1253 [0m[2m│   │   [0muser_personal_dashboard(user)                                         [31m [0m
-[31m [0m   [2m1254 [0m                                                                              [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:800 in admin_dashboard_summary                                          [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 797 [0m                                                                              [31m [0m
-[31m [0m   [2m 798 [0m[94mdef[0m[90m [0m[92madmin_dashboard_summary[0m():                                                [31m [0m
-[31m [0m   [2m 799 [0m[2m│   [0mst.header([33m"[0m[33m📈 Dashboard Summary[0m[33m"[0m)                                         [31m [0m
-[31m [0m [31m❱ [0m 800 [2m│   [0mdata = [1;4mprepare_admin_data()[0m                                               [31m [0m
-[31m [0m   [2m 801 [0m[2m│   [0m[94mif[0m [95mnot[0m data:                                                              [31m [0m
-[31m [0m   [2m 802 [0m[2m│   │   [0mst.info([33m"[0m[33mBelum ada data user.[0m[33m"[0m)                                       [31m [0m
-[31m [0m   [2m 803 [0m[2m│   │   [0m[94mreturn[0m                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:758 in prepare_admin_data                                               [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 755 [0m[2m│   │   [0m[94mreturn[0m [94mNone[0m                                                           [31m [0m
-[31m [0m   [2m 756 [0m[2m│   [0m                                                                          [31m [0m
-[31m [0m   [2m 757 [0m[2m│   [0mdf_users = pd.DataFrame(users)                                            [31m [0m
-[31m [0m [31m❱ [0m 758 [2m│   [0mtotal_user = [96mlen[0m(df_users[[1;4mdf_users[[0m[1;4;33m"[0m[1;4;33mrole[0m[1;4;33m"[0m[1;4m][0m == [33m"[0m[33muser[0m[33m"[0m])                    [31m [0m
-[31m [0m   [2m 759 [0m[2m│   [0mtotal_admin = [96mlen[0m(df_users[df_users[[33m"[0m[33mrole[0m[33m"[0m] == [33m"[0m[33madmin[0m[33m"[0m])                  [31m [0m
-[31m [0m   [2m 760 [0m[2m│   [0m                                                                          [31m [0m
-[31m [0m   [2m 761 [0m[2m│   [0mdf = pd.DataFrame()                                                       [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/[0m[1mframe.p[0m [31m [0m
-[31m [0m [1my[0m:4113 in __getitem__                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 4110 [0m[2m│   │   [0m[94mif[0m is_single_key:                                                    [31m [0m
-[31m [0m   [2m 4111 [0m[2m│   │   │   [0m[94mif[0m [96mself[0m.columns.nlevels > [94m1[0m:                                     [31m [0m
-[31m [0m   [2m 4112 [0m[2m│   │   │   │   [0m[94mreturn[0m [96mself[0m._getitem_multilevel(key)                         [31m [0m
-[31m [0m [31m❱ [0m 4113 [2m│   │   │   [0mindexer = [1;4;96mself[0m[1;4m.columns.get_loc(key)[0m                              [31m [0m
-[31m [0m   [2m 4114 [0m[2m│   │   │   [0m[94mif[0m is_integer(indexer):                                          [31m [0m
-[31m [0m   [2m 4115 [0m[2m│   │   │   │   [0mindexer = [indexer]                                          [31m [0m
-[31m [0m   [2m 4116 [0m[2m│   │   [0m[94melse[0m:                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/indexes[0m [31m [0m
-[31m [0m [2m/[0m[1mrange.py[0m:417 in get_loc                                                             [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 414 [0m[2m│   │   │   [0m[94mexcept[0m [96mValueError[0m [94mas[0m err:                                         [31m [0m
-[31m [0m   [2m 415 [0m[2m│   │   │   │   [0m[94mraise[0m [96mKeyError[0m(key) [94mfrom[0m[90m [0m[4;96merr[0m                                  [31m [0m
-[31m [0m   [2m 416 [0m[2m│   │   [0m[94mif[0m [96misinstance[0m(key, Hashable):                                         [31m [0m
-[31m [0m [31m❱ [0m 417 [2m│   │   │   [0m[1;4;94mraise[0m[1;4m [0m[1;4;96mKeyError[0m[1;4m(key)[0m                                               [31m [0m
-[31m [0m   [2m 418 [0m[2m│   │   [0m[96mself[0m._check_indexing_error(key)                                       [31m [0m
-[31m [0m   [2m 419 [0m[2m│   │   [0m[94mraise[0m [96mKeyError[0m(key)                                                   [31m [0m
-[31m [0m   [2m 420 [0m                                                                              [31m [0m
-[31m────────────────────────────────────────────────────────────────────────────────────────[0m
-[1;91mKeyError: [0m[32m'role'[0m
-[31m──[0m[31m────────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────────[0m[31m──[0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
-[31m [0m [2mcriptrunner/[0m[1mexec_code.py[0m:129 in exec_func_with_error_handling                        [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
-[31m [0m [2mcriptrunner/[0m[1mscript_runner.py[0m:689 in code_to_exec                                     [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:1250 in <module>                                                        [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m1247 [0m[2m# ======================[0m                                                      [31m [0m
-[31m [0m   [2m1248 [0m[94mif[0m menu == [33m"[0m[33mDashboard[0m[33m"[0m:                                                       [31m [0m
-[31m [0m   [2m1249 [0m[2m│   [0m[94mif[0m role == [33m"[0m[33madmin[0m[33m"[0m:                                                       [31m [0m
-[31m [0m [31m❱ [0m1250 [2m│   │   [0m[1;4madmin_dashboard_summary()[0m                                             [31m [0m
-[31m [0m   [2m1251 [0m[2m│   [0m[94melse[0m:                                                                     [31m [0m
-[31m [0m   [2m1252 [0m[2m│   │   [0muser_personal_dashboard(user)                                         [31m [0m
-[31m [0m   [2m1253 [0m                                                                              [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:799 in admin_dashboard_summary                                          [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 796 [0m                                                                              [31m [0m
-[31m [0m   [2m 797 [0m[94mdef[0m[90m [0m[92madmin_dashboard_summary[0m():                                                [31m [0m
-[31m [0m   [2m 798 [0m[2m│   [0mst.header([33m"[0m[33m📈 Dashboard Summary[0m[33m"[0m)                                         [31m [0m
-[31m [0m [31m❱ [0m 799 [2m│   [0mdata = [1;4mprepare_admin_data()[0m                                               [31m [0m
-[31m [0m   [2m 800 [0m[2m│   [0m[94mif[0m [95mnot[0m data:                                                              [31m [0m
-[31m [0m   [2m 801 [0m[2m│   │   [0mst.info([33m"[0m[33mBelum ada data user.[0m[33m"[0m)                                       [31m [0m
-[31m [0m   [2m 802 [0m[2m│   │   [0m[94mreturn[0m                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:757 in prepare_admin_data                                               [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 754 [0m[2m│   │   [0m[94mreturn[0m [94mNone[0m                                                           [31m [0m
-[31m [0m   [2m 755 [0m[2m│   [0m                                                                          [31m [0m
-[31m [0m   [2m 756 [0m[2m│   [0mdf_users = pd.DataFrame(users)                                            [31m [0m
-[31m [0m [31m❱ [0m 757 [2m│   [0mtotal_user = [96mlen[0m(df_users[[1;4mdf_users[[0m[1;4;33m"[0m[1;4;33mrole[0m[1;4;33m"[0m[1;4m][0m == [33m"[0m[33muser[0m[33m"[0m])                    [31m [0m
-[31m [0m   [2m 758 [0m[2m│   [0mtotal_admin = [96mlen[0m(df_users[df_users[[33m"[0m[33mrole[0m[33m"[0m] == [33m"[0m[33madmin[0m[33m"[0m])                  [31m [0m
-[31m [0m   [2m 759 [0m[2m│   [0m                                                                          [31m [0m
-[31m [0m   [2m 760 [0m[2m│   [0mdf = pd.DataFrame()                                                       [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/[0m[1mframe.p[0m [31m [0m
-[31m [0m [1my[0m:4113 in __getitem__                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 4110 [0m[2m│   │   [0m[94mif[0m is_single_key:                                                    [31m [0m
-[31m [0m   [2m 4111 [0m[2m│   │   │   [0m[94mif[0m [96mself[0m.columns.nlevels > [94m1[0m:                                     [31m [0m
-[31m [0m   [2m 4112 [0m[2m│   │   │   │   [0m[94mreturn[0m [96mself[0m._getitem_multilevel(key)                         [31m [0m
-[31m [0m [31m❱ [0m 4113 [2m│   │   │   [0mindexer = [1;4;96mself[0m[1;4m.columns.get_loc(key)[0m                              [31m [0m
-[31m [0m   [2m 4114 [0m[2m│   │   │   [0m[94mif[0m is_integer(indexer):                                          [31m [0m
-[31m [0m   [2m 4115 [0m[2m│   │   │   │   [0mindexer = [indexer]                                          [31m [0m
-[31m [0m   [2m 4116 [0m[2m│   │   [0m[94melse[0m:                                                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/indexes[0m [31m [0m
-[31m [0m [2m/[0m[1mrange.py[0m:417 in get_loc                                                             [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 414 [0m[2m│   │   │   [0m[94mexcept[0m [96mValueError[0m [94mas[0m err:                                         [31m [0m
-[31m [0m   [2m 415 [0m[2m│   │   │   │   [0m[94mraise[0m [96mKeyError[0m(key) [94mfrom[0m[90m [0m[4;96merr[0m                                  [31m [0m
-[31m [0m   [2m 416 [0m[2m│   │   [0m[94mif[0m [96misinstance[0m(key, Hashable):                                         [31m [0m
-[31m [0m [31m❱ [0m 417 [2m│   │   │   [0m[1;4;94mraise[0m[1;4m [0m[1;4;96mKeyError[0m[1;4m(key)[0m                                               [31m [0m
-[31m [0m   [2m 418 [0m[2m│   │   [0m[96mself[0m._check_indexing_error(key)                                       [31m [0m
-[31m [0m   [2m 419 [0m[2m│   │   [0m[94mraise[0m [96mKeyError[0m(key)                                                   [31m [0m
-[31m [0m   [2m 420 [0m                                                                              [31m [0m
-[31m────────────────────────────────────────────────────────────────────────────────────────[0m
-[1;91mKeyError: [0m[32m'role'[0m
+[1;91mKeyError: [0m[32m'twk'[0m

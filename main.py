@@ -97,7 +97,6 @@ def inject_global_css():
 
         [data-testid="stSidebar"] div[role="radiogroup"] label {
             background-color: transparent !important;
-            color: #E2E8F0 !important;
             padding: 12px 16px !important;
             border-radius: 10px !important;
             border: none !important;
@@ -107,29 +106,34 @@ def inject_global_css():
             margin: 0 !important;
         }
 
-        /* Hide radio circle */
-        [data-testid="stSidebar"] div[role="radiogroup"] label div[data-testid="stMarkdownContainer"] p {
-            font-weight: 600 !important;
-            font-size: 15px !important;
+        /* Hide radio circle - target the first div child of the label */
+        [data-testid="stSidebar"] div[role="radiogroup"] label > div:first-child {
+            display: none !important;
         }
 
-        /* This hides the radio circle/button itself */
-        [data-testid="stSidebar"] div[role="radiogroup"] label div:first-child {
-            display: none !important;
+        /* Sidebar Item Text */
+        [data-testid="stSidebar"] div[role="radiogroup"] label p {
+            color: #E2E8F0 !important;
+            font-weight: 600 !important;
+            font-size: 15px !important;
+            margin: 0 !important;
         }
 
         [data-testid="stSidebar"] div[role="radiogroup"] label:hover {
             background-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        [data-testid="stSidebar"] div[role="radiogroup"] label:hover p {
             color: white !important;
         }
 
-        [data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] {
+        /* Active Sidebar Item */
+        [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
             background-color: #2563EB !important;
-            color: white !important;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
         }
 
-        [data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] p {
+        [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) p {
             color: white !important;
         }
 
@@ -144,6 +148,15 @@ def inject_global_css():
         }
 
         /* Buttons Styling */
+        [data-testid="stSidebar"] button[data-testid="stBaseButton-secondary"] {
+            background-color: #DC2626 !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(220,38,38,0.2) !important;
+        }
+        [data-testid="stSidebar"] button[data-testid="stBaseButton-secondary"] p {
+            color: white !important;
+        }
+
         div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {
             border-radius: 12px !important;
             font-weight: 700 !important;
@@ -764,10 +777,11 @@ def prepare_admin_data():
     if scores:
         df_scores = pd.DataFrame(scores)
         for col in ["twk", "tiu", "tkp"]:
-            if col in df_scores.columns:
-                df_scores[col] = pd.to_numeric(df_scores[col], errors="coerce").fillna(0)
+            if col not in df_scores.columns:
+                df_scores[col] = 0
+            df_scores[col] = pd.to_numeric(df_scores[col], errors="coerce").fillna(0)
         
-        df_scores["total"] = df_scores["twk"] + df_scores["tiu"] + df_scores["tkp"]
+        df_scores["total"] = df_scores["twk"].astype(float) + df_scores["tiu"].astype(float) + df_scores["tkp"].astype(float)
 
         df = pd.merge(
             df_scores,
