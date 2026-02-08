@@ -1236,7 +1236,7 @@ role = user.get("role", "user") if user else "user"
 
 # Menu items based on role
 if role == "admin":
-    items = ["Dashboard", "Grafik Nilai", "User Management", "Laporan", "Maintenance"]
+    items = ["Ringkasan", "Grafik Nilai", "User Management", "Laporan", "Maintenance"]
 else:
     items = ["Dashboard", "Profil & Nilai Saya", "Laporan"]
 
