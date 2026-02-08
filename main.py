@@ -34,90 +34,109 @@ def show_toast(message: str, type="success"):
 
 
 def inject_global_css():
-    """Menerapkan Modern Light Glassmorphism UI dan memaksa Light Mode."""
+    """Menerapkan Modern Dynamic UI (Terang/Gelap) dengan Glassmorphism."""
+    mode = st.session_state.get("ui_mode", "Terang")
+
+    if mode == "Gelap":
+        bg_color = "#0F172A"
+        text_color = "#F8FAFC"
+        sidebar_bg = "rgba(30, 41, 59, 0.7)"
+        card_bg = "#1E293B"
+        input_bg = "#334155"
+        sidebar_hover = "rgba(255, 255, 255, 0.05)"
+        sidebar_active = "rgba(255, 255, 255, 0.1)"
+        border_color = "rgba(255, 255, 255, 0.1)"
+    else:
+        bg_color = "#F8FAFC"
+        text_color = "#1E293B"
+        sidebar_bg = "rgba(203, 213, 225, 0.5)"
+        card_bg = "#FFFFFF"
+        input_bg = "#FFFFFF"
+        sidebar_hover = "rgba(0, 0, 0, 0.03)"
+        sidebar_active = "rgba(0, 0, 0, 0.05)"
+        border_color = "rgba(0, 0, 0, 0.05)"
+
     st.markdown(
-        """
+        f"""
         <style>
-        /* Force Light Mode Variables */
-        :root {
+        /* CSS Variables */
+        :root {{
             --primary-color: #10B981;
-            --background-color: #F8FAFC;
-            --secondary-background-color: #F1F5F9;
-            --text-color: #1E293B;
-            --font: "sans-serif";
-        }
+            --background-color: {bg_color};
+            --text-color: {text_color};
+        }}
 
         /* Global Background */
-        .stApp {
-            background-color: #F8FAFC !important;
-            color: #1E293B !important;
-        }
+        .stApp {{
+            background-color: {bg_color} !important;
+            color: {text_color} !important;
+        }}
         
-        section[data-testid="stMain"] {
-            background-color: #F8FAFC !important;
+        section[data-testid="stMain"] {{
+            background-color: {bg_color} !important;
             padding-top: 0px !important;
-        }
+        }}
 
-        [data-testid="stAppViewBlockContainer"] {
+        [data-testid="stAppViewBlockContainer"] {{
             padding-top: 0rem !important;
             padding-left: 5% !important;
             padding-right: 5% !important;
-        }
+        }}
 
         /* Modern Glass Sidebar */
-        [data-testid="stSidebar"] {
-            background-color: rgba(203, 213, 225, 0.5) !important;
+        [data-testid="stSidebar"] {{
+            background-color: {sidebar_bg} !important;
             backdrop-filter: blur(20px) !important;
             -webkit-backdrop-filter: blur(20px) !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.4) !important;
+            border-right: 1px solid {border_color} !important;
             box-shadow: 4px 0 20px rgba(0,0,0,0.05) !important;
             z-index: 1000001 !important;
             transition: transform 0.3s ease !important;
-        }
+        }}
 
         /* Always show sidebar collapse button (<<) */
-        [data-testid="stSidebar"] [data-testid="stBaseButton-headerNoPadding"] {
+        [data-testid="stSidebar"] [data-testid="stBaseButton-headerNoPadding"] {{
             opacity: 1 !important;
             visibility: visible !important;
-            color: #1E293B !important;
-        }
+            color: {text_color} !important;
+        }}
 
         /* Force Sidebar Text Color */
         [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p,
         [data-testid="stSidebar"] .stMarkdown p,
-        [data-testid="stSidebar"] label p {
-            color: #1E293B !important;
+        [data-testid="stSidebar"] label p {{
+            color: {text_color} !important;
             font-weight: 600 !important;
-        }
+        }}
 
         /* Prevent content shift */
-        [data-testid="stAppViewContainer"] section[data-testid="stMain"] {
+        [data-testid="stAppViewContainer"] section[data-testid="stMain"] {{
             width: 100% !important;
             margin-left: 0 !important;
             padding-left: 0 !important;
-        }
+        }}
         
         /* Sidebar Expanded State Backdrop */
-        [data-testid="stSidebar"][aria-expanded="true"] ~ section[data-testid="stMain"]::before {
+        [data-testid="stSidebar"][aria-expanded="true"] ~ section[data-testid="stMain"]::before {{
             content: "";
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.1);
             z-index: 99999;
             pointer-events: none;
-        }
+        }}
 
         /* Sidebar Navigation Styling (Pills) */
-        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
+        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {{
             display: none;
-        }
+        }}
         
-        [data-testid="stSidebar"] div[role="radiogroup"] {
+        [data-testid="stSidebar"] div[role="radiogroup"] {{
             padding: 20px 10px;
             gap: 8px;
-        }
+        }}
 
-        [data-testid="stSidebar"] div[role="radiogroup"] label {
+        [data-testid="stSidebar"] div[role="radiogroup"] label {{
             background-color: transparent !important;
             padding: 10px 20px !important;
             border-radius: 24px !important;
@@ -126,107 +145,125 @@ def inject_global_css():
             cursor: pointer !important;
             transition: all 0.2s ease !important;
             margin: 0 !important;
-        }
+        }}
 
         /* Hide radio circle */
-        [data-testid="stSidebar"] div[role="radiogroup"] label > div:first-child {
+        [data-testid="stSidebar"] div[role="radiogroup"] label > div:first-child {{
             display: none !important;
-        }
+        }}
 
-        [data-testid="stSidebar"] div[role="radiogroup"] label p {
+        [data-testid="stSidebar"] div[role="radiogroup"] label p {{
             font-size: 15px !important;
             margin: 0 !important;
-        }
+        }}
 
-        [data-testid="stSidebar"] div[role="radiogroup"] label:hover {
-            background-color: rgba(0, 0, 0, 0.03) !important;
-        }
+        [data-testid="stSidebar"] div[role="radiogroup"] label:hover {{
+            background-color: {sidebar_hover} !important;
+        }}
         
         /* Active Sidebar Item (Pill) */
-        [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
-            background-color: rgba(0, 0, 0, 0.05) !important;
-            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05) !important;
-        }
+        [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {{
+            background-color: {sidebar_active} !important;
+            box-shadow: inset 0 0 0 1px {border_color} !important;
+        }}
 
-        /* Input & Labels Visibility in Light Mode */
-        [data-testid="stWidgetLabel"] p, .stMarkdown p, label p {
-            color: #1E293B !important;
-        }
+        /* Input & Labels Visibility */
+        [data-testid="stWidgetLabel"] p, .stMarkdown p, label p, [data-testid="stMetricValue"] div {{
+            color: {text_color} !important;
+        }}
 
-        input, select, textarea {
-            color: #1E293B !important;
-            background-color: white !important;
-        }
+        input, select, textarea {{
+            color: {text_color} !important;
+            background-color: {input_bg} !important;
+        }}
+
+        /* BaseWeb Selectbox and other components */
+        div[data-baseweb="select"] > div, div[data-baseweb="input"] > div {{
+            background-color: {input_bg} !important;
+            color: {text_color} !important;
+        }}
+
+        div[role="listbox"] {{
+            background-color: {card_bg} !important;
+            color: {text_color} !important;
+        }}
+
+        /* Hide Streamlit Header */
+        header[data-testid="stHeader"] {{
+            background: transparent !important;
+            color: {text_color} !important;
+        }}
 
         /* Cards & UI Elements */
-        .main-card, [data-testid="stVerticalBlockBorderWrapper"] {
-            background: white !important;
+        .main-card, [data-testid="stVerticalBlockBorderWrapper"] {{
+            background: {card_bg} !important;
             border-radius: 16px !important;
             padding: 32px !important;
             box-shadow: 0 4px 20px rgba(0,0,0,0.03) !important;
-            border: 1px solid rgba(0,0,0,0.05) !important;
+            border: 1px solid {border_color} !important;
             margin-bottom: 24px !important;
-        }
+        }}
 
         /* Global Buttons Styling */
-        div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {
+        div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {{
             border-radius: 24px !important;
             font-weight: 600 !important;
             min-height: 44px !important;
             transition: all 0.2s !important;
             border: none !important;
             padding: 0.5rem 2rem !important;
-        }
+        }}
         
         /* Primary (Emerald) */
         button[data-testid^="stBaseButton-primary"], 
         div.stDownloadButton > button,
-        div[data-testid="stFormSubmitButton"] > button {
+        div[data-testid="stFormSubmitButton"] > button {{
             background-color: #10B981 !important;
             color: white !important;
             box-shadow: 0 4px 12px rgba(16,185,129,0.2) !important;
-        }
+        }}
         button[data-testid^="stBaseButton-primary"]:hover, 
         div.stDownloadButton > button:hover,
-        div[data-testid="stFormSubmitButton"] > button:hover {
+        div[data-testid="stFormSubmitButton"] > button:hover {{
             background-color: #059669 !important;
             transform: translateY(-1px);
             box-shadow: 0 6px 16px rgba(16,185,129,0.3) !important;
-        }
+        }}
 
         /* Secondary/Logout (Rose) */
-        button[data-testid^="stBaseButton-secondary"] {
+        button[data-testid^="stBaseButton-secondary"] {{
             background-color: #F43F5E !important;
             color: white !important;
             box-shadow: 0 4px 12px rgba(244,63,94,0.2) !important;
-        }
-        button[data-testid^="stBaseButton-secondary"]:hover {
+        }}
+        button[data-testid^="stBaseButton-secondary"]:hover {{
             background-color: #E11D48 !important;
             transform: translateY(-1px);
-        }
-        button[data-testid^="stBaseButton-secondary"] p {
+        }}
+        button[data-testid^="stBaseButton-secondary"] p {{
             color: white !important;
-        }
+        }}
 
         /* Inputs & Selectboxes */
-        div[data-baseweb="input"], div[data-baseweb="select"] {
+        div[data-baseweb="input"], div[data-baseweb="select"] {{
             border-radius: 12px !important;
-        }
-        [data-testid="stNumberInput"] input, [data-testid="stTextInput"] input {
+        }}
+        [data-testid="stNumberInput"] input, [data-testid="stTextInput"] input {{
             border-radius: 12px !important;
-        }
+        }}
 
         /* Notifications (Left Slide) */
-        @keyframes slideInL {
-            0% { transform: translateX(-150%); opacity: 0; }
-            10% { transform: translateX(0); opacity: 1; }
-            90% { transform: translateX(0); opacity: 1; }
-            100% { transform: translateX(150%); opacity: 0; }
-        }
-        .custom-toast {
+        @keyframes slideInL {{
+            0% {{ transform: translateX(-150%); opacity: 0; }}
+            10% {{ transform: translateX(0); opacity: 1; }}
+            90% {{ transform: translateX(0); opacity: 1; }}
+            100% {{ transform: translateX(150%); opacity: 0; }}
+        }}
+        .custom-toast {{
             position: fixed;
             top: 25px; left: 25px;
-            background: white;
+            background: {card_bg};
+            color: {text_color};
             padding: 16px 28px;
             border-radius: 12px;
             z-index: 9999999;
@@ -236,7 +273,17 @@ def inject_global_css():
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
             animation: slideInL 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             font-weight: 600;
-        }
+            border: 1px solid {border_color};
+        }}
+
+        /* Code Blocks Readability */
+        code {{
+            color: #E11D48 !important; /* Rose Red for code text */
+            background-color: {input_bg} !important;
+        }}
+        pre {{
+            background-color: {input_bg} !important;
+        }}
 
         </style>
         """,
@@ -1260,6 +1307,22 @@ else:
     items = ["Beranda Saya", "Profil & Nilai Saya", "Cetak Laporan"]
 
 with st.sidebar:
+    # Selector Mode UI
+    st.markdown("### 🎨 Mode UI")
+    ui_mode = st.radio(
+        "Pilih Mode",
+        ["Terang", "Gelap"],
+        index=0 if st.session_state.get("ui_mode", "Terang") == "Terang" else 1,
+        horizontal=True,
+        key="ui_mode_selector",
+        label_visibility="collapsed"
+    )
+    if ui_mode != st.session_state.get("ui_mode"):
+        st.session_state.ui_mode = ui_mode
+        st.rerun()
+
+    st.markdown("---")
+
     menu = st.radio(
         "Navigation",
         items,
