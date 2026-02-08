@@ -34,10 +34,19 @@ def show_toast(message: str, type="success"):
 
 
 def inject_global_css():
-    """Menerapkan Modern Light Glassmorphism UI."""
+    """Menerapkan Modern Light Glassmorphism UI dan memaksa Light Mode."""
     st.markdown(
         """
         <style>
+        /* Force Light Mode Variables */
+        :root {
+            --primary-color: #10B981;
+            --background-color: #F8FAFC;
+            --secondary-background-color: #F1F5F9;
+            --text-color: #1E293B;
+            --font: "sans-serif";
+        }
+
         /* Global Background */
         .stApp {
             background-color: #F8FAFC !important;
@@ -137,6 +146,16 @@ def inject_global_css():
         [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
             background-color: rgba(0, 0, 0, 0.05) !important;
             box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05) !important;
+        }
+
+        /* Input & Labels Visibility in Light Mode */
+        [data-testid="stWidgetLabel"] p, .stMarkdown p, label p {
+            color: #1E293B !important;
+        }
+
+        input, select, textarea {
+            color: #1E293B !important;
+            background-color: white !important;
         }
 
         /* Cards & UI Elements */
