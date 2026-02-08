@@ -140,5 +140,7 @@ def logout():
         else:
             st.warning("Yakin ingin keluar?")
             col1, col2 = st.columns(2)
-            col1.button("Iya", key="btn_logout_ya", use_container_width=True, on_click=do_logout, type="primary")
-            col2.button("Tidak", key="btn_logout_tidak", use_container_width=True, on_click=cancel_confirm)
+            # Iya (Logout) -> secondary (Red in sidebar context)
+            col1.button("Iya", key="btn_logout_ya", use_container_width=True, on_click=do_logout, type="secondary")
+            # Tidak (Cancel) -> primary (Blue)
+            col2.button("Tidak", key="btn_logout_tidak", use_container_width=True, on_click=cancel_confirm, type="primary")
