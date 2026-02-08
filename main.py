@@ -168,12 +168,18 @@ def inject_global_css():
             padding: 10px !important;
         }
         
-        /* 10. Hilangkan shadow default Streamlit */
+        /* 10. Sidebar Collapse Button Visibility */
+        [data-testid="stSidebarCollapseButton"] {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        /* 11. Hilangkan shadow default Streamlit */
         * {
             box-shadow: none !important;
         }
 
-        /* 11. Mobile Responsiveness */
+        /* 12. Mobile Responsiveness */
         @media (max-width: 768px) {
             .main .block-container {
                 padding: 1rem 0.5rem !important;
@@ -580,34 +586,9 @@ def admin_user_management():
 def user_self_page(user: dict):
     st.header("📑 Profil & Nilai Saya")
     
-    tab1, tab2 = st.tabs(["👥 Kelola Akun", "📊 Kelola Nilai"])
+    tab1, tab2 = st.tabs(["📊 Kelola Nilai", "👥 Kelola Akun"])
     
     with tab1:
-        with st.container(border=True):
-            st.write(f"Nama: **{user.get('nama')}**")
-            st.write(f"Role: **{user.get('role', 'user')}**")
-
-        st.markdown("---")
-        
-        # Edit Password
-        with st.container(border=True):
-            st.subheader("Edit Password")
-            with st.form("user_edit_pass"):
-                new_password = st.text_input("Password baru (kosongkan jika tidak diubah)", type="password")
-                submitted_pass = st.form_submit_button("Simpan Perubahan Password")
-            
-            if submitted_pass:
-                if new_password:
-                    password_hash = bcrypt.hashpw(
-                        new_password.encode("utf-8"), bcrypt.gensalt()
-                    ).decode("utf-8")
-                    supabase.table("users").update({"password": password_hash}).eq("id", user["id"]).execute()
-                    st.session_state.toast_msg = "Password berhasil diupdate"
-                    st.rerun()
-                else:
-                    st.info("Masukkan password baru jika ingin mengubah.")
-
-    with tab2:
         with st.container(border=True):
             st.write(f"Nama: **{user.get('nama')}**")
             st.write(f"Role: **{user.get('role', 'user')}**")
@@ -693,6 +674,31 @@ def user_self_page(user: dict):
 
         else:
             st.info("Belum ada riwayat nilai. Silakan input nilai pertama Anda.")
+
+    with tab2:
+        with st.container(border=True):
+            st.write(f"Nama: **{user.get('nama')}**")
+            st.write(f"Role: **{user.get('role', 'user')}**")
+
+        st.markdown("---")
+        
+        # Edit Password
+        with st.container(border=True):
+            st.subheader("Edit Password")
+            with st.form("user_edit_pass"):
+                new_password = st.text_input("Password baru (kosongkan jika tidak diubah)", type="password")
+                submitted_pass = st.form_submit_button("Simpan Perubahan Password")
+            
+            if submitted_pass:
+                if new_password:
+                    password_hash = bcrypt.hashpw(
+                        new_password.encode("utf-8"), bcrypt.gensalt()
+                    ).decode("utf-8")
+                    supabase.table("users").update({"password": password_hash}).eq("id", user["id"]).execute()
+                    st.session_state.toast_msg = "Password berhasil diupdate"
+                    st.rerun()
+                else:
+                    st.info("Masukkan password baru jika ingin mengubah.")
 
 
 def prepare_admin_data():
@@ -901,42 +907,19 @@ def render_laporan_page(user, role):
         if not data:
             st.info("Belum ada data user.")
             return
+
+        if data["df"].empty:
+            st.warning("Tidak ada data nilai user untuk dibuat laporan.")
+        else:
+            df = data["df"]
+            user_list = ["Semua User"] + sorted(df["nama"].unique().tolist())
+            pilih_user_rep = st.selectbox("Pilih User untuk Laporan", user_list)
             
-        tab_rep1, tab_rep2 = st.tabs(["📊 Laporan Individu", "📋 Ringkasan Aktivitas"])
-        
-        with tab_rep1:
-            if data["df"].empty:
-                st.warning("Tidak ada data nilai user untuk dibuat laporan.")
+            if pilih_user_rep == "Semua User":
+                _render_all_users_report_ui(df)
             else:
-                df = data["df"]
-                user_list = sorted(df["nama"].unique().tolist())
-                pilih_user_rep = st.selectbox("Pilih User untuk Laporan", user_list)
                 df_target = df[df["nama"] == pilih_user_rep].copy()
                 _render_individual_report_ui(df_target, pilih_user_rep)
-        
-        with tab_rep2:
-            st.subheader("Ringkasan Aktivitas Semua User")
-            df_users = data["df_users"]
-            df = data["df"]
-            
-            score_summary = pd.DataFrame(columns=["user_id", "total_skd", "max_score"])
-            if not df.empty:
-                score_summary = df.groupby("user_id").agg(
-                    total_skd=("skd_ke", "max"),
-                    max_score=("total", "max")
-                ).reset_index()
-
-            user_summary_df = df_users[df_users["role"] == "user"][["id", "nama"]].merge(
-                score_summary, left_on="id", right_on="user_id", how="left"
-            )
-            user_summary_df["total_skd"] = user_summary_df["total_skd"].fillna(0).astype(int)
-            user_summary_df["max_score"] = user_summary_df["max_score"].fillna(0).astype(int)
-            user_summary_df = user_summary_df[["nama", "total_skd", "max_score"]].sort_values("max_score", ascending=False)
-            user_summary_df.columns = ["Nama User", "Total SKD", "Nilai Tertinggi"]
-            
-            st.dataframe(user_summary_df, use_container_width=True, hide_index=True)
-            if st.button("🖨️ Cetak Ringkasan Aktivitas"):
-                st.components.v1.html("<script>window.parent.print();</script>", height=0)
     else:
         scores = fetch_user_scores(user["id"])
         if not scores:
@@ -948,6 +931,65 @@ def render_laporan_page(user, role):
         df_target["skd_ke"] = range(1, len(df_target) + 1)
         pilih_user_rep = user.get("nama")
         _render_individual_report_ui(df_target, pilih_user_rep)
+
+
+def _render_all_users_report_ui(df_all):
+    """Helper untuk menampilkan UI laporan untuk semua user per SKD."""
+    st.subheader("📊 Laporan Semua User")
+    
+    max_skd_global = int(df_all["skd_ke"].max())
+    skd_options = [f"SKD ke-{i}" for i in range(1, max_skd_global + 1)] + ["SKD Terakhir"]
+    
+    pilih_skd = st.selectbox("Pilih Percobaan SKD", skd_options, index=len(skd_options)-1)
+    
+    if pilih_skd == "SKD Terakhir":
+        # Ambil data terakhir untuk setiap user (berdasarkan skd_ke terbanyak)
+        report_df = df_all.sort_values(["user_id", "skd_ke"]).groupby("user_id").tail(1).copy()
+        report_title = "Laporan Semua User: SKD Terakhir"
+        filename_base = "laporan_skd_semua_user_terakhir"
+    else:
+        n = int(pilih_skd.split("-")[-1])
+        report_df = df_all[df_all["skd_ke"] == n].copy()
+        report_title = f"Laporan Semua User: SKD ke-{n}"
+        filename_base = f"laporan_skd_semua_user_ke_{n}"
+
+    if report_df.empty:
+        st.warning(f"Tidak ada data untuk {pilih_skd}")
+        return
+
+    # Siapkan label untuk grafik
+    report_df["label"] = report_df["nama"]
+    
+    with st.container(border=True):
+        st.subheader("Pratinjau Data")
+        cols = ["nama", "skd_ke", "twk", "tiu", "tkp", "total"]
+        st.dataframe(report_df[cols].sort_values("total", ascending=False), use_container_width=True, hide_index=True)
+
+        st.markdown("---")
+        # Tombol Download Laporan PNG
+        col_btn1, col_btn2 = st.columns(2)
+        with col_btn1:
+            report_table = render_report_page(report_df, report_title, "table")
+            if report_table:
+                st.download_button(
+                    label="📄 Download Tabel (PNG)",
+                    data=report_table,
+                    file_name=f"{filename_base}_tabel.png",
+                    mime="image/png",
+                    use_container_width=True,
+                    key="btn_dl_table_all"
+                )
+        with col_btn2:
+            report_charts = render_report_page(report_df, report_title, "charts")
+            if report_charts:
+                st.download_button(
+                    label="📊 Download Grafik (PNG)",
+                    data=report_charts,
+                    file_name=f"{filename_base}_grafik.png",
+                    mime="image/png",
+                    use_container_width=True,
+                    key="btn_dl_charts_all"
+                )
 
 
 def _render_individual_report_ui(df_target, pilih_user):
@@ -1005,8 +1047,6 @@ def _render_individual_report_ui(df_target, pilih_user):
                     key=f"btn_dl_charts_{pilih_user}"
                 )
     
-    if st.button("🖨️ Cetak Halaman Ini", key=f"btn_print_{pilih_user}"):
-        st.components.v1.html("<script>window.parent.print();</script>", height=0)
 
 
 def user_personal_dashboard(user: dict):
