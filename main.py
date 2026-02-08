@@ -34,7 +34,7 @@ def show_toast(message: str, type="success"):
 
 
 def inject_global_css():
-    """Menerapkan Layout Top Navbar Modern dan SaaS Theme."""
+    """Menerapkan Redesign UI Streamlit dengan Overlay Burger Menu."""
     st.markdown(
         """
         <style>
@@ -46,80 +46,92 @@ def inject_global_css():
         
         section[data-testid="stMain"] {
             background-color: #F8FAFC !important;
-            padding-top: 60px !important;
+            padding-top: 20px !important;
         }
 
-        /* Hide Streamlit Header & Sidebar default visuals */
-        header[data-testid="stHeader"] { display: none !important; }
-        [data-testid="stSidebar"] { border-right: none !important; width: 0 !important; }
+        /* Re-enable Streamlit Header but make it transparent */
+        header[data-testid="stHeader"] {
+            display: flex !important;
+            background: transparent !important;
+            color: #1E293B !important;
+        }
 
-        /* Top Navbar Styling */
-        .top-navbar {
+        /* Modern Overlay Sidebar */
+        [data-testid="stSidebar"] {
+            background-color: #111827 !important;
+            color: white !important;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.15) !important;
+            z-index: 1000001 !important;
+            transition: transform 0.3s ease !important;
+        }
+
+        /* Prevent content shift */
+        [data-testid="stAppViewContainer"] section[data-testid="stMain"] {
+            width: 100% !important;
+            margin-left: 0 !important;
+            padding-left: 0 !important;
+        }
+
+        /* Sidebar Expanded State Backdrop */
+        [data-testid="stSidebar"][aria-expanded="true"] ~ section[data-testid="stMain"]::before {
+            content: "";
             position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 70px;
-            background-color: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 5%;
-            z-index: 999999;
-            transition: all 0.3s ease;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.25);
+            z-index: 99999;
+            pointer-events: none;
+        }
+
+        /* Hide Default Sidebar Visuals (Border) */
+        [data-testid="stSidebar"] { border-right: none !important; }
+
+        /* Sidebar Navigation Styling (st.radio) */
+        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
+            display: none;
         }
         
-        .navbar-scrolled {
-            background-color: rgba(255, 255, 255, 0.8) !important;
-            backdrop-filter: blur(12px) !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
-            height: 60px !important;
+        [data-testid="stSidebar"] div[role="radiogroup"] {
+            padding: 20px 10px;
+            gap: 8px;
         }
 
-        .nav-logo {
-            font-size: 22px;
-            font-weight: 800;
-            color: #2563EB;
-            text-decoration: none;
-            letter-spacing: -0.5px;
+        [data-testid="stSidebar"] div[role="radiogroup"] label {
+            background-color: transparent !important;
+            color: #E2E8F0 !important;
+            padding: 12px 16px !important;
+            border-radius: 10px !important;
+            border: none !important;
+            width: 100% !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            margin: 0 !important;
         }
 
-        .nav-links { display: flex; gap: 32px; }
+        /* Hide radio circle */
+        [data-testid="stSidebar"] div[role="radiogroup"] label div[data-testid="stMarkdownContainer"] p {
+            font-weight: 600 !important;
+            font-size: 15px !important;
+        }
 
-        .nav-item {
-            color: #475569;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 15px;
-            text-decoration: none;
+        /* This hides the radio circle/button itself */
+        [data-testid="stSidebar"] div[role="radiogroup"] label div:first-child {
+            display: none !important;
         }
-        .nav-item:hover { color: #2563EB; }
-        .nav-active { color: #2563EB !important; border-bottom: 2px solid #2563EB; padding-bottom: 4px; }
 
-        /* User Menu & Dropdown */
-        .user-dropdown { position: relative; }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background: white;
-            min-width: 160px;
-            box-shadow: 0 10px 15px -3px rgba(0,10,0,0.1);
-            border-radius: 12px;
-            margin-top: 8px;
-            border: 1px solid #E2E8F0;
-            overflow: hidden;
+        [data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            color: white !important;
         }
-        .user-dropdown:hover .dropdown-content { display: block; }
-        .dropdown-item {
-            padding: 12px 20px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            color: #475569;
+
+        [data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] {
+            background-color: #2563EB !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
         }
-        .dropdown-item:hover { background: #F1F5F9; }
-        .logout-btn { color: #DC2626 !important; }
-        .logout-btn:hover { background: #FEF2F2 !important; }
+
+        [data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] p {
+            color: white !important;
+        }
 
         /* Cards & UI Elements */
         .main-card, [data-testid="stVerticalBlockBorderWrapper"] {
@@ -159,10 +171,6 @@ def inject_global_css():
         }
         [data-testid^="stBaseButton-secondary"]:hover { background: #E2E8F0 !important; }
 
-        /* Status Colors */
-        .btn-green { background: #16A34A !important; color: white !important; }
-        .btn-red { background: #DC2626 !important; color: white !important; }
-
         /* Notifications (Left Slide) */
         @keyframes slideInL {
             0% { transform: translateX(-150%); opacity: 0; }
@@ -185,92 +193,31 @@ def inject_global_css():
             font-weight: 600;
         }
 
-        /* Burger Menu for Mobile */
-        .burger { display: none; cursor: pointer; font-size: 24px; color: #475569; }
-        @media (max-width: 900px) {
-            .nav-links { display: none; }
-            .burger { display: block; }
-            .top-navbar { padding: 0 20px; }
-        }
-
         </style>
         
         <script>
-        // Scroll Effect
-        const nav = window.parent.document.querySelector('.top-navbar');
-        window.parent.addEventListener('scroll', () => {
-            if (window.parent.scrollY > 30) nav.classList.add('navbar-scrolled');
-            else nav.classList.remove('navbar-scrolled');
-        });
-
         // Button Colorizer
         function colorizeButtons() {
             const btns = window.parent.document.querySelectorAll('button');
             btns.forEach(btn => {
                 const txt = btn.innerText.trim().toLowerCase();
                 if (txt === 'iya' || txt === 'simpan' || txt === 'daftar') {
-                    if (txt === 'iya') {
-                        btn.style.background = '#16A34A';
-                        btn.style.color = 'white';
-                        btn.style.boxShadow = '0 4px 12px rgba(22,163,74,0.2)';
-                    }
+                    btn.style.setProperty('background-color', '#2563EB', 'important');
+                    btn.style.setProperty('color', 'white', 'important');
+                    btn.style.setProperty('box-shadow', '0 4px 12px rgba(37,99,235,0.2)', 'important');
                 } else if (txt === 'tidak' || txt === 'hapus' || txt === 'keluar' || txt === 'logout') {
-                    btn.style.background = '#DC2626';
-                    btn.style.color = 'white';
-                    btn.style.boxShadow = '0 4px 12px rgba(220,38,38,0.2)';
+                    btn.style.setProperty('background-color', '#DC2626', 'important');
+                    btn.style.setProperty('color', 'white', 'important');
+                    btn.style.setProperty('box-shadow', '0 4px 12px rgba(220,38,38,0.2)', 'important');
                 }
             });
         }
         setInterval(colorizeButtons, 500);
-
-        // Navigation Bridge
-        window.parent.addEventListener('message', (e) => {
-            if(e.data.type === 'nav') {
-                const radios = window.parent.document.querySelectorAll('input[type="radio"]');
-                for(let r of radios) if(r.value === e.data.val) { r.click(); break; }
-            }
-            if(e.data.type === 'logout') {
-                const btn = window.parent.document.querySelector('button[key="btn_logout_side"]');
-                if(btn) btn.click();
-            }
-            if(e.data.type === 'burger') {
-                const b = window.parent.document.querySelector('button[aria-label="Open sidebar"]');
-                if(b) b.click();
-            }
-        });
         </script>
         """,
         unsafe_allow_html=True,
     )
 
-
-def render_top_navbar(user, active):
-    import html
-    role = user.get("role", "user")
-    if role == "admin":
-        items = ["Dashboard", "Grafik Nilai", "User Management", "Laporan", "Maintenance"]
-    else:
-        items = ["Dashboard", "Profil & Nilai Saya", "Laporan"]
-    
-    links = "".join([f'<div class="nav-item {"nav-active" if i == active else ""}" onclick="parent.postMessage({{"type": "nav", "val": "{i}"}}, "*")">{i}</div>' for i in items])
-    safe_name = html.escape(user.get('nama', 'User'))
-    
-    st.markdown(f"""
-    <div class="top-navbar">
-        <a href="#" class="nav-logo">SKD App</a>
-        <div class="nav-links">{links}</div>
-        <div class="nav-user">
-            <div class="burger" onclick="parent.postMessage({{"type": "burger"}}, "*")">☰</div>
-            <div class="user-dropdown">
-                <div class="nav-item">{safe_name} ▾</div>
-                <div class="dropdown-content">
-                    <div class="dropdown-item logout-btn" onclick="parent.postMessage({{"type": "logout"}}, "*")">Logout</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    return items
 
 inject_global_css()
 
@@ -807,6 +754,9 @@ def prepare_admin_data():
         return None
 
     df_users = pd.DataFrame(users)
+    if "role" not in df_users.columns:
+        df_users["role"] = "user"
+
     total_user = len(df_users[df_users["role"] == "user"])
     total_admin = len(df_users[df_users["role"] == "admin"])
     
@@ -1277,11 +1227,13 @@ role = user.get("role", "user") if user else "user"
 # APP UTAMA
 # ======================
 
-# Render Top Navbar and get menu items
-items = render_top_navbar(user, st.session_state.get("active_menu", "Dashboard"))
+# Menu items based on role
+if role == "admin":
+    items = ["Dashboard", "Grafik Nilai", "User Management", "Laporan", "Maintenance"]
+else:
+    items = ["Dashboard", "Profil & Nilai Saya", "Laporan"]
 
 with st.sidebar:
-    # Logic only - sidebar is hidden by CSS but used for state management
     menu = st.radio(
         "Navigation",
         items,

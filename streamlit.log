@@ -9,119 +9,65 @@ Collecting usage statistics. To deactivate, set browser.gatherUsageStats to fals
   External URL: http://35.224.132.190:8501
 
 [31m──[0m[31m────────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────────[0m[31m──[0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpx/_transports/[0m[1md[0m [31m [0m
-[31m [0m [1mefault.py[0m:101 in map_httpcore_exceptions                                             [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
+[31m [0m [2mcriptrunner/[0m[1mexec_code.py[0m:129 in exec_func_with_error_handling                        [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 98 [0m[2m│   [0m[94mif[0m [96mlen[0m(HTTPCORE_EXC_MAP) == [94m0[0m:                                             [31m [0m
-[31m [0m   [2m 99 [0m[2m│   │   [0mHTTPCORE_EXC_MAP = _load_httpcore_exceptions()                         [31m [0m
-[31m [0m   [2m100 [0m[2m│   [0m[94mtry[0m:                                                                       [31m [0m
-[31m [0m [31m❱ [0m101 [2m│   │   [0m[94myield[0m                                                                  [31m [0m
-[31m [0m   [2m102 [0m[2m│   [0m[94mexcept[0m [96mException[0m [94mas[0m exc:                                                   [31m [0m
-[31m [0m   [2m103 [0m[2m│   │   [0mmapped_exc = [94mNone[0m                                                      [31m [0m
-[31m [0m   [2m104 [0m                                                                               [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
+[31m [0m [2mcriptrunner/[0m[1mscript_runner.py[0m:689 in code_to_exec                                     [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpx/_transports/[0m[1md[0m [31m [0m
-[31m [0m [1mefault.py[0m:250 in handle_request                                                      [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:1251 in <module>                                                        [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m   [2m247 [0m[2m│   │   │   [0mextensions=request.extensions,                                     [31m [0m
-[31m [0m   [2m248 [0m[2m│   │   [0m)                                                                      [31m [0m
-[31m [0m   [2m249 [0m[2m│   │   [0m[94mwith[0m [1;4mmap_httpcore_exceptions()[0m:                                        [31m [0m
-[31m [0m [31m❱ [0m250 [2m│   │   │   [0mresp = [96mself[0m._pool.handle_request(req)                              [31m [0m
-[31m [0m   [2m251 [0m[2m│   │   [0m                                                                       [31m [0m
-[31m [0m   [2m252 [0m[2m│   │   [0m[94massert[0m [96misinstance[0m(resp.stream, typing.Iterable)                        [31m [0m
-[31m [0m   [2m253 [0m                                                                               [31m [0m
+[31m [0m   [2m1248 [0m[2m# ======================[0m                                                      [31m [0m
+[31m [0m   [2m1249 [0m[94mif[0m menu == [33m"[0m[33mDashboard[0m[33m"[0m:                                                       [31m [0m
+[31m [0m   [2m1250 [0m[2m│   [0m[94mif[0m role == [33m"[0m[33madmin[0m[33m"[0m:                                                       [31m [0m
+[31m [0m [31m❱ [0m1251 [2m│   │   [0m[1;4madmin_dashboard_summary()[0m                                             [31m [0m
+[31m [0m   [2m1252 [0m[2m│   [0m[94melse[0m:                                                                     [31m [0m
+[31m [0m   [2m1253 [0m[2m│   │   [0muser_personal_dashboard(user)                                         [31m [0m
+[31m [0m   [2m1254 [0m                                                                              [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpcore/_sync/[0m[1mconn[0m [31m [0m
-[31m [0m [1mection_pool.py[0m:256 in handle_request                                                 [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:800 in admin_dashboard_summary                                          [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m   [2m253 [0m[2m│   │   │   │   [0mclosing = [96mself[0m._assign_requests_to_connections()               [31m [0m
-[31m [0m   [2m254 [0m[2m│   │   │   [0m                                                                   [31m [0m
-[31m [0m   [2m255 [0m[2m│   │   │   [0m[96mself[0m._close_connections(closing)                                   [31m [0m
-[31m [0m [31m❱ [0m256 [2m│   │   │   [0m[1;4;94mraise[0m[1;4m exc [0m[1;4;94mfrom[0m[1;4;90m [0m[1;4;94mNone[0m                                                [31m [0m
-[31m [0m   [2m257 [0m[2m│   │   [0m                                                                       [31m [0m
-[31m [0m   [2m258 [0m[2m│   │   [0m[2m# Return the response. Note that in this case we still have to manage[0m  [31m [0m
-[31m [0m   [2m259 [0m[2m│   │   [0m[2m# the point at which the response is closed.[0m                           [31m [0m
+[31m [0m   [2m 797 [0m                                                                              [31m [0m
+[31m [0m   [2m 798 [0m[94mdef[0m[90m [0m[92madmin_dashboard_summary[0m():                                                [31m [0m
+[31m [0m   [2m 799 [0m[2m│   [0mst.header([33m"[0m[33m📈 Dashboard Summary[0m[33m"[0m)                                         [31m [0m
+[31m [0m [31m❱ [0m 800 [2m│   [0mdata = [1;4mprepare_admin_data()[0m                                               [31m [0m
+[31m [0m   [2m 801 [0m[2m│   [0m[94mif[0m [95mnot[0m data:                                                              [31m [0m
+[31m [0m   [2m 802 [0m[2m│   │   [0mst.info([33m"[0m[33mBelum ada data user.[0m[33m"[0m)                                       [31m [0m
+[31m [0m   [2m 803 [0m[2m│   │   [0m[94mreturn[0m                                                                [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpcore/_sync/[0m[1mconn[0m [31m [0m
-[31m [0m [1mection_pool.py[0m:236 in handle_request                                                 [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:758 in prepare_admin_data                                               [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m   [2m233 [0m[2m│   │   │   │   [0m                                                               [31m [0m
-[31m [0m   [2m234 [0m[2m│   │   │   │   [0m[94mtry[0m:                                                           [31m [0m
-[31m [0m   [2m235 [0m[2m│   │   │   │   │   [0m[2m# Send the request on the assigned connection.[0m             [31m [0m
-[31m [0m [31m❱ [0m236 [2m│   │   │   │   │   [0mresponse = connection.handle_request(                      [31m [0m
-[31m [0m   [2m237 [0m[2m│   │   │   │   │   │   [0mpool_request.request                                   [31m [0m
-[31m [0m   [2m238 [0m[2m│   │   │   │   │   [0m)                                                          [31m [0m
-[31m [0m   [2m239 [0m[2m│   │   │   │   [0m[94mexcept[0m ConnectionNotAvailable:                                 [31m [0m
+[31m [0m   [2m 755 [0m[2m│   │   [0m[94mreturn[0m [94mNone[0m                                                           [31m [0m
+[31m [0m   [2m 756 [0m[2m│   [0m                                                                          [31m [0m
+[31m [0m   [2m 757 [0m[2m│   [0mdf_users = pd.DataFrame(users)                                            [31m [0m
+[31m [0m [31m❱ [0m 758 [2m│   [0mtotal_user = [96mlen[0m(df_users[[1;4mdf_users[[0m[1;4;33m"[0m[1;4;33mrole[0m[1;4;33m"[0m[1;4m][0m == [33m"[0m[33muser[0m[33m"[0m])                    [31m [0m
+[31m [0m   [2m 759 [0m[2m│   [0mtotal_admin = [96mlen[0m(df_users[df_users[[33m"[0m[33mrole[0m[33m"[0m] == [33m"[0m[33madmin[0m[33m"[0m])                  [31m [0m
+[31m [0m   [2m 760 [0m[2m│   [0m                                                                          [31m [0m
+[31m [0m   [2m 761 [0m[2m│   [0mdf = pd.DataFrame()                                                       [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpcore/_sync/[0m[1mconn[0m [31m [0m
-[31m [0m [1mection.py[0m:101 in handle_request                                                      [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/[0m[1mframe.p[0m [31m [0m
+[31m [0m [1my[0m:4113 in __getitem__                                                                [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 98 [0m[2m│   │   │   │   │   │   [0m)                                                      [31m [0m
-[31m [0m   [2m 99 [0m[2m│   │   [0m[94mexcept[0m [96mBaseException[0m [94mas[0m exc:                                           [31m [0m
-[31m [0m   [2m100 [0m[2m│   │   │   [0m[96mself[0m._connect_failed = [94mTrue[0m                                        [31m [0m
-[31m [0m [31m❱ [0m101 [2m│   │   │   [0m[1;4;94mraise[0m[1;4m exc[0m                                                          [31m [0m
-[31m [0m   [2m102 [0m[2m│   │   [0m                                                                       [31m [0m
-[31m [0m   [2m103 [0m[2m│   │   [0m[94mreturn[0m [96mself[0m._connection.handle_request(request)                        [31m [0m
-[31m [0m   [2m104 [0m                                                                               [31m [0m
+[31m [0m   [2m 4110 [0m[2m│   │   [0m[94mif[0m is_single_key:                                                    [31m [0m
+[31m [0m   [2m 4111 [0m[2m│   │   │   [0m[94mif[0m [96mself[0m.columns.nlevels > [94m1[0m:                                     [31m [0m
+[31m [0m   [2m 4112 [0m[2m│   │   │   │   [0m[94mreturn[0m [96mself[0m._getitem_multilevel(key)                         [31m [0m
+[31m [0m [31m❱ [0m 4113 [2m│   │   │   [0mindexer = [1;4;96mself[0m[1;4m.columns.get_loc(key)[0m                              [31m [0m
+[31m [0m   [2m 4114 [0m[2m│   │   │   [0m[94mif[0m is_integer(indexer):                                          [31m [0m
+[31m [0m   [2m 4115 [0m[2m│   │   │   │   [0mindexer = [indexer]                                          [31m [0m
+[31m [0m   [2m 4116 [0m[2m│   │   [0m[94melse[0m:                                                                [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpcore/_sync/[0m[1mconn[0m [31m [0m
-[31m [0m [1mection.py[0m:78 in handle_request                                                       [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/indexes[0m [31m [0m
+[31m [0m [2m/[0m[1mrange.py[0m:417 in get_loc                                                             [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 75 [0m[2m│   │   [0m[94mtry[0m:                                                                   [31m [0m
-[31m [0m   [2m 76 [0m[2m│   │   │   [0m[94mwith[0m [96mself[0m._request_lock:                                           [31m [0m
-[31m [0m   [2m 77 [0m[2m│   │   │   │   [0m[94mif[0m [96mself[0m._connection [95mis[0m [94mNone[0m:                                   [31m [0m
-[31m [0m [31m❱ [0m 78 [2m│   │   │   │   │   [0mstream = [96mself[0m._connect(request)                            [31m [0m
-[31m [0m   [2m 79 [0m[2m│   │   │   │   │   [0m                                                           [31m [0m
-[31m [0m   [2m 80 [0m[2m│   │   │   │   │   [0mssl_object = stream.get_extra_info([33m"[0m[33mssl_object[0m[33m"[0m)           [31m [0m
-[31m [0m   [2m 81 [0m[2m│   │   │   │   │   [0mhttp2_negotiated = (                                       [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpcore/_sync/[0m[1mconn[0m [31m [0m
-[31m [0m [1mection.py[0m:124 in _connect                                                            [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m121 [0m[2m│   │   │   │   │   │   [0m[33m"[0m[33msocket_options[0m[33m"[0m: [96mself[0m._socket_options,                [31m [0m
-[31m [0m   [2m122 [0m[2m│   │   │   │   │   [0m}                                                          [31m [0m
-[31m [0m   [2m123 [0m[2m│   │   │   │   │   [0m[94mwith[0m Trace([33m"[0m[33mconnect_tcp[0m[33m"[0m, logger, request, kwargs) [94mas[0m trac [31m [0m
-[31m [0m [31m❱ [0m124 [2m│   │   │   │   │   │   [0mstream = [96mself[0m._network_backend.connect_tcp(**kwargs)   [31m [0m
-[31m [0m   [2m125 [0m[2m│   │   │   │   │   │   [0mtrace.return_value = stream                            [31m [0m
-[31m [0m   [2m126 [0m[2m│   │   │   │   [0m[94melse[0m:                                                          [31m [0m
-[31m [0m   [2m127 [0m[2m│   │   │   │   │   [0mkwargs = {                                                 [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpcore/_backends/[0m [31m [0m
-[31m [0m [1msync.py[0m:207 in connect_tcp                                                           [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m204 [0m[2m│   │   │   [0m[96mOSError[0m: ConnectError,                                             [31m [0m
-[31m [0m   [2m205 [0m[2m│   │   [0m}                                                                      [31m [0m
-[31m [0m   [2m206 [0m[2m│   │   [0m                                                                       [31m [0m
-[31m [0m [31m❱ [0m207 [2m│   │   [0m[94mwith[0m [1;4mmap_exceptions(exc_map)[0m:                                          [31m [0m
-[31m [0m   [2m208 [0m[2m│   │   │   [0msock = socket.create_connection(                                   [31m [0m
-[31m [0m   [2m209 [0m[2m│   │   │   │   [0maddress,                                                       [31m [0m
-[31m [0m   [2m210 [0m[2m│   │   │   │   [0mtimeout,                                                       [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/[0m[1mcontextlib.py[0m:158 in __exit__     [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m155 [0m[2m│   │   │   │   [0m[2m# tell if we get the same exception back[0m                       [31m [0m
-[31m [0m   [2m156 [0m[2m│   │   │   │   [0mvalue = typ()                                                  [31m [0m
-[31m [0m   [2m157 [0m[2m│   │   │   [0m[94mtry[0m:                                                               [31m [0m
-[31m [0m [31m❱ [0m158 [2m│   │   │   │   [0m[96mself[0m.gen.throw(value)                                          [31m [0m
-[31m [0m   [2m159 [0m[2m│   │   │   [0m[94mexcept[0m [96mStopIteration[0m [94mas[0m exc:                                       [31m [0m
-[31m [0m   [2m160 [0m[2m│   │   │   │   [0m[2m# Suppress StopIteration *unless* it's the same exception that[0m [31m [0m
-[31m [0m   [2m161 [0m[2m│   │   │   │   [0m[2m# was passed to throw().  This prevents a StopIteration[0m        [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpcore/[0m[1m_exception[0m [31m [0m
-[31m [0m [1ms.py[0m:14 in map_exceptions                                                            [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m11 [0m[2m│   [0m[94mexcept[0m [96mException[0m [94mas[0m exc:  [2m# noqa: PIE786[0m                                    [31m [0m
-[31m [0m   [2m12 [0m[2m│   │   [0m[94mfor[0m from_exc, to_exc [95min[0m [96mmap[0m.items():                                    [31m [0m
-[31m [0m   [2m13 [0m[2m│   │   │   [0m[94mif[0m [96misinstance[0m(exc, from_exc):                                       [31m [0m
-[31m [0m [31m❱ [0m14 [2m│   │   │   │   [0m[1;4;94mraise[0m[1;4m to_exc(exc) [0m[1;4;94mfrom[0m[1;4;90m [0m[1;4;96mexc[0m                                      [31m [0m
-[31m [0m   [2m15 [0m[2m│   │   [0m[94mraise[0m  [2m# pragma: nocover[0m                                                [31m [0m
-[31m [0m   [2m16 [0m                                                                                [31m [0m
-[31m [0m   [2m17 [0m                                                                                [31m [0m
+[31m [0m   [2m 414 [0m[2m│   │   │   [0m[94mexcept[0m [96mValueError[0m [94mas[0m err:                                         [31m [0m
+[31m [0m   [2m 415 [0m[2m│   │   │   │   [0m[94mraise[0m [96mKeyError[0m(key) [94mfrom[0m[90m [0m[4;96merr[0m                                  [31m [0m
+[31m [0m   [2m 416 [0m[2m│   │   [0m[94mif[0m [96misinstance[0m(key, Hashable):                                         [31m [0m
+[31m [0m [31m❱ [0m 417 [2m│   │   │   [0m[1;4;94mraise[0m[1;4m [0m[1;4;96mKeyError[0m[1;4m(key)[0m                                               [31m [0m
+[31m [0m   [2m 418 [0m[2m│   │   [0m[96mself[0m._check_indexing_error(key)                                       [31m [0m
+[31m [0m   [2m 419 [0m[2m│   │   [0m[94mraise[0m [96mKeyError[0m(key)                                                   [31m [0m
+[31m [0m   [2m 420 [0m                                                                              [31m [0m
 [31m────────────────────────────────────────────────────────────────────────────────────────[0m
-[1;91mConnectError: [0m[1m[[0mErrno [1;36m-2[0m[1m][0m Name or service not known
-
-[3mThe above exception was the direct cause of the following exception:[0m
-
+[1;91mKeyError: [0m[32m'role'[0m
 [31m──[0m[31m────────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────────[0m[31m──[0m
 [31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
 [31m [0m [2mcriptrunner/[0m[1mexec_code.py[0m:129 in exec_func_with_error_handling                        [31m [0m
@@ -129,153 +75,296 @@ Collecting usage statistics. To deactivate, set browser.gatherUsageStats to fals
 [31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
 [31m [0m [2mcriptrunner/[0m[1mscript_runner.py[0m:689 in code_to_exec                                     [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:1299 in <module>                                                        [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:1251 in <module>                                                        [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m   [2m1296 [0m[2m# ======================[0m                                                      [31m [0m
-[31m [0m   [2m1297 [0m[94mif[0m menu == [33m"[0m[33mDashboard[0m[33m"[0m:                                                       [31m [0m
-[31m [0m   [2m1298 [0m[2m│   [0m[94mif[0m role == [33m"[0m[33madmin[0m[33m"[0m:                                                       [31m [0m
-[31m [0m [31m❱ [0m1299 [2m│   │   [0m[1;4madmin_dashboard_summary()[0m                                             [31m [0m
-[31m [0m   [2m1300 [0m[2m│   [0m[94melse[0m:                                                                     [31m [0m
-[31m [0m   [2m1301 [0m[2m│   │   [0muser_personal_dashboard(user)                                         [31m [0m
-[31m [0m   [2m1302 [0m                                                                              [31m [0m
+[31m [0m   [2m1248 [0m[2m# ======================[0m                                                      [31m [0m
+[31m [0m   [2m1249 [0m[94mif[0m menu == [33m"[0m[33mDashboard[0m[33m"[0m:                                                       [31m [0m
+[31m [0m   [2m1250 [0m[2m│   [0m[94mif[0m role == [33m"[0m[33madmin[0m[33m"[0m:                                                       [31m [0m
+[31m [0m [31m❱ [0m1251 [2m│   │   [0m[1;4madmin_dashboard_summary()[0m                                             [31m [0m
+[31m [0m   [2m1252 [0m[2m│   [0m[94melse[0m:                                                                     [31m [0m
+[31m [0m   [2m1253 [0m[2m│   │   [0muser_personal_dashboard(user)                                         [31m [0m
+[31m [0m   [2m1254 [0m                                                                              [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:852 in admin_dashboard_summary                                          [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:800 in admin_dashboard_summary                                          [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 849 [0m                                                                              [31m [0m
-[31m [0m   [2m 850 [0m[94mdef[0m[90m [0m[92madmin_dashboard_summary[0m():                                                [31m [0m
-[31m [0m   [2m 851 [0m[2m│   [0mst.header([33m"[0m[33m📈 Dashboard Summary[0m[33m"[0m)                                         [31m [0m
-[31m [0m [31m❱ [0m 852 [2m│   [0mdata = [1;4mprepare_admin_data()[0m                                               [31m [0m
-[31m [0m   [2m 853 [0m[2m│   [0m[94mif[0m [95mnot[0m data:                                                              [31m [0m
-[31m [0m   [2m 854 [0m[2m│   │   [0mst.info([33m"[0m[33mBelum ada data user.[0m[33m"[0m)                                       [31m [0m
-[31m [0m   [2m 855 [0m[2m│   │   [0m[94mreturn[0m                                                                [31m [0m
+[31m [0m   [2m 797 [0m                                                                              [31m [0m
+[31m [0m   [2m 798 [0m[94mdef[0m[90m [0m[92madmin_dashboard_summary[0m():                                                [31m [0m
+[31m [0m   [2m 799 [0m[2m│   [0mst.header([33m"[0m[33m📈 Dashboard Summary[0m[33m"[0m)                                         [31m [0m
+[31m [0m [31m❱ [0m 800 [2m│   [0mdata = [1;4mprepare_admin_data()[0m                                               [31m [0m
+[31m [0m   [2m 801 [0m[2m│   [0m[94mif[0m [95mnot[0m data:                                                              [31m [0m
+[31m [0m   [2m 802 [0m[2m│   │   [0mst.info([33m"[0m[33mBelum ada data user.[0m[33m"[0m)                                       [31m [0m
+[31m [0m   [2m 803 [0m[2m│   │   [0m[94mreturn[0m                                                                [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:803 in prepare_admin_data                                               [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:758 in prepare_admin_data                                               [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 800 [0m                                                                              [31m [0m
-[31m [0m   [2m 801 [0m[94mdef[0m[90m [0m[92mprepare_admin_data[0m():                                                     [31m [0m
-[31m [0m   [2m 802 [0m[2;90m│   [0m[33m"""Mengambil dan menyiapkan data untuk dashboard admin."""[0m                [31m [0m
-[31m [0m [31m❱ [0m 803 [2m│   [0musers = [1;4mfetch_all_users()[0m                                                 [31m [0m
-[31m [0m   [2m 804 [0m[2m│   [0mscores = fetch_all_scores()                                               [31m [0m
-[31m [0m   [2m 805 [0m[2m│   [0m                                                                          [31m [0m
-[31m [0m   [2m 806 [0m[2m│   [0m[94mif[0m [95mnot[0m users:                                                             [31m [0m
+[31m [0m   [2m 755 [0m[2m│   │   [0m[94mreturn[0m [94mNone[0m                                                           [31m [0m
+[31m [0m   [2m 756 [0m[2m│   [0m                                                                          [31m [0m
+[31m [0m   [2m 757 [0m[2m│   [0mdf_users = pd.DataFrame(users)                                            [31m [0m
+[31m [0m [31m❱ [0m 758 [2m│   [0mtotal_user = [96mlen[0m(df_users[[1;4mdf_users[[0m[1;4;33m"[0m[1;4;33mrole[0m[1;4;33m"[0m[1;4m][0m == [33m"[0m[33muser[0m[33m"[0m])                    [31m [0m
+[31m [0m   [2m 759 [0m[2m│   [0mtotal_admin = [96mlen[0m(df_users[df_users[[33m"[0m[33mrole[0m[33m"[0m] == [33m"[0m[33madmin[0m[33m"[0m])                  [31m [0m
+[31m [0m   [2m 760 [0m[2m│   [0m                                                                          [31m [0m
+[31m [0m   [2m 761 [0m[2m│   [0mdf = pd.DataFrame()                                                       [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m [2m/app/[0m[1mmain.py[0m:279 in fetch_all_users                                                  [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/[0m[1mframe.p[0m [31m [0m
+[31m [0m [1my[0m:4113 in __getitem__                                                                [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 276 [0m                                                                              [31m [0m
-[31m [0m   [2m 277 [0m                                                                              [31m [0m
-[31m [0m   [2m 278 [0m[94mdef[0m[90m [0m[92mfetch_all_users[0m():                                                        [31m [0m
-[31m [0m [31m❱ [0m 279 [2m│   [0mresponse = [1;4msupabase.table([0m[1;4;33m"[0m[1;4;33musers[0m[1;4;33m"[0m[1;4m).select([0m[1;4;33m"[0m[1;4;33m*[0m[1;4;33m"[0m[1;4m).execute()[0m                  [31m [0m
-[31m [0m   [2m 280 [0m[2m│   [0m[94mreturn[0m [96mgetattr[0m(response, [33m"[0m[33mdata[0m[33m"[0m, []) [95mor[0m []                                [31m [0m
-[31m [0m   [2m 281 [0m                                                                              [31m [0m
-[31m [0m   [2m 282 [0m                                                                              [31m [0m
+[31m [0m   [2m 4110 [0m[2m│   │   [0m[94mif[0m is_single_key:                                                    [31m [0m
+[31m [0m   [2m 4111 [0m[2m│   │   │   [0m[94mif[0m [96mself[0m.columns.nlevels > [94m1[0m:                                     [31m [0m
+[31m [0m   [2m 4112 [0m[2m│   │   │   │   [0m[94mreturn[0m [96mself[0m._getitem_multilevel(key)                         [31m [0m
+[31m [0m [31m❱ [0m 4113 [2m│   │   │   [0mindexer = [1;4;96mself[0m[1;4m.columns.get_loc(key)[0m                              [31m [0m
+[31m [0m   [2m 4114 [0m[2m│   │   │   [0m[94mif[0m is_integer(indexer):                                          [31m [0m
+[31m [0m   [2m 4115 [0m[2m│   │   │   │   [0mindexer = [indexer]                                          [31m [0m
+[31m [0m   [2m 4116 [0m[2m│   │   [0m[94melse[0m:                                                                [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/postgrest/_sync/[0m[1mreq[0m [31m [0m
-[31m [0m [1muest_builder.py[0m:47 in execute                                                        [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/indexes[0m [31m [0m
+[31m [0m [2m/[0m[1mrange.py[0m:417 in get_loc                                                             [31m [0m
 [31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 44 [0m[2;33m│   │   [0m[33mRaises:[0m                                                                [31m [0m
-[31m [0m   [2m 45 [0m[2;33m│   │   │   [0m[33m:class:`APIError` If the API raised an error.[0m                      [31m [0m
-[31m [0m   [2m 46 [0m[2;33m│   │   [0m[33m"""[0m                                                                    [31m [0m
-[31m [0m [31m❱ [0m 47 [2m│   │   [0mr = [1;4;96mself[0m[1;4m.request.send()[0m                                                [31m [0m
-[31m [0m   [2m 48 [0m[2m│   │   [0m[94mtry[0m:                                                                   [31m [0m
-[31m [0m   [2m 49 [0m[2m│   │   │   [0m[94mif[0m r.is_success:                                                   [31m [0m
-[31m [0m   [2m 50 [0m[2m│   │   │   │   [0m[94mreturn[0m APIResponse.from_http_request_response(r)               [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/postgrest/[0m[1mbase_requ[0m [31m [0m
-[31m [0m [1mest_builder.py[0m:82 in send                                                            [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 79 [0m[2m│   [0m[94mdef[0m[90m [0m[92msend[0m([96mself[0m: RequestConfig[AsyncClient]) -> Awaitable[RequestResponse]:  [31m [0m
-[31m [0m   [2m 80 [0m[2m│   [0m                                                                           [31m [0m
-[31m [0m   [2m 81 [0m[2m│   [0m[94mdef[0m[90m [0m[92msend[0m([96mself[0m: RequestConfig[C]):                                          [31m [0m
-[31m [0m [31m❱ [0m 82 [2m│   │   [0m[94mreturn[0m [1;4;96mself[0m[1;4m.session.request([0m                                           [31m [0m
-[31m [0m   [2m 83 [0m[2m│   │   │   [0m[1;4;96mself[0m[1;4m.http_method,[0m                                                  [31m [0m
-[31m [0m   [2m 84 [0m[2m│   │   │   [0m[1;4;96mstr[0m[1;4m([0m[1;4;96mself[0m[1;4m.path),[0m                                                    [31m [0m
-[31m [0m   [2m 85 [0m[2m│   │   │   [0m[1;4mjson=[0m[1;4;96mself[0m[1;4m.json,[0m                                                    [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpx/[0m[1m_client.py[0m:82 [31m [0m
-[31m [0m 5 in request                                                                         [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 822 [0m[2m│   │   │   [0mtimeout=timeout,                                                  [31m [0m
-[31m [0m   [2m 823 [0m[2m│   │   │   [0mextensions=extensions,                                            [31m [0m
-[31m [0m   [2m 824 [0m[2m│   │   [0m)                                                                     [31m [0m
-[31m [0m [31m❱ [0m 825 [2m│   │   [0m[94mreturn[0m [1;4;96mself[0m[1;4m.send(request, auth=auth, follow_redirects=follow_redirect[0m [31m [0m
-[31m [0m   [2m 826 [0m[2m│   [0m                                                                          [31m [0m
-[31m [0m   [2m 827 [0m[2m│   [0m[1;95m@contextmanager[0m                                                           [31m [0m
-[31m [0m   [2m 828 [0m[2m│   [0m[94mdef[0m[90m [0m[92mstream[0m(                                                               [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpx/[0m[1m_client.py[0m:91 [31m [0m
-[31m [0m 4 in send                                                                            [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 911 [0m[2m│   │   [0m                                                                      [31m [0m
-[31m [0m   [2m 912 [0m[2m│   │   [0mauth = [96mself[0m._build_request_auth(request, auth)                        [31m [0m
-[31m [0m   [2m 913 [0m[2m│   │   [0m                                                                      [31m [0m
-[31m [0m [31m❱ [0m 914 [2m│   │   [0mresponse = [1;4;96mself[0m[1;4m._send_handling_auth([0m                                  [31m [0m
-[31m [0m   [2m 915 [0m[2m│   │   │   [0m[1;4mrequest,[0m                                                          [31m [0m
-[31m [0m   [2m 916 [0m[2m│   │   │   [0m[1;4mauth=auth,[0m                                                        [31m [0m
-[31m [0m   [2m 917 [0m[2m│   │   │   [0m[1;4mfollow_redirects=follow_redirects,[0m                                [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpx/[0m[1m_client.py[0m:94 [31m [0m
-[31m [0m 2 in _send_handling_auth                                                             [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 939 [0m[2m│   │   │   [0mrequest = [96mnext[0m(auth_flow)                                         [31m [0m
-[31m [0m   [2m 940 [0m[2m│   │   │   [0m                                                                  [31m [0m
-[31m [0m   [2m 941 [0m[2m│   │   │   [0m[94mwhile[0m [94mTrue[0m:                                                       [31m [0m
-[31m [0m [31m❱ [0m 942 [2m│   │   │   │   [0mresponse = [96mself[0m._send_handling_redirects(                     [31m [0m
-[31m [0m   [2m 943 [0m[2m│   │   │   │   │   [0mrequest,                                                  [31m [0m
-[31m [0m   [2m 944 [0m[2m│   │   │   │   │   [0mfollow_redirects=follow_redirects,                        [31m [0m
-[31m [0m   [2m 945 [0m[2m│   │   │   │   │   [0mhistory=history,                                          [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpx/[0m[1m_client.py[0m:97 [31m [0m
-[31m [0m 9 in _send_handling_redirects                                                        [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m 976 [0m[2m│   │   │   [0m[94mfor[0m hook [95min[0m [96mself[0m._event_hooks[[33m"[0m[33mrequest[0m[33m"[0m]:                         [31m [0m
-[31m [0m   [2m 977 [0m[2m│   │   │   │   [0mhook(request)                                                 [31m [0m
-[31m [0m   [2m 978 [0m[2m│   │   │   [0m                                                                  [31m [0m
-[31m [0m [31m❱ [0m 979 [2m│   │   │   [0mresponse = [1;4;96mself[0m[1;4m._send_single_request(request)[0m                     [31m [0m
-[31m [0m   [2m 980 [0m[2m│   │   │   [0m[94mtry[0m:                                                              [31m [0m
-[31m [0m   [2m 981 [0m[2m│   │   │   │   [0m[94mfor[0m hook [95min[0m [96mself[0m._event_hooks[[33m"[0m[33mresponse[0m[33m"[0m]:                    [31m [0m
-[31m [0m   [2m 982 [0m[2m│   │   │   │   │   [0mhook(response)                                            [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpx/[0m[1m_client.py[0m:10 [31m [0m
-[31m [0m 14 in _send_single_request                                                           [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m1011 [0m[2m│   │   │   [0m)                                                                 [31m [0m
-[31m [0m   [2m1012 [0m[2m│   │   [0m                                                                      [31m [0m
-[31m [0m   [2m1013 [0m[2m│   │   [0m[94mwith[0m request_context(request=request):                                [31m [0m
-[31m [0m [31m❱ [0m1014 [2m│   │   │   [0mresponse = [1;4mtransport.handle_request(request)[0m                      [31m [0m
-[31m [0m   [2m1015 [0m[2m│   │   [0m                                                                      [31m [0m
-[31m [0m   [2m1016 [0m[2m│   │   [0m[94massert[0m [96misinstance[0m(response.stream, SyncByteStream)                    [31m [0m
-[31m [0m   [2m1017 [0m                                                                              [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpx/_transports/[0m[1md[0m [31m [0m
-[31m [0m [1mefault.py[0m:249 in handle_request                                                      [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m246 [0m[2m│   │   │   [0mcontent=request.stream,                                            [31m [0m
-[31m [0m   [2m247 [0m[2m│   │   │   [0mextensions=request.extensions,                                     [31m [0m
-[31m [0m   [2m248 [0m[2m│   │   [0m)                                                                      [31m [0m
-[31m [0m [31m❱ [0m249 [2m│   │   [0m[94mwith[0m [1;4mmap_httpcore_exceptions()[0m:                                        [31m [0m
-[31m [0m   [2m250 [0m[2m│   │   │   [0mresp = [96mself[0m._pool.handle_request(req)                              [31m [0m
-[31m [0m   [2m251 [0m[2m│   │   [0m                                                                       [31m [0m
-[31m [0m   [2m252 [0m[2m│   │   [0m[94massert[0m [96misinstance[0m(resp.stream, typing.Iterable)                        [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/[0m[1mcontextlib.py[0m:158 in __exit__     [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m155 [0m[2m│   │   │   │   [0m[2m# tell if we get the same exception back[0m                       [31m [0m
-[31m [0m   [2m156 [0m[2m│   │   │   │   [0mvalue = typ()                                                  [31m [0m
-[31m [0m   [2m157 [0m[2m│   │   │   [0m[94mtry[0m:                                                               [31m [0m
-[31m [0m [31m❱ [0m158 [2m│   │   │   │   [0m[96mself[0m.gen.throw(value)                                          [31m [0m
-[31m [0m   [2m159 [0m[2m│   │   │   [0m[94mexcept[0m [96mStopIteration[0m [94mas[0m exc:                                       [31m [0m
-[31m [0m   [2m160 [0m[2m│   │   │   │   [0m[2m# Suppress StopIteration *unless* it's the same exception that[0m [31m [0m
-[31m [0m   [2m161 [0m[2m│   │   │   │   [0m[2m# was passed to throw().  This prevents a StopIteration[0m        [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/httpx/_transports/[0m[1md[0m [31m [0m
-[31m [0m [1mefault.py[0m:118 in map_httpcore_exceptions                                             [31m [0m
-[31m [0m                                                                                      [31m [0m
-[31m [0m   [2m115 [0m[2m│   │   │   [0m[94mraise[0m                                                              [31m [0m
-[31m [0m   [2m116 [0m[2m│   │   [0m                                                                       [31m [0m
-[31m [0m   [2m117 [0m[2m│   │   [0mmessage = [96mstr[0m(exc)                                                     [31m [0m
-[31m [0m [31m❱ [0m118 [2m│   │   [0m[1;4;94mraise[0m[1;4m mapped_exc(message) [0m[1;4;94mfrom[0m[1;4;90m [0m[1;4;96mexc[0m                                     [31m [0m
-[31m [0m   [2m119 [0m                                                                               [31m [0m
-[31m [0m   [2m120 [0m                                                                               [31m [0m
-[31m [0m   [2m121 [0m[94mclass[0m[90m [0m[4;92mResponseStream[0m(SyncByteStream):                                          [31m [0m
+[31m [0m   [2m 414 [0m[2m│   │   │   [0m[94mexcept[0m [96mValueError[0m [94mas[0m err:                                         [31m [0m
+[31m [0m   [2m 415 [0m[2m│   │   │   │   [0m[94mraise[0m [96mKeyError[0m(key) [94mfrom[0m[90m [0m[4;96merr[0m                                  [31m [0m
+[31m [0m   [2m 416 [0m[2m│   │   [0m[94mif[0m [96misinstance[0m(key, Hashable):                                         [31m [0m
+[31m [0m [31m❱ [0m 417 [2m│   │   │   [0m[1;4;94mraise[0m[1;4m [0m[1;4;96mKeyError[0m[1;4m(key)[0m                                               [31m [0m
+[31m [0m   [2m 418 [0m[2m│   │   [0m[96mself[0m._check_indexing_error(key)                                       [31m [0m
+[31m [0m   [2m 419 [0m[2m│   │   [0m[94mraise[0m [96mKeyError[0m(key)                                                   [31m [0m
+[31m [0m   [2m 420 [0m                                                                              [31m [0m
 [31m────────────────────────────────────────────────────────────────────────────────────────[0m
-[1;91mConnectError: [0m[1m[[0mErrno [1;36m-2[0m[1m][0m Name or service not known
+[1;91mKeyError: [0m[32m'role'[0m
+[31m──[0m[31m────────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────────[0m[31m──[0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
+[31m [0m [2mcriptrunner/[0m[1mexec_code.py[0m:129 in exec_func_with_error_handling                        [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
+[31m [0m [2mcriptrunner/[0m[1mscript_runner.py[0m:689 in code_to_exec                                     [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:1251 in <module>                                                        [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m1248 [0m[2m# ======================[0m                                                      [31m [0m
+[31m [0m   [2m1249 [0m[94mif[0m menu == [33m"[0m[33mDashboard[0m[33m"[0m:                                                       [31m [0m
+[31m [0m   [2m1250 [0m[2m│   [0m[94mif[0m role == [33m"[0m[33madmin[0m[33m"[0m:                                                       [31m [0m
+[31m [0m [31m❱ [0m1251 [2m│   │   [0m[1;4madmin_dashboard_summary()[0m                                             [31m [0m
+[31m [0m   [2m1252 [0m[2m│   [0m[94melse[0m:                                                                     [31m [0m
+[31m [0m   [2m1253 [0m[2m│   │   [0muser_personal_dashboard(user)                                         [31m [0m
+[31m [0m   [2m1254 [0m                                                                              [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:800 in admin_dashboard_summary                                          [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 797 [0m                                                                              [31m [0m
+[31m [0m   [2m 798 [0m[94mdef[0m[90m [0m[92madmin_dashboard_summary[0m():                                                [31m [0m
+[31m [0m   [2m 799 [0m[2m│   [0mst.header([33m"[0m[33m📈 Dashboard Summary[0m[33m"[0m)                                         [31m [0m
+[31m [0m [31m❱ [0m 800 [2m│   [0mdata = [1;4mprepare_admin_data()[0m                                               [31m [0m
+[31m [0m   [2m 801 [0m[2m│   [0m[94mif[0m [95mnot[0m data:                                                              [31m [0m
+[31m [0m   [2m 802 [0m[2m│   │   [0mst.info([33m"[0m[33mBelum ada data user.[0m[33m"[0m)                                       [31m [0m
+[31m [0m   [2m 803 [0m[2m│   │   [0m[94mreturn[0m                                                                [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:758 in prepare_admin_data                                               [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 755 [0m[2m│   │   [0m[94mreturn[0m [94mNone[0m                                                           [31m [0m
+[31m [0m   [2m 756 [0m[2m│   [0m                                                                          [31m [0m
+[31m [0m   [2m 757 [0m[2m│   [0mdf_users = pd.DataFrame(users)                                            [31m [0m
+[31m [0m [31m❱ [0m 758 [2m│   [0mtotal_user = [96mlen[0m(df_users[[1;4mdf_users[[0m[1;4;33m"[0m[1;4;33mrole[0m[1;4;33m"[0m[1;4m][0m == [33m"[0m[33muser[0m[33m"[0m])                    [31m [0m
+[31m [0m   [2m 759 [0m[2m│   [0mtotal_admin = [96mlen[0m(df_users[df_users[[33m"[0m[33mrole[0m[33m"[0m] == [33m"[0m[33madmin[0m[33m"[0m])                  [31m [0m
+[31m [0m   [2m 760 [0m[2m│   [0m                                                                          [31m [0m
+[31m [0m   [2m 761 [0m[2m│   [0mdf = pd.DataFrame()                                                       [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/[0m[1mframe.p[0m [31m [0m
+[31m [0m [1my[0m:4113 in __getitem__                                                                [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 4110 [0m[2m│   │   [0m[94mif[0m is_single_key:                                                    [31m [0m
+[31m [0m   [2m 4111 [0m[2m│   │   │   [0m[94mif[0m [96mself[0m.columns.nlevels > [94m1[0m:                                     [31m [0m
+[31m [0m   [2m 4112 [0m[2m│   │   │   │   [0m[94mreturn[0m [96mself[0m._getitem_multilevel(key)                         [31m [0m
+[31m [0m [31m❱ [0m 4113 [2m│   │   │   [0mindexer = [1;4;96mself[0m[1;4m.columns.get_loc(key)[0m                              [31m [0m
+[31m [0m   [2m 4114 [0m[2m│   │   │   [0m[94mif[0m is_integer(indexer):                                          [31m [0m
+[31m [0m   [2m 4115 [0m[2m│   │   │   │   [0mindexer = [indexer]                                          [31m [0m
+[31m [0m   [2m 4116 [0m[2m│   │   [0m[94melse[0m:                                                                [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/indexes[0m [31m [0m
+[31m [0m [2m/[0m[1mrange.py[0m:417 in get_loc                                                             [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 414 [0m[2m│   │   │   [0m[94mexcept[0m [96mValueError[0m [94mas[0m err:                                         [31m [0m
+[31m [0m   [2m 415 [0m[2m│   │   │   │   [0m[94mraise[0m [96mKeyError[0m(key) [94mfrom[0m[90m [0m[4;96merr[0m                                  [31m [0m
+[31m [0m   [2m 416 [0m[2m│   │   [0m[94mif[0m [96misinstance[0m(key, Hashable):                                         [31m [0m
+[31m [0m [31m❱ [0m 417 [2m│   │   │   [0m[1;4;94mraise[0m[1;4m [0m[1;4;96mKeyError[0m[1;4m(key)[0m                                               [31m [0m
+[31m [0m   [2m 418 [0m[2m│   │   [0m[96mself[0m._check_indexing_error(key)                                       [31m [0m
+[31m [0m   [2m 419 [0m[2m│   │   [0m[94mraise[0m [96mKeyError[0m(key)                                                   [31m [0m
+[31m [0m   [2m 420 [0m                                                                              [31m [0m
+[31m────────────────────────────────────────────────────────────────────────────────────────[0m
+[1;91mKeyError: [0m[32m'role'[0m
+[31m──[0m[31m────────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────────[0m[31m──[0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
+[31m [0m [2mcriptrunner/[0m[1mexec_code.py[0m:129 in exec_func_with_error_handling                        [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
+[31m [0m [2mcriptrunner/[0m[1mscript_runner.py[0m:689 in code_to_exec                                     [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:1251 in <module>                                                        [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m1248 [0m[2m# ======================[0m                                                      [31m [0m
+[31m [0m   [2m1249 [0m[94mif[0m menu == [33m"[0m[33mDashboard[0m[33m"[0m:                                                       [31m [0m
+[31m [0m   [2m1250 [0m[2m│   [0m[94mif[0m role == [33m"[0m[33madmin[0m[33m"[0m:                                                       [31m [0m
+[31m [0m [31m❱ [0m1251 [2m│   │   [0m[1;4madmin_dashboard_summary()[0m                                             [31m [0m
+[31m [0m   [2m1252 [0m[2m│   [0m[94melse[0m:                                                                     [31m [0m
+[31m [0m   [2m1253 [0m[2m│   │   [0muser_personal_dashboard(user)                                         [31m [0m
+[31m [0m   [2m1254 [0m                                                                              [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:800 in admin_dashboard_summary                                          [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 797 [0m                                                                              [31m [0m
+[31m [0m   [2m 798 [0m[94mdef[0m[90m [0m[92madmin_dashboard_summary[0m():                                                [31m [0m
+[31m [0m   [2m 799 [0m[2m│   [0mst.header([33m"[0m[33m📈 Dashboard Summary[0m[33m"[0m)                                         [31m [0m
+[31m [0m [31m❱ [0m 800 [2m│   [0mdata = [1;4mprepare_admin_data()[0m                                               [31m [0m
+[31m [0m   [2m 801 [0m[2m│   [0m[94mif[0m [95mnot[0m data:                                                              [31m [0m
+[31m [0m   [2m 802 [0m[2m│   │   [0mst.info([33m"[0m[33mBelum ada data user.[0m[33m"[0m)                                       [31m [0m
+[31m [0m   [2m 803 [0m[2m│   │   [0m[94mreturn[0m                                                                [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:758 in prepare_admin_data                                               [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 755 [0m[2m│   │   [0m[94mreturn[0m [94mNone[0m                                                           [31m [0m
+[31m [0m   [2m 756 [0m[2m│   [0m                                                                          [31m [0m
+[31m [0m   [2m 757 [0m[2m│   [0mdf_users = pd.DataFrame(users)                                            [31m [0m
+[31m [0m [31m❱ [0m 758 [2m│   [0mtotal_user = [96mlen[0m(df_users[[1;4mdf_users[[0m[1;4;33m"[0m[1;4;33mrole[0m[1;4;33m"[0m[1;4m][0m == [33m"[0m[33muser[0m[33m"[0m])                    [31m [0m
+[31m [0m   [2m 759 [0m[2m│   [0mtotal_admin = [96mlen[0m(df_users[df_users[[33m"[0m[33mrole[0m[33m"[0m] == [33m"[0m[33madmin[0m[33m"[0m])                  [31m [0m
+[31m [0m   [2m 760 [0m[2m│   [0m                                                                          [31m [0m
+[31m [0m   [2m 761 [0m[2m│   [0mdf = pd.DataFrame()                                                       [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/[0m[1mframe.p[0m [31m [0m
+[31m [0m [1my[0m:4113 in __getitem__                                                                [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 4110 [0m[2m│   │   [0m[94mif[0m is_single_key:                                                    [31m [0m
+[31m [0m   [2m 4111 [0m[2m│   │   │   [0m[94mif[0m [96mself[0m.columns.nlevels > [94m1[0m:                                     [31m [0m
+[31m [0m   [2m 4112 [0m[2m│   │   │   │   [0m[94mreturn[0m [96mself[0m._getitem_multilevel(key)                         [31m [0m
+[31m [0m [31m❱ [0m 4113 [2m│   │   │   [0mindexer = [1;4;96mself[0m[1;4m.columns.get_loc(key)[0m                              [31m [0m
+[31m [0m   [2m 4114 [0m[2m│   │   │   [0m[94mif[0m is_integer(indexer):                                          [31m [0m
+[31m [0m   [2m 4115 [0m[2m│   │   │   │   [0mindexer = [indexer]                                          [31m [0m
+[31m [0m   [2m 4116 [0m[2m│   │   [0m[94melse[0m:                                                                [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/indexes[0m [31m [0m
+[31m [0m [2m/[0m[1mrange.py[0m:417 in get_loc                                                             [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 414 [0m[2m│   │   │   [0m[94mexcept[0m [96mValueError[0m [94mas[0m err:                                         [31m [0m
+[31m [0m   [2m 415 [0m[2m│   │   │   │   [0m[94mraise[0m [96mKeyError[0m(key) [94mfrom[0m[90m [0m[4;96merr[0m                                  [31m [0m
+[31m [0m   [2m 416 [0m[2m│   │   [0m[94mif[0m [96misinstance[0m(key, Hashable):                                         [31m [0m
+[31m [0m [31m❱ [0m 417 [2m│   │   │   [0m[1;4;94mraise[0m[1;4m [0m[1;4;96mKeyError[0m[1;4m(key)[0m                                               [31m [0m
+[31m [0m   [2m 418 [0m[2m│   │   [0m[96mself[0m._check_indexing_error(key)                                       [31m [0m
+[31m [0m   [2m 419 [0m[2m│   │   [0m[94mraise[0m [96mKeyError[0m(key)                                                   [31m [0m
+[31m [0m   [2m 420 [0m                                                                              [31m [0m
+[31m────────────────────────────────────────────────────────────────────────────────────────[0m
+[1;91mKeyError: [0m[32m'role'[0m
+[31m──[0m[31m────────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────────[0m[31m──[0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
+[31m [0m [2mcriptrunner/[0m[1mexec_code.py[0m:129 in exec_func_with_error_handling                        [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
+[31m [0m [2mcriptrunner/[0m[1mscript_runner.py[0m:689 in code_to_exec                                     [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:1251 in <module>                                                        [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m1248 [0m[2m# ======================[0m                                                      [31m [0m
+[31m [0m   [2m1249 [0m[94mif[0m menu == [33m"[0m[33mDashboard[0m[33m"[0m:                                                       [31m [0m
+[31m [0m   [2m1250 [0m[2m│   [0m[94mif[0m role == [33m"[0m[33madmin[0m[33m"[0m:                                                       [31m [0m
+[31m [0m [31m❱ [0m1251 [2m│   │   [0m[1;4madmin_dashboard_summary()[0m                                             [31m [0m
+[31m [0m   [2m1252 [0m[2m│   [0m[94melse[0m:                                                                     [31m [0m
+[31m [0m   [2m1253 [0m[2m│   │   [0muser_personal_dashboard(user)                                         [31m [0m
+[31m [0m   [2m1254 [0m                                                                              [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:800 in admin_dashboard_summary                                          [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 797 [0m                                                                              [31m [0m
+[31m [0m   [2m 798 [0m[94mdef[0m[90m [0m[92madmin_dashboard_summary[0m():                                                [31m [0m
+[31m [0m   [2m 799 [0m[2m│   [0mst.header([33m"[0m[33m📈 Dashboard Summary[0m[33m"[0m)                                         [31m [0m
+[31m [0m [31m❱ [0m 800 [2m│   [0mdata = [1;4mprepare_admin_data()[0m                                               [31m [0m
+[31m [0m   [2m 801 [0m[2m│   [0m[94mif[0m [95mnot[0m data:                                                              [31m [0m
+[31m [0m   [2m 802 [0m[2m│   │   [0mst.info([33m"[0m[33mBelum ada data user.[0m[33m"[0m)                                       [31m [0m
+[31m [0m   [2m 803 [0m[2m│   │   [0m[94mreturn[0m                                                                [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:758 in prepare_admin_data                                               [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 755 [0m[2m│   │   [0m[94mreturn[0m [94mNone[0m                                                           [31m [0m
+[31m [0m   [2m 756 [0m[2m│   [0m                                                                          [31m [0m
+[31m [0m   [2m 757 [0m[2m│   [0mdf_users = pd.DataFrame(users)                                            [31m [0m
+[31m [0m [31m❱ [0m 758 [2m│   [0mtotal_user = [96mlen[0m(df_users[[1;4mdf_users[[0m[1;4;33m"[0m[1;4;33mrole[0m[1;4;33m"[0m[1;4m][0m == [33m"[0m[33muser[0m[33m"[0m])                    [31m [0m
+[31m [0m   [2m 759 [0m[2m│   [0mtotal_admin = [96mlen[0m(df_users[df_users[[33m"[0m[33mrole[0m[33m"[0m] == [33m"[0m[33madmin[0m[33m"[0m])                  [31m [0m
+[31m [0m   [2m 760 [0m[2m│   [0m                                                                          [31m [0m
+[31m [0m   [2m 761 [0m[2m│   [0mdf = pd.DataFrame()                                                       [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/[0m[1mframe.p[0m [31m [0m
+[31m [0m [1my[0m:4113 in __getitem__                                                                [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 4110 [0m[2m│   │   [0m[94mif[0m is_single_key:                                                    [31m [0m
+[31m [0m   [2m 4111 [0m[2m│   │   │   [0m[94mif[0m [96mself[0m.columns.nlevels > [94m1[0m:                                     [31m [0m
+[31m [0m   [2m 4112 [0m[2m│   │   │   │   [0m[94mreturn[0m [96mself[0m._getitem_multilevel(key)                         [31m [0m
+[31m [0m [31m❱ [0m 4113 [2m│   │   │   [0mindexer = [1;4;96mself[0m[1;4m.columns.get_loc(key)[0m                              [31m [0m
+[31m [0m   [2m 4114 [0m[2m│   │   │   [0m[94mif[0m is_integer(indexer):                                          [31m [0m
+[31m [0m   [2m 4115 [0m[2m│   │   │   │   [0mindexer = [indexer]                                          [31m [0m
+[31m [0m   [2m 4116 [0m[2m│   │   [0m[94melse[0m:                                                                [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/indexes[0m [31m [0m
+[31m [0m [2m/[0m[1mrange.py[0m:417 in get_loc                                                             [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 414 [0m[2m│   │   │   [0m[94mexcept[0m [96mValueError[0m [94mas[0m err:                                         [31m [0m
+[31m [0m   [2m 415 [0m[2m│   │   │   │   [0m[94mraise[0m [96mKeyError[0m(key) [94mfrom[0m[90m [0m[4;96merr[0m                                  [31m [0m
+[31m [0m   [2m 416 [0m[2m│   │   [0m[94mif[0m [96misinstance[0m(key, Hashable):                                         [31m [0m
+[31m [0m [31m❱ [0m 417 [2m│   │   │   [0m[1;4;94mraise[0m[1;4m [0m[1;4;96mKeyError[0m[1;4m(key)[0m                                               [31m [0m
+[31m [0m   [2m 418 [0m[2m│   │   [0m[96mself[0m._check_indexing_error(key)                                       [31m [0m
+[31m [0m   [2m 419 [0m[2m│   │   [0m[94mraise[0m [96mKeyError[0m(key)                                                   [31m [0m
+[31m [0m   [2m 420 [0m                                                                              [31m [0m
+[31m────────────────────────────────────────────────────────────────────────────────────────[0m
+[1;91mKeyError: [0m[32m'role'[0m
+[31m──[0m[31m────────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────────[0m[31m──[0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
+[31m [0m [2mcriptrunner/[0m[1mexec_code.py[0m:129 in exec_func_with_error_handling                        [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/streamlit/runtime/s[0m [31m [0m
+[31m [0m [2mcriptrunner/[0m[1mscript_runner.py[0m:689 in code_to_exec                                     [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:1250 in <module>                                                        [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m1247 [0m[2m# ======================[0m                                                      [31m [0m
+[31m [0m   [2m1248 [0m[94mif[0m menu == [33m"[0m[33mDashboard[0m[33m"[0m:                                                       [31m [0m
+[31m [0m   [2m1249 [0m[2m│   [0m[94mif[0m role == [33m"[0m[33madmin[0m[33m"[0m:                                                       [31m [0m
+[31m [0m [31m❱ [0m1250 [2m│   │   [0m[1;4madmin_dashboard_summary()[0m                                             [31m [0m
+[31m [0m   [2m1251 [0m[2m│   [0m[94melse[0m:                                                                     [31m [0m
+[31m [0m   [2m1252 [0m[2m│   │   [0muser_personal_dashboard(user)                                         [31m [0m
+[31m [0m   [2m1253 [0m                                                                              [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:799 in admin_dashboard_summary                                          [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 796 [0m                                                                              [31m [0m
+[31m [0m   [2m 797 [0m[94mdef[0m[90m [0m[92madmin_dashboard_summary[0m():                                                [31m [0m
+[31m [0m   [2m 798 [0m[2m│   [0mst.header([33m"[0m[33m📈 Dashboard Summary[0m[33m"[0m)                                         [31m [0m
+[31m [0m [31m❱ [0m 799 [2m│   [0mdata = [1;4mprepare_admin_data()[0m                                               [31m [0m
+[31m [0m   [2m 800 [0m[2m│   [0m[94mif[0m [95mnot[0m data:                                                              [31m [0m
+[31m [0m   [2m 801 [0m[2m│   │   [0mst.info([33m"[0m[33mBelum ada data user.[0m[33m"[0m)                                       [31m [0m
+[31m [0m   [2m 802 [0m[2m│   │   [0m[94mreturn[0m                                                                [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/app/[0m[1mmain.py[0m:757 in prepare_admin_data                                               [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 754 [0m[2m│   │   [0m[94mreturn[0m [94mNone[0m                                                           [31m [0m
+[31m [0m   [2m 755 [0m[2m│   [0m                                                                          [31m [0m
+[31m [0m   [2m 756 [0m[2m│   [0mdf_users = pd.DataFrame(users)                                            [31m [0m
+[31m [0m [31m❱ [0m 757 [2m│   [0mtotal_user = [96mlen[0m(df_users[[1;4mdf_users[[0m[1;4;33m"[0m[1;4;33mrole[0m[1;4;33m"[0m[1;4m][0m == [33m"[0m[33muser[0m[33m"[0m])                    [31m [0m
+[31m [0m   [2m 758 [0m[2m│   [0mtotal_admin = [96mlen[0m(df_users[df_users[[33m"[0m[33mrole[0m[33m"[0m] == [33m"[0m[33madmin[0m[33m"[0m])                  [31m [0m
+[31m [0m   [2m 759 [0m[2m│   [0m                                                                          [31m [0m
+[31m [0m   [2m 760 [0m[2m│   [0mdf = pd.DataFrame()                                                       [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/[0m[1mframe.p[0m [31m [0m
+[31m [0m [1my[0m:4113 in __getitem__                                                                [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 4110 [0m[2m│   │   [0m[94mif[0m is_single_key:                                                    [31m [0m
+[31m [0m   [2m 4111 [0m[2m│   │   │   [0m[94mif[0m [96mself[0m.columns.nlevels > [94m1[0m:                                     [31m [0m
+[31m [0m   [2m 4112 [0m[2m│   │   │   │   [0m[94mreturn[0m [96mself[0m._getitem_multilevel(key)                         [31m [0m
+[31m [0m [31m❱ [0m 4113 [2m│   │   │   [0mindexer = [1;4;96mself[0m[1;4m.columns.get_loc(key)[0m                              [31m [0m
+[31m [0m   [2m 4114 [0m[2m│   │   │   [0m[94mif[0m is_integer(indexer):                                          [31m [0m
+[31m [0m   [2m 4115 [0m[2m│   │   │   │   [0mindexer = [indexer]                                          [31m [0m
+[31m [0m   [2m 4116 [0m[2m│   │   [0m[94melse[0m:                                                                [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m [2m/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/pandas/core/indexes[0m [31m [0m
+[31m [0m [2m/[0m[1mrange.py[0m:417 in get_loc                                                             [31m [0m
+[31m [0m                                                                                      [31m [0m
+[31m [0m   [2m 414 [0m[2m│   │   │   [0m[94mexcept[0m [96mValueError[0m [94mas[0m err:                                         [31m [0m
+[31m [0m   [2m 415 [0m[2m│   │   │   │   [0m[94mraise[0m [96mKeyError[0m(key) [94mfrom[0m[90m [0m[4;96merr[0m                                  [31m [0m
+[31m [0m   [2m 416 [0m[2m│   │   [0m[94mif[0m [96misinstance[0m(key, Hashable):                                         [31m [0m
+[31m [0m [31m❱ [0m 417 [2m│   │   │   [0m[1;4;94mraise[0m[1;4m [0m[1;4;96mKeyError[0m[1;4m(key)[0m                                               [31m [0m
+[31m [0m   [2m 418 [0m[2m│   │   [0m[96mself[0m._check_indexing_error(key)                                       [31m [0m
+[31m [0m   [2m 419 [0m[2m│   │   [0m[94mraise[0m [96mKeyError[0m(key)                                                   [31m [0m
+[31m [0m   [2m 420 [0m                                                                              [31m [0m
+[31m────────────────────────────────────────────────────────────────────────────────────────[0m
+[1;91mKeyError: [0m[32m'role'[0m
