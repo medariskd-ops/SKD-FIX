@@ -34,86 +34,214 @@ def show_toast(message: str, type="success"):
 
 
 def inject_global_css():
-    """Force Light Mode + Glass Sidebar + Konsisten Text Color di Streamlit modern."""
-    st.markdown("""
-    <style>
-    /* ==============================
-       FORCE LIGHT MODE GLOBAL
-       ============================== */
-    html, body, .stApp, section, div[data-testid="stAppViewContainer"], 
-    div[data-testid="stVerticalBlock"] {
-        background-color: #F8FAFC !important;
-        color: #1E293B !important;
-        font-family: "sans-serif" !important;
-    }
+    """Menerapkan Modern Light Glassmorphism UI dan memaksa Light Mode."""
+    st.markdown(
+        """
+        <style>
+        /* Force Light Mode Variables */
+        :root {
+            --primary-color: #10B981;
+            --background-color: #F8FAFC;
+            --secondary-background-color: #F1F5F9;
+            --text-color: #1E293B;
+            --font: "sans-serif";
+        }
 
-    /* Sidebar Modern Glass + Blur */
-    [data-testid="stSidebar"] {
-        background-color: rgba(203, 213, 225, 0.5) !important;
-        backdrop-filter: blur(20px) !important;
-        -webkit-backdrop-filter: blur(20px) !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.4) !important;
-        box-shadow: 4px 0 20px rgba(0,0,0,0.05) !important;
-        color: #1E293B !important;
-        z-index: 1000 !important;
-    }
+        /* Global Background */
+        .stApp {
+            background-color: #F8FAFC !important;
+            color: #1E293B !important;
+        }
+        
+        section[data-testid="stMain"] {
+            background-color: #F8FAFC !important;
+            padding-top: 0px !important;
+        }
 
-    /* Sidebar text & labels */
-    [data-testid="stSidebar"] * {
-        color: #1E293B !important;
-    }
+        [data-testid="stAppViewBlockContainer"] {
+            padding-top: 0rem !important;
+            padding-left: 5% !important;
+            padding-right: 5% !important;
+        }
 
-    /* Buttons */
-    div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {
-        border-radius: 24px !important;
-        font-weight: 600 !important;
-        min-height: 44px !important;
-        border: none !important;
-        color: white !important;
-    }
+        /* Modern Glass Sidebar */
+        [data-testid="stSidebar"] {
+            background-color: rgba(203, 213, 225, 0.5) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.4) !important;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.05) !important;
+            z-index: 1000001 !important;
+            transition: transform 0.3s ease !important;
+        }
 
-    button[data-testid^="stBaseButton-primary"], 
-    div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {
-        background-color: #10B981 !important;
-        box-shadow: 0 4px 12px rgba(16,185,129,0.2) !important;
-    }
-    button[data-testid^="stBaseButton-primary"]:hover, 
-    div.stDownloadButton > button:hover,
-    div[data-testid="stFormSubmitButton"] > button:hover {
-        background-color: #059669 !important;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(16,185,129,0.3) !important;
-    }
+        /* Always show sidebar collapse button (<<) */
+        [data-testid="stSidebar"] [data-testid="stBaseButton-headerNoPadding"] {
+            opacity: 1 !important;
+            visibility: visible !important;
+            color: #1E293B !important;
+        }
 
-    button[data-testid^="stBaseButton-secondary"] {
-        background-color: #F43F5E !important;
-    }
-    button[data-testid^="stBaseButton-secondary"]:hover {
-        background-color: #E11D48 !important;
-    }
+        /* Force Sidebar Text Color */
+        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p,
+        [data-testid="stSidebar"] .stMarkdown p,
+        [data-testid="stSidebar"] label p {
+            color: #1E293B !important;
+            font-weight: 600 !important;
+        }
 
-    /* Inputs, selects, textareas */
-    input, select, textarea, [data-baseweb="input"], [data-baseweb="select"] {
-        background-color: #FFFFFF !important;
-        color: #1E293B !important;
-        border-radius: 12px !important;
-    }
+        /* Prevent content shift */
+        [data-testid="stAppViewContainer"] section[data-testid="stMain"] {
+            width: 100% !important;
+            margin-left: 0 !important;
+            padding-left: 0 !important;
+        }
+        
+        /* Sidebar Expanded State Backdrop */
+        [data-testid="stSidebar"][aria-expanded="true"] ~ section[data-testid="stMain"]::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.1);
+            z-index: 99999;
+            pointer-events: none;
+        }
 
-    /* Tables, cards, container */
-    .main-card, [data-testid="stVerticalBlockBorderWrapper"], table, th, td {
-        background-color: #FFFFFF !important;
-        color: #1E293B !important;
-        border-color: rgba(0,0,0,0.05) !important;
-    }
+        /* Sidebar Navigation Styling (Pills) */
+        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
+            display: none;
+        }
+        
+        [data-testid="stSidebar"] div[role="radiogroup"] {
+            padding: 20px 10px;
+            gap: 8px;
+        }
 
-    /* Markdown text */
-    .stMarkdown, .stText, .stCodeBlock {
-        color: #1E293B !important;
-    }
+        [data-testid="stSidebar"] div[role="radiogroup"] label {
+            background-color: transparent !important;
+            padding: 10px 20px !important;
+            border-radius: 24px !important;
+            border: none !important;
+            width: 100% !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            margin: 0 !important;
+        }
 
-    /* Chart axes & labels (matplotlib default sudah set tapi aman) */
-    </style>
-    """, unsafe_allow_html=True)
+        /* Hide radio circle */
+        [data-testid="stSidebar"] div[role="radiogroup"] label > div:first-child {
+            display: none !important;
+        }
+
+        [data-testid="stSidebar"] div[role="radiogroup"] label p {
+            font-size: 15px !important;
+            margin: 0 !important;
+        }
+
+        [data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+            background-color: rgba(0, 0, 0, 0.03) !important;
+        }
+        
+        /* Active Sidebar Item (Pill) */
+        [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
+            background-color: rgba(0, 0, 0, 0.05) !important;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05) !important;
+        }
+
+        /* Input & Labels Visibility in Light Mode */
+        [data-testid="stWidgetLabel"] p, .stMarkdown p, label p {
+            color: #1E293B !important;
+        }
+        
+        input, select, textarea {
+            color: #1E293B !important;
+            background-color: white !important;
+        }
+
+        /* Cards & UI Elements */
+        .main-card, [data-testid="stVerticalBlockBorderWrapper"] {
+            background: white !important;
+            border-radius: 16px !important;
+            padding: 32px !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03) !important;
+            border: 1px solid rgba(0,0,0,0.05) !important;
+            margin-bottom: 24px !important;
+        }
+
+        /* Global Buttons Styling */
+        div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {
+            border-radius: 24px !important;
+            font-weight: 600 !important;
+            min-height: 44px !important;
+            transition: all 0.2s !important;
+            border: none !important;
+            padding: 0.5rem 2rem !important;
+        }
+        
+        /* Primary (Emerald) */
+        button[data-testid^="stBaseButton-primary"], 
+        div.stDownloadButton > button,
+        div[data-testid="stFormSubmitButton"] > button {
+            background-color: #10B981 !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(16,185,129,0.2) !important;
+        }
+        button[data-testid^="stBaseButton-primary"]:hover, 
+        div.stDownloadButton > button:hover,
+        div[data-testid="stFormSubmitButton"] > button:hover {
+            background-color: #059669 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(16,185,129,0.3) !important;
+        }
+
+        /* Secondary/Logout (Rose) */
+        button[data-testid^="stBaseButton-secondary"] {
+            background-color: #F43F5E !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(244,63,94,0.2) !important;
+        }
+        button[data-testid^="stBaseButton-secondary"]:hover {
+            background-color: #E11D48 !important;
+            transform: translateY(-1px);
+        }
+        button[data-testid^="stBaseButton-secondary"] p {
+            color: white !important;
+        }
+
+        /* Inputs & Selectboxes */
+        div[data-baseweb="input"], div[data-baseweb="select"] {
+            border-radius: 12px !important;
+        }
+        [data-testid="stNumberInput"] input, [data-testid="stTextInput"] input {
+            border-radius: 12px !important;
+        }
+
+        /* Notifications (Left Slide) */
+        @keyframes slideInL {
+            0% { transform: translateX(-150%); opacity: 0; }
+            10% { transform: translateX(0); opacity: 1; }
+            90% { transform: translateX(0); opacity: 1; }
+            100% { transform: translateX(150%); opacity: 0; }
+        }
+        .custom-toast {
+            position: fixed;
+            top: 25px; left: 25px;
+            background: white;
+            padding: 16px 28px;
+            border-radius: 12px;
+            z-index: 9999999;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            animation: slideInL 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            font-weight: 600;
+        }
+
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 inject_global_css()
