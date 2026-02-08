@@ -910,22 +910,11 @@ def admin_grafik_nilai():
         filtered = filtered.sort_values(["skd_ke", "nama"])
         st.subheader(f"Data SKD Rentang ke-{r_dari} sampai {r_sampai}")
     elif pilih_skd == "Terakhir":
-        show_this_week = st.radio("Filter Waktu:", ["Semua", "Minggu Ini"], horizontal=True, key="admin_time_filter")
-        
-        if show_this_week == "Minggu Ini" and "created_at" in df.columns:
-            df = df.copy()
-            df['created_at_dt'] = pd.to_datetime(df['created_at'])
-            today = datetime.date.today()
-            monday = today - datetime.timedelta(days=today.weekday())
-            df = df[df['created_at_dt'].dt.date >= monday]
-            st.subheader("Data SKD Terakhir User (Minggu Ini)")
-        else:
-            st.subheader("Data SKD Terakhir Setiap User")
-
         if "created_at" in df.columns:
             filtered = df.sort_values("created_at").groupby("user_id").tail(1).copy()
         else:
             filtered = df.groupby("user_id").tail(1).copy()
+        st.subheader("Data SKD Terakhir Setiap User")
     elif pilih_skd == "Semua":
         filtered = df.copy()
         filtered = filtered.sort_values(["skd_ke", "nama"])
@@ -1018,10 +1007,23 @@ def _render_all_users_report_ui(df_all):
     pilih_skd = st.selectbox("Pilih Percobaan SKD", skd_options, index=len(skd_options)-1)
     
     if pilih_skd == "SKD Terakhir":
+        show_this_week_rep = st.radio("Filter Waktu:", ["Semua", "Minggu Ini"], horizontal=True, key="admin_time_filter_rep")
+        
+        target_df = df_all.copy()
+        time_suffix = ""
+        file_suffix = ""
+        if show_this_week_rep == "Minggu Ini" and "created_at" in target_df.columns:
+            target_df['created_at_dt'] = pd.to_datetime(target_df['created_at'])
+            today = datetime.date.today()
+            monday = today - datetime.timedelta(days=today.weekday())
+            target_df = target_df[target_df['created_at_dt'].dt.date >= monday]
+            time_suffix = " (Minggu Ini)"
+            file_suffix = "_minggu_ini"
+
         # Ambil data terakhir untuk setiap user (berdasarkan skd_ke terbanyak)
-        report_df = df_all.sort_values(["user_id", "skd_ke"]).groupby("user_id").tail(1).copy()
-        report_title = "Laporan Semua User: SKD Terakhir"
-        filename_base = "laporan_skd_semua_user_terakhir"
+        report_df = target_df.sort_values(["user_id", "skd_ke"]).groupby("user_id").tail(1).copy()
+        report_title = f"Laporan Semua User: SKD Terakhir{time_suffix}"
+        filename_base = f"laporan_skd_semua_user_terakhir{file_suffix}"
     else:
         n = int(pilih_skd.split("-")[-1])
         report_df = df_all[df_all["skd_ke"] == n].copy()
