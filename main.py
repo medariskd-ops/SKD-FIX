@@ -11,7 +11,7 @@ from database import supabase
 st.set_page_config(
     page_title="SKD App",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 
@@ -55,28 +55,72 @@ def inject_global_css():
             padding-right: 5% !important;
         }
 
-        /* Modern Glass Sidebar */
+        /* Modern Glass Sidebar Overlay */
         [data-testid="stSidebar"] {
+            position: fixed !important;
             background-color: rgba(203, 213, 225, 0.5) !important;
             backdrop-filter: blur(20px) !important;
             -webkit-backdrop-filter: blur(20px) !important;
             border-right: 1px solid rgba(255, 255, 255, 0.4) !important;
             box-shadow: 4px 0 20px rgba(0,0,0,0.05) !important;
-            z-index: 1000001 !important;
-            transition: transform 0.3s ease !important;
+            z-index: 99999 !important;
+            transition: all 0.3s ease-in-out !important;
         }
 
-        /* Force Sidebar Text Color */
+        /* Ensure Sidebar Collapses Correctly when Fixed */
+        [data-testid="stSidebar"][aria-expanded="false"] {
+            margin-left: -300px !important;
+        }
+
+        /* Persistent & Visible Toggle Icon (Close/Open) */
+        [data-testid="stSidebarCollapseButton"] {
+            opacity: 1 !important;
+            visibility: visible !important;
+            z-index: 1000001 !important; /* Extremely high */
+        }
+        
+        [data-testid="stSidebarCollapseButton"] button {
+            color: #ffffff !important;
+            background-color: #10B981 !important; /* Emerald */
+            border-radius: 50% !important;
+            width: 40px !important;
+            height: 40px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4) !important;
+            border: 2px solid #ffffff !important;
+        }
+        
+        [data-testid="stSidebarCollapseButton"] span,
+        [data-testid="stSidebarCollapseButton"] svg {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+            width: 24px !important;
+            height: 24px !important;
+        }
+
+        /* Force Sidebar Text Color & Icons */
         [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p,
         [data-testid="stSidebar"] .stMarkdown p,
-        [data-testid="stSidebar"] label p {
-            color: #1E293B !important;
+        [data-testid="stSidebar"] label p,
+        [data-testid="stSidebar"] .st-emotion-cache-5r6ut5 {
+            color: #000000 !important;
             font-weight: 600 !important;
         }
 
+        /* Hide top header and toolbar to prevent interception and clean UI */
+        header[data-testid="stHeader"], [data-testid="stToolbar"], .est0q594, .est0q592 {
+            display: none !important;
+        }
+
+        [data-testid="stSidebarCollapseButton"] {
+            pointer-events: auto !important;
+        }
+
         /* Prevent content shift */
-        [data-testid="stAppViewContainer"] section[data-testid="stMain"] {
-            width: 100% !important;
+        section[data-testid="stMain"] {
+            width: 100vw !important;
             margin-left: 0 !important;
             padding-left: 0 !important;
         }
@@ -123,7 +167,7 @@ def inject_global_css():
         }
 
         [data-testid="stSidebar"] div[role="radiogroup"] label:hover {
-            background-color: rgba(0, 0, 0, 0.03) !important;
+            background-color: rgba(0, 0, 0, 0.05) !important;
         }
         
         /* Active Sidebar Item (Pill) */
@@ -1216,6 +1260,7 @@ def admin_maintenance():
 # ======================
 # LOGIN CHECK
 # ======================
+
 if not login():
     st.stop()
 
