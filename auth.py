@@ -36,7 +36,7 @@ def login():
             unsafe_allow_html=True
         )
 
-        if st.button("Login"):
+        if st.button("Login", type="primary"):
             if not username or not password:
                 st.error("Username dan password wajib diisi")
                 return False
@@ -85,7 +85,7 @@ def login():
         new_password = st.text_input("Password", type="password", key="reg_pass")
         confirm_password = st.text_input("Konfirmasi Password", type="password", key="reg_conf")
 
-        if st.button("Daftar"):
+        if st.button("Daftar", type="primary"):
             if not new_username or not new_password:
                 st.error("Nama dan password wajib diisi")
             elif new_password != confirm_password:
@@ -140,5 +140,5 @@ def logout():
         else:
             st.warning("Yakin ingin keluar?")
             col1, col2 = st.columns(2)
-            col1.button("Ya", key="btn_logout_ya", use_container_width=True, on_click=do_logout)
+            col1.button("Iya", key="btn_logout_ya", use_container_width=True, on_click=do_logout, type="primary")
             col2.button("Tidak", key="btn_logout_tidak", use_container_width=True, on_click=cancel_confirm)
