@@ -454,7 +454,8 @@ def admin_user_management():
     
     # Ambil semua user dan filter berdasarkan cohort di sidebar
     all_users = fetch_all_users()
-    filter_tahun = st.session_state.get("filter_tahun_aktif", "Semua")
+    filter_tahun = st.session_state.get("filter_tahun_aktif")
+    if filter_tahun is None: filter_tahun = "Semua"
     
     if filter_tahun != "Semua":
         users = [u for u in all_users if u.get("tahun_aktif") == filter_tahun]
@@ -496,8 +497,8 @@ def admin_user_management():
                     "Pilih User", 
                     nama_list, 
                     key="edit_user_select",
-                    index=None,
-                    placeholder="Cari & pilih nama user..."
+                    index=None if len(nama_list) > 4 else 0,
+                    placeholder="Cari & pilih nama user..." if len(nama_list) > 4 else None
                 )
                 
                 if nama_pilih:
@@ -547,8 +548,8 @@ def admin_user_management():
                     "Pilih User untuk dihapus", 
                     nama_list_hapus, 
                     key="delete_user_select",
-                    index=None,
-                    placeholder="Cari & pilih nama user..."
+                    index=None if len(nama_list_hapus) > 4 else 0,
+                    placeholder="Cari & pilih nama user..." if len(nama_list_hapus) > 4 else None
                 )
                 
                 if nama_hapus:
@@ -579,8 +580,8 @@ def admin_user_management():
                         "Pilih User", 
                         user_list_trans, 
                         key="trans_user_select",
-                        index=None,
-                        placeholder="Cari & pilih nama user..."
+                        index=None if len(user_list_trans) > 4 else 0,
+                        placeholder="Cari & pilih nama user..." if len(user_list_trans) > 4 else None
                     )
                 with col_t2:
                     year_now = datetime.date.today().year
@@ -623,8 +624,8 @@ def admin_user_management():
                         "Pilih User untuk diedit nilainya", 
                         nama_list_score, 
                         key="admin_edit_score_user",
-                        index=None,
-                        placeholder="Cari & pilih nama user..."
+                        index=None if len(nama_list_score) > 4 else 0,
+                        placeholder="Cari & pilih nama user..." if len(nama_list_score) > 4 else None
                     )
                     
                     if nama_pilih_score:
@@ -638,43 +639,50 @@ def admin_user_management():
                             df_user_scores["skd_ke"] = range(1, len(df_user_scores) + 1)
                             
                             edit_options_admin = [f"SKD ke-{row['skd_ke']}" for _, row in df_user_scores.iterrows()]
-                            pilih_skd_admin = st.selectbox("Pilih Percobaan (Minggu)", edit_options_admin, key="admin_edit_score_week")
+                            pilih_skd_admin = st.selectbox(
+                                "Pilih Percobaan (Minggu)",
+                                edit_options_admin,
+                                key="admin_edit_score_week",
+                                index=None if len(edit_options_admin) > 4 else 0,
+                                placeholder="Cari & pilih SKD..." if len(edit_options_admin) > 4 else None
+                            )
                             
-                            idx_pilih_admin = int(pilih_skd_admin.split("-")[-1])
-                            data_pilih_admin = df_user_scores[df_user_scores["skd_ke"] == idx_pilih_admin].iloc[0]
+                            if pilih_skd_admin:
+                                idx_pilih_admin = int(pilih_skd_admin.split("-")[-1])
+                                data_pilih_admin = df_user_scores[df_user_scores["skd_ke"] == idx_pilih_admin].iloc[0]
 
-                            with st.form("admin_edit_nilai_form"):
-                                ae_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih_admin["twk"]))
-                                ae_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih_admin["tiu"]))
-                                ae_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih_admin["tkp"]))
-                                submitted_admin_edit_score = st.form_submit_button("Simpan Perubahan Nilai User")
+                                with st.form("admin_edit_nilai_form"):
+                                    ae_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih_admin["twk"]))
+                                    ae_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih_admin["tiu"]))
+                                    ae_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih_admin["tkp"]))
+                                    submitted_admin_edit_score = st.form_submit_button("Simpan Perubahan Nilai User")
 
-                            if submitted_admin_edit_score:
-                                ae_total = ae_twk + ae_tiu + ae_tkp
-                                st.session_state.pending_admin_score_edit = {
-                                    "twk": ae_twk,
-                                    "tiu": ae_tiu,
-                                    "tkp": ae_tkp,
-                                    "total": ae_total,
-                                    "id": data_pilih_admin["id"],
-                                    "nama": nama_pilih_score,
-                                    "pilih_skd": pilih_skd_admin
-                                }
-                                confirm_update_dialog(f"Simpan perubahan nilai untuk {nama_pilih_score} ({pilih_skd_admin})?", "do_update_admin_score")
+                                if submitted_admin_edit_score:
+                                    ae_total = ae_twk + ae_tiu + ae_tkp
+                                    st.session_state.pending_admin_score_edit = {
+                                        "twk": ae_twk,
+                                        "tiu": ae_tiu,
+                                        "tkp": ae_tkp,
+                                        "total": ae_total,
+                                        "id": data_pilih_admin["id"],
+                                        "nama": nama_pilih_score,
+                                        "pilih_skd": pilih_skd_admin
+                                    }
+                                    confirm_update_dialog(f"Simpan perubahan nilai untuk {nama_pilih_score} ({pilih_skd_admin})?", "do_update_admin_score")
 
-                            if st.session_state.get("do_update_admin_score"):
-                                ps = st.session_state.pending_admin_score_edit
-                                supabase.table("scores").update({
-                                    "twk": ps["twk"],
-                                    "tiu": ps["tiu"],
-                                    "tkp": ps["tkp"],
-                                    "total": ps["total"]
-                                }).eq("id", ps["id"]).execute()
-                                
-                                st.session_state.toast_msg = f"Nilai {ps['nama']} berhasil diperbarui"
-                                del st.session_state.do_update_admin_score
-                                del st.session_state.pending_admin_score_edit
-                                st.rerun()
+                                if st.session_state.get("do_update_admin_score"):
+                                    ps = st.session_state.pending_admin_score_edit
+                                    supabase.table("scores").update({
+                                        "twk": ps["twk"],
+                                        "tiu": ps["tiu"],
+                                        "tkp": ps["tkp"],
+                                        "total": ps["total"]
+                                    }).eq("id", ps["id"]).execute()
+
+                                    st.session_state.toast_msg = f"Nilai {ps['nama']} berhasil diperbarui"
+                                    del st.session_state.do_update_admin_score
+                                    del st.session_state.pending_admin_score_edit
+                                    st.rerun()
                         else:
                             st.info("User ini belum memiliki riwayat nilai.")
                 else:
@@ -692,8 +700,8 @@ def admin_user_management():
                         "Pilih User untuk dihapus nilainya", 
                         nama_list_del_score, 
                         key="admin_delete_score_user",
-                        index=None,
-                        placeholder="Cari & pilih nama user..."
+                        index=None if len(nama_list_del_score) > 4 else 0,
+                        placeholder="Cari & pilih nama user..." if len(nama_list_del_score) > 4 else None
                     )
                     
                     if nama_pilih_del_score:
@@ -707,19 +715,26 @@ def admin_user_management():
                             df_user_scores_del["skd_ke"] = range(1, len(df_user_scores_del) + 1)
                             
                             del_options_admin = [f"SKD ke-{row['skd_ke']}" for _, row in df_user_scores_del.iterrows()]
-                            pilih_skd_del_admin = st.selectbox("Pilih Percobaan yang akan dihapus", del_options_admin, key="admin_delete_score_week")
+                            pilih_skd_del_admin = st.selectbox(
+                                "Pilih Percobaan yang akan dihapus",
+                                del_options_admin,
+                                key="admin_delete_score_week",
+                                index=None if len(del_options_admin) > 4 else 0,
+                                placeholder="Cari & pilih SKD..." if len(del_options_admin) > 4 else None
+                            )
                             
-                            idx_pilih_del_admin = int(pilih_skd_del_admin.split("-")[-1])
-                            data_pilih_del_admin = df_user_scores_del[df_user_scores_del["skd_ke"] == idx_pilih_del_admin].iloc[0]
+                            if pilih_skd_del_admin:
+                                idx_pilih_del_admin = int(pilih_skd_del_admin.split("-")[-1])
+                                data_pilih_del_admin = df_user_scores_del[df_user_scores_del["skd_ke"] == idx_pilih_del_admin].iloc[0]
 
-                            if st.button(f"Hapus {pilih_skd_del_admin} untuk {nama_pilih_del_score}", key="btn_del_score"):
-                                confirm_delete_dialog(f"Hapus {pilih_skd_del_admin} untuk {nama_pilih_del_score}?", "do_delete_admin_score")
+                                if st.button(f"Hapus {pilih_skd_del_admin} untuk {nama_pilih_del_score}", key="btn_del_score"):
+                                    confirm_delete_dialog(f"Hapus {pilih_skd_del_admin} untuk {nama_pilih_del_score}?", "do_delete_admin_score")
 
-                            if st.session_state.get("do_delete_admin_score"):
-                                supabase.table("scores").delete().eq("id", data_pilih_del_admin["id"]).execute()
-                                st.session_state.toast_msg = f"Nilai {pilih_skd_del_admin} untuk {nama_pilih_del_score} berhasil dihapus"
-                                del st.session_state.do_delete_admin_score
-                                st.rerun()
+                                if st.session_state.get("do_delete_admin_score"):
+                                    supabase.table("scores").delete().eq("id", data_pilih_del_admin["id"]).execute()
+                                    st.session_state.toast_msg = f"Nilai {pilih_skd_del_admin} untuk {nama_pilih_del_score} berhasil dihapus"
+                                    del st.session_state.do_delete_admin_score
+                                    st.rerun()
                         else:
                             st.info("User ini belum memiliki riwayat nilai.")
                 else:
@@ -798,42 +813,48 @@ def user_self_page(user: dict):
                 st.subheader("Edit Nilai Percobaan (SKD ke-n)")
                 
                 edit_options = [f"SKD ke-{row['skd_ke']}" for _, row in df_scores.iterrows()]
-                pilih_edit = st.selectbox("Pilih Percobaan yang Ingin Diubah", edit_options)
+                pilih_edit = st.selectbox(
+                    "Pilih Percobaan yang Ingin Diubah",
+                    edit_options,
+                    index=None if len(edit_options) > 4 else 0,
+                    placeholder="Cari & pilih SKD..." if len(edit_options) > 4 else None
+                )
                 
-                idx_pilih = int(pilih_edit.split("-")[-1])
-                data_pilih = df_scores[df_scores["skd_ke"] == idx_pilih].iloc[0]
+                if pilih_edit:
+                    idx_pilih = int(pilih_edit.split("-")[-1])
+                    data_pilih = df_scores[df_scores["skd_ke"] == idx_pilih].iloc[0]
 
-                with st.form("edit_nilai_user"):
-                    e_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih["twk"]))
-                    e_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih["tiu"]))
-                    e_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih["tkp"]))
-                    submitted_edit_score = st.form_submit_button("Simpan Perubahan Nilai")
+                    with st.form("edit_nilai_user"):
+                        e_twk = st.number_input("Update TWK", min_value=0, value=int(data_pilih["twk"]))
+                        e_tiu = st.number_input("Update TIU", min_value=0, value=int(data_pilih["tiu"]))
+                        e_tkp = st.number_input("Update TKP", min_value=0, value=int(data_pilih["tkp"]))
+                        submitted_edit_score = st.form_submit_button("Simpan Perubahan Nilai")
 
-            if submitted_edit_score:
-                e_total = e_twk + e_tiu + e_tkp
-                st.session_state.pending_user_score_edit = {
-                    "twk": e_twk,
-                    "tiu": e_tiu,
-                    "tkp": e_tkp,
-                    "total": e_total,
-                    "id": data_pilih["id"],
-                    "pilih_edit": pilih_edit
-                }
-                confirm_update_dialog(f"Simpan perubahan untuk {pilih_edit}?", "do_update_user_score")
+                    if submitted_edit_score:
+                        e_total = e_twk + e_tiu + e_tkp
+                        st.session_state.pending_user_score_edit = {
+                            "twk": e_twk,
+                            "tiu": e_tiu,
+                            "tkp": e_tkp,
+                            "total": e_total,
+                            "id": data_pilih["id"],
+                            "pilih_edit": pilih_edit
+                        }
+                        confirm_update_dialog(f"Simpan perubahan untuk {pilih_edit}?", "do_update_user_score")
 
-            if st.session_state.get("do_update_user_score"):
-                pus = st.session_state.pending_user_score_edit
-                supabase.table("scores").update({
-                    "twk": pus["twk"],
-                    "tiu": pus["tiu"],
-                    "tkp": pus["tkp"],
-                    "total": pus["total"]
-                }).eq("id", pus["id"]).execute()
-                
-                st.session_state.toast_msg = f"Berhasil memperbarui {pus['pilih_edit']}"
-                del st.session_state.do_update_user_score
-                del st.session_state.pending_user_score_edit
-                st.rerun()
+                    if st.session_state.get("do_update_user_score"):
+                        pus = st.session_state.pending_user_score_edit
+                        supabase.table("scores").update({
+                            "twk": pus["twk"],
+                            "tiu": pus["tiu"],
+                            "tkp": pus["tkp"],
+                            "total": pus["total"]
+                        }).eq("id", pus["id"]).execute()
+
+                        st.session_state.toast_msg = f"Berhasil memperbarui {pus['pilih_edit']}"
+                        del st.session_state.do_update_user_score
+                        del st.session_state.pending_user_score_edit
+                        st.rerun()
 
         else:
             st.info("Belum ada riwayat nilai. Silakan input nilai pertama Anda.")
@@ -889,7 +910,8 @@ def prepare_admin_data():
         df_users["role"] = "user"
     
     # Apply Global Filter Tahun Aktif
-    filter_tahun = st.session_state.get("filter_tahun_aktif", "Semua")
+    filter_tahun = st.session_state.get("filter_tahun_aktif")
+    if filter_tahun is None: filter_tahun = "Semua"
     if filter_tahun != "Semua":
         if "tahun_aktif" in df_users.columns:
             df_users = df_users[df_users["tahun_aktif"] == filter_tahun].copy()
@@ -1010,9 +1032,13 @@ def admin_grafik_nilai():
     pilih_user = st.selectbox(
         "Pilih User", 
         user_list,
-        index=0, # Default to "Semua User" is better here
-        placeholder="Cari nama user..."
+        index=None if len(user_list) > 4 else 0,
+        placeholder="Cari & pilih nama user..." if len(user_list) > 4 else None
     )
+
+    if not pilih_user:
+        st.info("Silakan pilih user untuk melihat grafik.")
+        return
 
     if pilih_user != "Semua User":
         max_skd = int(df[df["nama"] == pilih_user]["skd_ke"].max()) if not df.empty else 0
@@ -1022,7 +1048,15 @@ def admin_grafik_nilai():
     options = ["Terakhir", "Semua", "Rentang"] + [f"SKD ke-{i}" for i in range(1, max_skd + 1)]
     
     default_skd_idx = 1 if pilih_user != "Semua User" else 0
-    pilih_skd = st.selectbox("Pilih Percobaan SKD (Attempt)", options, index=default_skd_idx)
+    pilih_skd = st.selectbox(
+        "Pilih Percobaan SKD (Attempt)",
+        options,
+        index=None if len(options) > 4 else default_skd_idx,
+        placeholder="Cari & pilih percobaan..." if len(options) > 4 else None
+    )
+
+    if not pilih_skd:
+        return
 
     if pilih_user != "Semua User":
         df = df[df["nama"] == pilih_user]
@@ -1120,10 +1154,14 @@ def render_laporan_page(user, role):
             pilih_user_rep = st.selectbox(
                 "Pilih User untuk Laporan", 
                 user_list,
-                index=0,
-                placeholder="Cari nama user..."
+                index=None if len(user_list) > 4 else 0,
+                placeholder="Cari & pilih nama user..." if len(user_list) > 4 else None
             )
             
+            if not pilih_user_rep:
+                st.info("Silakan pilih user untuk membuat laporan.")
+                return
+
             if pilih_user_rep == "Semua User":
                 _render_all_users_report_ui(df)
             else:
@@ -1149,8 +1187,16 @@ def _render_all_users_report_ui(df_all):
     max_skd_global = int(df_all["skd_ke"].max())
     skd_options = [f"SKD ke-{i}" for i in range(1, max_skd_global + 1)] + ["SKD Terakhir"]
     
-    pilih_skd = st.selectbox("Pilih Percobaan SKD", skd_options, index=len(skd_options)-1)
+    pilih_skd = st.selectbox(
+        "Pilih Percobaan SKD",
+        skd_options,
+        index=None if len(skd_options) > 4 else len(skd_options)-1,
+        placeholder="Cari & pilih percobaan..." if len(skd_options) > 4 else None
+    )
     
+    if not pilih_skd:
+        return
+
     if pilih_skd == "SKD Terakhir":
         show_this_week_rep = st.radio("Filter Waktu:", ["Semua", "Minggu Ini"], horizontal=True, key="admin_time_filter_rep")
         
@@ -1414,7 +1460,8 @@ with st.sidebar:
         st.selectbox(
             "Tahun Aktif",
             filter_options,
-            index=0,
+            index=None if len(filter_options) > 4 else 0,
+            placeholder="Cari tahun..." if len(filter_options) > 4 else None,
             key="filter_tahun_aktif"
         )
         
