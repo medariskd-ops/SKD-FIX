@@ -6,7 +6,7 @@ import io
 import datetime
 
 from auth import login, logout
-from database import supabase
+from database import supabase, ANGKATAN_OPTIONS
 
 st.set_page_config(
     page_title="SKD App",
@@ -457,8 +457,8 @@ def admin_user_management():
         with st.container(border=True):
             if users:
                 df = pd.DataFrame(users)
-                # Sesuai permintaan, daftar user hanya menampilkan nama dan role
-                cols = [c for c in ["nama", "role"] if c in df.columns]
+                # Sesuai permintaan, daftar user menampilkan nama, angkatan, dan role
+                cols = [c for c in ["nama", "angkatan", "role"] if c in df.columns]
 
                 st.subheader("Daftar User")
                 st.dataframe(df[cols], use_container_width=True, hide_index=True)
@@ -477,6 +477,7 @@ def admin_user_management():
                 user_pilih = next(u for u in users if u["nama"] == nama_pilih)
 
                 current_role = user_pilih.get("role", "user")
+                current_angkatan = user_pilih.get("angkatan", "(2025/2026)")
 
                 with st.form("edit_user"):
                     new_password = st.text_input(
@@ -488,10 +489,21 @@ def admin_user_management():
                         index=0 if current_role == "admin" else 1,
                     )
 
+                    try:
+                        angkatan_idx = ANGKATAN_OPTIONS.index(current_angkatan)
+                    except ValueError:
+                        angkatan_idx = 0
+
+                    new_angkatan_edit = st.selectbox(
+                        "Angkatan",
+                        ANGKATAN_OPTIONS,
+                        index=angkatan_idx
+                    )
+
                     submitted_edit = st.form_submit_button("Simpan Perubahan")
 
                 if submitted_edit:
-                    update_data = {"role": new_role}
+                    update_data = {"role": new_role, "angkatan": new_angkatan_edit}
                     if new_password:
                         password_hash = bcrypt.hashpw(
                             new_password.encode("utf-8"), bcrypt.gensalt()
@@ -640,6 +652,7 @@ def user_self_page(user: dict):
     with tab1:
         with st.container(border=True):
             st.write(f"Nama: **{user.get('nama')}**")
+            st.write(f"Angkatan: **{user.get('angkatan', '-')}**")
             st.write(f"Role: **{user.get('role', 'user')}**")
 
         st.markdown("---")
@@ -741,6 +754,7 @@ def user_self_page(user: dict):
     with tab2:
         with st.container(border=True):
             st.write(f"Nama: **{user.get('nama')}**")
+            st.write(f"Angkatan: **{user.get('angkatan', '-')}**")
             st.write(f"Role: **{user.get('role', 'user')}**")
 
         st.markdown("---")
@@ -781,6 +795,8 @@ def prepare_admin_data():
     df_users = pd.DataFrame(users)
     if "role" not in df_users.columns:
         df_users["role"] = "user"
+    if "angkatan" not in df_users.columns:
+        df_users["angkatan"] = "-"
         
     total_user = len(df_users[df_users["role"] == "user"])
     total_admin = len(df_users[df_users["role"] == "admin"])
@@ -797,7 +813,7 @@ def prepare_admin_data():
 
         df = pd.merge(
             df_scores,
-            df_users[["id", "nama", "role"]],
+            df_users[["id", "nama", "role", "angkatan"]],
             left_on="user_id",
             right_on="id",
             how="inner"
@@ -831,10 +847,18 @@ def admin_dashboard_summary():
         return
 
     df_users = data["df_users"]
-    total_user = data["total_user"]
-    total_admin = data["total_admin"]
     df = data["df"]
     
+    # Filter global angkatan
+    selected_angkatan = st.session_state.get("global_angkatan_filter", "Semua Angkatan")
+    if selected_angkatan != "Semua Angkatan":
+        df_users = df_users[df_users["angkatan"] == selected_angkatan]
+        if not df.empty:
+            df = df[df["angkatan"] == selected_angkatan]
+
+    total_user = len(df_users[df_users["role"] == "user"])
+    total_admin = len(df_users[df_users["role"] == "admin"])
+
     total_skd_max = 0
     score_summary = pd.DataFrame(columns=["user_id", "total_skd", "max_score"])
 
@@ -880,6 +904,12 @@ def admin_grafik_nilai():
     
     scores = data["scores"]
     df = data["df"]
+
+    # Filter global angkatan
+    selected_angkatan = st.session_state.get("global_angkatan_filter", "Semua Angkatan")
+    if selected_angkatan != "Semua Angkatan":
+        if not df.empty:
+            df = df[df["angkatan"] == selected_angkatan]
 
     if not scores:
         st.info("Belum ada data nilai (scores) di database.")
@@ -991,10 +1021,16 @@ def render_laporan_page(user, role):
             st.info("Belum ada data user.")
             return
 
-        if data["df"].empty:
-            st.warning("Tidak ada data nilai user untuk dibuat laporan.")
+        df = data["df"]
+        # Filter global angkatan
+        selected_angkatan = st.session_state.get("global_angkatan_filter", "Semua Angkatan")
+        if selected_angkatan != "Semua Angkatan":
+            if not df.empty:
+                df = df[df["angkatan"] == selected_angkatan]
+
+        if df.empty:
+            st.warning(f"Tidak ada data nilai user untuk angkatan {selected_angkatan} untuk dibuat laporan.")
         else:
-            df = data["df"]
             user_list = ["Semua User"] + sorted(df["nama"].unique().tolist())
             pilih_user_rep = st.selectbox("Pilih User untuk Laporan", user_list)
             
@@ -1041,12 +1077,20 @@ def _render_all_users_report_ui(df_all):
 
         # Ambil data terakhir untuk setiap user (berdasarkan skd_ke terbanyak)
         report_df = target_df.sort_values(["user_id", "skd_ke"]).groupby("user_id").tail(1).copy()
-        report_title = f"Laporan Semua User: SKD Terakhir{time_suffix}"
+
+        selected_angkatan = st.session_state.get("global_angkatan_filter", "Semua Angkatan")
+        angkatan_suffix = f" ({selected_angkatan})" if selected_angkatan != "Semua Angkatan" else ""
+
+        report_title = f"Laporan Semua User{angkatan_suffix}: SKD Terakhir{time_suffix}"
         filename_base = f"laporan_skd_semua_user_terakhir{file_suffix}"
     else:
         n = int(pilih_skd.split("-")[-1])
         report_df = df_all[df_all["skd_ke"] == n].copy()
-        report_title = f"Laporan Semua User: SKD ke-{n}"
+
+        selected_angkatan = st.session_state.get("global_angkatan_filter", "Semua Angkatan")
+        angkatan_suffix = f" ({selected_angkatan})" if selected_angkatan != "Semua Angkatan" else ""
+
+        report_title = f"Laporan Semua User{angkatan_suffix}: SKD ke-{n}"
         filename_base = f"laporan_skd_semua_user_ke_{n}"
 
     if report_df.empty:
@@ -1260,6 +1304,15 @@ else:
     items = ["Beranda Saya", "Profil & Nilai Saya", "Cetak Laporan"]
 
 with st.sidebar:
+    if role == "admin":
+        st.write("### 🎓 Filter Angkatan")
+        global_angkatan = st.selectbox(
+            "Pilih Angkatan",
+            ["Semua Angkatan"] + ANGKATAN_OPTIONS,
+            key="global_angkatan_filter"
+        )
+        st.markdown("---")
+
     menu = st.radio(
         "Navigation",
         items,

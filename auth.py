@@ -1,7 +1,7 @@
 import streamlit as st
 import bcrypt
 
-from database import supabase
+from database import supabase, ANGKATAN_OPTIONS
 
 
 def _is_bcrypt_hash(value: str) -> bool:
@@ -9,12 +9,34 @@ def _is_bcrypt_hash(value: str) -> bool:
     return isinstance(value, str) and value.startswith("$2b$")
 
 
-def _get_user_by_username(username: str):
-    """Ambil data user dari Supabase berdasarkan nama."""
-    response = supabase.table("users").select("*").eq("nama", username).execute()
+def _get_user_by_username_and_angkatan(username: str, angkatan: str):
+    """Ambil data user dari Supabase berdasarkan nama dan angkatan."""
+    # 1. Coba cari yang cocok nama dan angkatan
+    response = (
+        supabase.table("users")
+        .select("*")
+        .eq("nama", username)
+        .eq("angkatan", angkatan)
+        .execute()
+    )
     data = getattr(response, "data", None)
     if data:
         return data[0]
+
+    # 2. Fallback: Cari berdasarkan nama saja untuk handle legacy users yang belum punya angkatan
+    response_legacy = (
+        supabase.table("users")
+        .select("*")
+        .eq("nama", username)
+        .execute()
+    )
+    data_legacy = getattr(response_legacy, "data", None)
+    if data_legacy:
+        user = data_legacy[0]
+        # Jika user legacy ini belum punya angkatan (atau role admin), izinkan login
+        if not user.get("angkatan") or user.get("role") == "admin":
+            return user
+
     return None
 
 
@@ -31,6 +53,7 @@ def login():
         st.subheader("Login")
         username = st.text_input("Username", key="login_user")
         password = st.text_input("Password", type="password", key="login_pass")
+        login_angkatan = st.selectbox("Angkatan", ANGKATAN_OPTIONS, key="login_angkatan")
         st.markdown(
             "<small>Jika Anda lupa password, silakan hubungi admin untuk reset atau bantuan lebih lanjut.</small>",
             unsafe_allow_html=True
@@ -41,7 +64,7 @@ def login():
                 st.error("Username dan password wajib diisi")
                 return False
 
-            user = _get_user_by_username(username)
+            user = _get_user_by_username_and_angkatan(username, login_angkatan)
             if not user:
                 st.error("User tidak ditemukan")
                 return False
@@ -84,6 +107,7 @@ def login():
         new_username = st.text_input("Username", key="reg_user")
         new_password = st.text_input("Password", type="password", key="reg_pass")
         confirm_password = st.text_input("Konfirmasi Password", type="password", key="reg_conf")
+        new_angkatan = st.selectbox("Angkatan", ANGKATAN_OPTIONS, key="reg_angkatan")
 
         if st.button("Daftar"):
             if not new_username or not new_password:
@@ -91,9 +115,9 @@ def login():
             elif new_password != confirm_password:
                 st.error("Konfirmasi password tidak cocok")
             else:
-                existing = _get_user_by_username(new_username)
+                existing = _get_user_by_username_and_angkatan(new_username, new_angkatan)
                 if existing:
-                    st.error("Nama sudah digunakan, silakan pilih nama lain")
+                    st.error("Nama sudah digunakan di angkatan ini, silakan pilih nama lain")
                 else:
                     password_hash = bcrypt.hashpw(
                         new_password.encode("utf-8"), bcrypt.gensalt()
@@ -104,6 +128,7 @@ def login():
                             "nama": new_username,
                             "password": password_hash,
                             "role": "user", # Selalu 'user' untuk registrasi mandiri
+                            "angkatan": new_angkatan,
                         }).execute()
                         st.session_state.toast_msg = "Pendaftaran berhasil! Silakan login."
                         st.rerun()

@@ -4,11 +4,14 @@ def check_schema():
     try:
         res = supabase.table("users").select("*").limit(1).execute()
         if res.data:
-            print("Columns in 'users':", list(res.data[0].keys()))
+            cols = list(res.data[0].keys())
+            print("Columns in 'users':", cols)
+            if "angkatan" in cols:
+                print("SUCCESS: 'angkatan' column found in 'users'.")
+            else:
+                print("FAILURE: 'angkatan' column NOT found in 'users'.")
         else:
-            print("Table 'users' is empty.")
-            # Try to insert and see if it fails differently or check PostgREST OpenAPI if available
-            # But let's assume it's empty.
+            print("Table 'users' is empty. Cannot verify columns via data.")
     except Exception as e:
         print("Error checking 'users':", e)
 

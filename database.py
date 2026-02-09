@@ -43,3 +43,6 @@ def _get_supabase_credentials():
 URL, KEY = _get_supabase_credentials()
 
 supabase = create_client(URL, KEY)
+
+# Opsi Angkatan Terpusat
+ANGKATAN_OPTIONS = ["(2025/2026)", "(2027/2028)"]
