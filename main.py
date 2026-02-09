@@ -454,8 +454,9 @@ def admin_user_management():
     
     # Ambil semua user dan filter berdasarkan cohort di sidebar
     all_users = fetch_all_users()
+    year_now = datetime.date.today().year
     filter_tahun = st.session_state.get("filter_tahun_aktif")
-    if filter_tahun is None: filter_tahun = "Semua"
+    if filter_tahun is None: filter_tahun = year_now
     
     if filter_tahun != "Semua":
         users = [u for u in all_users if u.get("tahun_aktif") == filter_tahun]
@@ -497,7 +498,7 @@ def admin_user_management():
                     "Pilih User", 
                     nama_list, 
                     key="edit_user_select",
-                    index=None if len(nama_list) > 4 else 0,
+                    index=None if len(nama_list) > 4 or not nama_list else 0,
                     placeholder="Cari & pilih nama user..." if len(nama_list) > 4 else None
                 )
                 
@@ -548,7 +549,7 @@ def admin_user_management():
                     "Pilih User untuk dihapus", 
                     nama_list_hapus, 
                     key="delete_user_select",
-                    index=None if len(nama_list_hapus) > 4 else 0,
+                    index=None if len(nama_list_hapus) > 4 or not nama_list_hapus else 0,
                     placeholder="Cari & pilih nama user..." if len(nama_list_hapus) > 4 else None
                 )
                 
@@ -580,7 +581,7 @@ def admin_user_management():
                         "Pilih User", 
                         user_list_trans, 
                         key="trans_user_select",
-                        index=None if len(user_list_trans) > 4 else 0,
+                        index=None if len(user_list_trans) > 4 or not user_list_trans else 0,
                         placeholder="Cari & pilih nama user..." if len(user_list_trans) > 4 else None
                     )
                 with col_t2:
@@ -624,7 +625,7 @@ def admin_user_management():
                         "Pilih User untuk diedit nilainya", 
                         nama_list_score, 
                         key="admin_edit_score_user",
-                        index=None if len(nama_list_score) > 4 else 0,
+                        index=None if len(nama_list_score) > 4 or not nama_list_score else 0,
                         placeholder="Cari & pilih nama user..." if len(nama_list_score) > 4 else None
                     )
                     
@@ -700,7 +701,7 @@ def admin_user_management():
                         "Pilih User untuk dihapus nilainya", 
                         nama_list_del_score, 
                         key="admin_delete_score_user",
-                        index=None if len(nama_list_del_score) > 4 else 0,
+                        index=None if len(nama_list_del_score) > 4 or not nama_list_del_score else 0,
                         placeholder="Cari & pilih nama user..." if len(nama_list_del_score) > 4 else None
                     )
                     
@@ -910,8 +911,10 @@ def prepare_admin_data():
         df_users["role"] = "user"
     
     # Apply Global Filter Tahun Aktif
+    year_now = datetime.date.today().year
     filter_tahun = st.session_state.get("filter_tahun_aktif")
-    if filter_tahun is None: filter_tahun = "Semua"
+    if filter_tahun is None: filter_tahun = year_now
+
     if filter_tahun != "Semua":
         if "tahun_aktif" in df_users.columns:
             df_users = df_users[df_users["tahun_aktif"] == filter_tahun].copy()
@@ -1457,11 +1460,16 @@ with st.sidebar:
                 unique_years = sorted([int(y) for y in unique_years])
                 filter_options.extend(unique_years)
         
+        year_now = datetime.date.today().year
+        try:
+            default_idx = filter_options.index(year_now)
+        except (ValueError, IndexError):
+            default_idx = 0
+
         st.selectbox(
             "Tahun Aktif",
             filter_options,
-            index=None if len(filter_options) > 4 else 0,
-            placeholder="Cari tahun..." if len(filter_options) > 4 else None,
+            index=default_idx,
             key="filter_tahun_aktif"
         )
         
