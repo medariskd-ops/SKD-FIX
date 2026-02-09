@@ -1,5 +1,6 @@
 import streamlit as st
 import bcrypt
+import datetime
 
 from database import supabase
 
@@ -84,6 +85,10 @@ def login():
         new_username = st.text_input("Username", key="reg_user")
         new_password = st.text_input("Password", type="password", key="reg_pass")
         confirm_password = st.text_input("Konfirmasi Password", type="password", key="reg_conf")
+        
+        # Dropdown Angkatan (Tahun Sekarang & Tahun Sekarang + 1)
+        year_now = datetime.date.today().year
+        new_angkatan = st.selectbox("Angkatan", [year_now, year_now + 1], index=0)
 
         if st.button("Daftar"):
             if not new_username or not new_password:
@@ -104,6 +109,8 @@ def login():
                             "nama": new_username,
                             "password": password_hash,
                             "role": "user", # Selalu 'user' untuk registrasi mandiri
+                            "tahun_masuk": new_angkatan,
+                            "tahun_aktif": new_angkatan
                         }).execute()
                         st.session_state.toast_msg = "Pendaftaran berhasil! Silakan login."
                         st.rerun()
