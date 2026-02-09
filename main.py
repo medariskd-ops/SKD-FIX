@@ -64,6 +64,8 @@ def inject_global_css():
             --primary-color: #10B981;
             --background-color: {bg_color};
             --text-color: {text_color};
+            --sidebar-active: {sidebar_active};
+            --border-color: {border_color};
         }}
 
         /* Global Background */
@@ -480,14 +482,48 @@ def confirm_update_dialog(message, session_key):
 @st.dialog("🎨 Pilih Mode UI")
 def theme_selection_dialog():
     """Popup untuk memilih mode UI setelah login."""
-    st.markdown("### Silakan pilih mode UI yang sesuai dengan perangkat Anda.")
-    st.write("Mode ini dapat disesuaikan kembali nanti jika diperlukan.")
+    st.markdown("<h3 style='text-align: center;'>Silakan pilih mode UI yang sesuai dengan perangkat Anda.</h3>", unsafe_allow_html=True)
     
+    # CSS Custom untuk membuat tombol split-pill (Kapsul terbelah)
+    st.markdown("""
+        <style>
+        /* Force columns to be side-by-side without gap */
+        [data-testid="stDialog"] [data-testid="stHorizontalBlock"] {
+            gap: 0px !important;
+        }
+        [data-testid="stDialog"] [data-testid="stColumn"] {
+            padding: 0 !important;
+        }
+        /* Left Button Styling */
+        [data-testid="stDialog"] [data-testid="stColumn"]:nth-of-type(1) button {
+            border-radius: 24px 0 0 24px !important;
+            background-color: var(--sidebar-active) !important;
+            color: var(--text-color) !important;
+            border: 1px solid var(--border-color) !important;
+            border-right: none !important;
+            height: 48px !important;
+        }
+        /* Right Button Styling */
+        [data-testid="stDialog"] [data-testid="stColumn"]:nth-of-type(2) button {
+            border-radius: 0 24px 24px 0 !important;
+            background-color: var(--sidebar-active) !important;
+            color: var(--text-color) !important;
+            border: 1px solid var(--border-color) !important;
+            height: 48px !important;
+        }
+        /* Hover Effect */
+        [data-testid="stDialog"] button:hover {
+            background-color: rgba(16, 185, 129, 0.1) !important;
+            border-color: #10B981 !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     col1, col2 = st.columns(2)
-    if col1.button("☀️ Terang", use_container_width=True, type="primary"):
+    if col1.button("Terang", use_container_width=True):
         st.session_state.ui_mode = "Terang"
         st.rerun()
-    if col2.button("🌙 Gelap", use_container_width=True):
+    if col2.button("Gelap", use_container_width=True):
         st.session_state.ui_mode = "Gelap"
         st.rerun()
 
