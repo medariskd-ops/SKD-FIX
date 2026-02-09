@@ -1350,10 +1350,22 @@ with st.sidebar:
     if role == "admin":
         st.markdown("---")
         st.subheader("🔍 Filter Angkatan")
-        year_now = datetime.date.today().year
+        
+        # Ambil semua user untuk mendapatkan daftar tahun_aktif yang unik
+        users_for_filter = fetch_all_users()
+        filter_options = ["Semua"]
+        
+        if users_for_filter:
+            df_u_filter = pd.DataFrame(users_for_filter)
+            if "tahun_aktif" in df_u_filter.columns:
+                # Ambil tahun unik, hilangkan null, urutkan
+                unique_years = df_u_filter["tahun_aktif"].dropna().unique()
+                unique_years = sorted([int(y) for y in unique_years])
+                filter_options.extend(unique_years)
+        
         st.selectbox(
             "Tahun Aktif",
-            ["Semua", year_now, year_now + 1],
+            filter_options,
             index=0,
             key="filter_tahun_aktif"
         )
