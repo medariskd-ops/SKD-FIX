@@ -457,11 +457,23 @@ def admin_user_management():
         with st.container(border=True):
             if users:
                 df = pd.DataFrame(users)
-                # Sesuai permintaan, daftar user hanya menampilkan nama dan role
-                cols = [c for c in ["nama", "role"] if c in df.columns]
+                # Tampilkan nama, role, tahun masuk, dan tahun aktif
+                cols = [c for c in ["nama", "role", "tahun_masuk", "tahun_aktif"] if c in df.columns]
+
+                # Rename columns for display
+                rename_map = {
+                    "nama": "Nama",
+                    "role": "Role",
+                    "tahun_masuk": "Thn Masuk",
+                    "tahun_aktif": "Thn Aktif"
+                }
 
                 st.subheader("Daftar User")
-                st.dataframe(df[cols], use_container_width=True, hide_index=True)
+                st.dataframe(
+                    df[cols].rename(columns=rename_map),
+                    use_container_width=True,
+                    hide_index=True
+                )
             else:
                 st.info("Belum ada user di database.")
 
@@ -531,6 +543,50 @@ def admin_user_management():
                     st.session_state.toast_msg = "User berhasil dihapus"
                     del st.session_state.do_delete_user
                     st.rerun()
+
+        st.markdown("---")
+
+        # Transmigrasi User
+        with st.container(border=True):
+            st.subheader("🚀 Transmigrasi User")
+            st.info("Pindahkan user ke angkatan baru tanpa menghapus data SKD lama.")
+
+            users = fetch_all_users()
+            user_list_trans = [u["nama"] for u in users if u.get("role") == "user"]
+
+            if user_list_trans:
+                col_t1, col_t2 = st.columns(2)
+                with col_t1:
+                    user_nama_trans = st.selectbox("Pilih User", user_list_trans, key="trans_user_select")
+                with col_t2:
+                    year_now = datetime.date.today().year
+                    year_trans = st.selectbox("Tahun Transmigrasi", [year_now, year_now + 1], key="trans_year_select")
+
+                if st.button("Transmigrasi User", use_container_width=True, type="primary"):
+                    user_to_trans = next(u for u in users if u["nama"] == user_nama_trans)
+                    st.session_state.pending_transmigrasi = {
+                        "id": user_to_trans["id"],
+                        "nama": user_nama_trans,
+                        "tahun": year_trans
+                    }
+                    confirm_update_dialog(
+                        f"Pindahkan {user_nama_trans} ke angkatan {year_trans}?",
+                        "do_transmigrasi_user"
+                    )
+
+                if st.session_state.get("do_transmigrasi_user"):
+                    pt = st.session_state.pending_transmigrasi
+                    supabase.table("users").update({
+                        "tahun_aktif": pt["tahun"],
+                        "tahun_transmigrasi": pt["tahun"]
+                    }).eq("id", pt["id"]).execute()
+
+                    st.session_state.toast_msg = f"User {pt['nama']} berhasil dipindahkan ke angkatan {pt['tahun']}"
+                    del st.session_state.do_transmigrasi_user
+                    del st.session_state.pending_transmigrasi
+                    st.rerun()
+            else:
+                st.info("Tidak ada user untuk ditransmigrasi.")
 
     with tab2:
         # Edit Nilai SKD User (Admin)
@@ -641,6 +697,12 @@ def user_self_page(user: dict):
         with st.container(border=True):
             st.write(f"Nama: **{user.get('nama')}**")
             st.write(f"Role: **{user.get('role', 'user')}**")
+            # Tampilkan informasi angkatan
+            col1, col2 = st.columns(2)
+            with col1:
+                st.write(f"Tahun Masuk: **{user.get('tahun_masuk', '-')}**")
+            with col2:
+                st.write(f"Tahun Aktif: **{user.get('tahun_aktif', '-')}**")
 
         st.markdown("---")
         
@@ -742,6 +804,12 @@ def user_self_page(user: dict):
         with st.container(border=True):
             st.write(f"Nama: **{user.get('nama')}**")
             st.write(f"Role: **{user.get('role', 'user')}**")
+            # Tampilkan informasi angkatan
+            col1, col2 = st.columns(2)
+            with col1:
+                st.write(f"Tahun Masuk: **{user.get('tahun_masuk', '-')}**")
+            with col2:
+                st.write(f"Tahun Aktif: **{user.get('tahun_aktif', '-')}**")
 
         st.markdown("---")
         
@@ -781,6 +849,12 @@ def prepare_admin_data():
     df_users = pd.DataFrame(users)
     if "role" not in df_users.columns:
         df_users["role"] = "user"
+
+    # Apply Global Filter Tahun Aktif
+    filter_tahun = st.session_state.get("filter_tahun_aktif", "Semua")
+    if filter_tahun != "Semua":
+        if "tahun_aktif" in df_users.columns:
+            df_users = df_users[df_users["tahun_aktif"] == filter_tahun].copy()
         
     total_user = len(df_users[df_users["role"] == "user"])
     total_admin = len(df_users[df_users["role"] == "admin"])
@@ -795,9 +869,13 @@ def prepare_admin_data():
         
         df_scores["total"] = df_scores["twk"].astype(float) + df_scores["tiu"].astype(float) + df_scores["tkp"].astype(float)
 
+        # Tambahkan kolom tahun ke merge agar data bisa di-filter
+        user_cols = ["id", "nama", "role", "tahun_aktif", "tahun_masuk", "tahun_transmigrasi"]
+        existing_cols = [c for c in user_cols if c in df_users.columns]
+
         df = pd.merge(
             df_scores,
-            df_users[["id", "nama", "role"]],
+            df_users[existing_cols],
             left_on="user_id",
             right_on="id",
             how="inner"
@@ -1267,6 +1345,19 @@ with st.sidebar:
         label_visibility="collapsed"
     )
     st.session_state.active_menu = menu
+
+    # Global Filter for Admin
+    if role == "admin":
+        st.markdown("---")
+        st.subheader("🔍 Filter Angkatan")
+        year_now = datetime.date.today().year
+        st.selectbox(
+            "Tahun Aktif",
+            ["Semua", year_now, year_now + 1],
+            index=0,
+            key="filter_tahun_aktif"
+        )
+
     logout()
 
 # ======================
