@@ -3,21 +3,19 @@ from database import supabase
 def check_schema():
     try:
         res = supabase.table("users").select("*").limit(1).execute()
-        if res.data:
+        if res and hasattr(res, "data") and res.data:
             print("Columns in 'users':", list(res.data[0].keys()))
         else:
-            print("Table 'users' is empty.")
-            # Try to insert and see if it fails differently or check PostgREST OpenAPI if available
-            # But let's assume it's empty.
+            print("Table 'users' is empty or no data returned.")
     except Exception as e:
         print("Error checking 'users':", e)
 
     try:
         res = supabase.table("scores").select("*").limit(1).execute()
-        if res.data:
+        if res and hasattr(res, "data") and res.data:
             print("Columns in 'scores':", list(res.data[0].keys()))
         else:
-            print("Table 'scores' is empty.")
+            print("Table 'scores' is empty or no data returned.")
     except Exception as e:
         print("Error checking 'scores':", e)
 
