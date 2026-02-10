@@ -923,6 +923,9 @@ def prepare_admin_data():
     if "role" not in df_users.columns:
         df_users["role"] = "user"
     
+    # Hitung total admin secara global (sebelum filter tahun)
+    total_admin = len(df_users[df_users["role"] == "admin"])
+
     # Apply Global Filter Tahun Aktif
     year_now = datetime.date.today().year
     filter_tahun = st.session_state.get("filter_tahun_aktif")
@@ -933,7 +936,6 @@ def prepare_admin_data():
             df_users = df_users[df_users["tahun_aktif"] == filter_tahun].copy()
         
     total_user = len(df_users[df_users["role"] == "user"])
-    total_admin = len(df_users[df_users["role"] == "admin"])
     
     df = pd.DataFrame()
     if scores:
