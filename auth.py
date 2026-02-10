@@ -12,11 +12,15 @@ def _is_bcrypt_hash(value: str) -> bool:
 
 def _get_user_by_username(username: str):
     """Ambil data user dari Supabase berdasarkan nama."""
-    response = supabase.table("users").select("*").eq("nama", username).execute()
-    data = getattr(response, "data", None)
-    if data:
-        return data[0]
-    return None
+    try:
+        response = supabase.table("users").select("*").eq("nama", username).execute()
+        data = getattr(response, "data", None)
+        if data:
+            return data[0]
+        return None
+    except Exception as e:
+        st.error(f"Error fetching user: {e}")
+        return None
 
 
 def login():
