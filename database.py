@@ -33,13 +33,22 @@ def _get_supabase_credentials():
     key = key or os.getenv("SUPABASE_KEY")
 
     if not url or not key:
+        missing = []
+        if not url: missing.append("SUPABASE_URL")
+        if not key: missing.append("SUPABASE_KEY")
         raise RuntimeError(
-            "SUPABASE_URL dan SUPABASE_KEY harus di-set di st.secrets atau environment."
+            f"Missing configuration: {', '.join(missing)}. "
+            "Harus di-set di st.secrets atau environment (.env)."
         )
 
     return url, key
 
 
-URL, KEY = _get_supabase_credentials()
-
-supabase = create_client(URL, KEY)
+try:
+    URL, KEY = _get_supabase_credentials()
+    supabase = create_client(URL, KEY)
+except Exception as e:
+    st.error(f"Gagal inisialisasi Supabase: {e}")
+    # Berikan nilai default agar script tidak langsung crash saat impor
+    URL, KEY = "", ""
+    supabase = None
