@@ -1337,6 +1337,18 @@ def user_personal_dashboard(user: dict):
     """Dashboard khusus user: hanya lihat nilai miliknya sendiri."""
     st.header("📊 Beranda Saya")
 
+    with st.container(border=True):
+        st.write(f"Nama: **{user.get('nama')}**")
+        st.write(f"Role: **{user.get('role', 'user')}**")
+        # Tampilkan informasi angkatan
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(f"Tahun Masuk: **{user.get('tahun_masuk', '-')}**")
+        with col2:
+            st.write(f"Tahun Aktif: **{user.get('tahun_aktif', '-')}**")
+
+    st.markdown("---")
+
     scores = fetch_user_scores(user["id"])
     
     # --- Bagian Metrics Atas ---
