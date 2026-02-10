@@ -248,8 +248,12 @@ inject_global_css()
 
 
 def fetch_all_users():
-    response = supabase.table("users").select("*").execute()
-    return getattr(response, "data", []) or []
+    try:
+        response = supabase.table("users").select("*").execute()
+        return getattr(response, "data", []) or []
+    except Exception as e:
+        st.error(f"Error fetching all users: {e}")
+        return []
 
 
 def fetch_all_scores():
@@ -257,7 +261,8 @@ def fetch_all_scores():
     try:
         response = supabase.table("scores").select("*").execute()
         return getattr(response, "data", []) or []
-    except Exception:
+    except Exception as e:
+        st.error(f"Error fetching all scores: {e}")
         return []
 
 
@@ -272,8 +277,9 @@ def fetch_user_scores(user_id: str):
             .execute()
         )
         return getattr(response, "data", []) or []
-    except Exception:
+    except Exception as e:
         # Jika tabel scores belum ada atau error lain, kembalikan list kosong
+        st.error(f"Error fetching user scores: {e}")
         return []
 
 
