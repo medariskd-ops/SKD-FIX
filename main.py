@@ -782,23 +782,30 @@ def user_self_page(user: dict):
 
         if submitted_nilai:
             total = twk + tiu + tkp
-            # Simpan sebagai percobaan baru di tabel scores
-            supabase.table("scores").insert(
-                {
-                    "user_id": user["id"],
-                    "twk": twk,
-                    "tiu": tiu,
-                    "tkp": tkp,
-                    "total": total,
-                }
-            ).execute()
+            try:
+                # Simpan sebagai percobaan baru di tabel scores
+                supabase.table("scores").insert(
+                    {
+                        "user_id": user["id"],
+                        "twk": twk,
+                        "tiu": tiu,
+                        "tkp": tkp,
+                        "total": total,
+                    }
+                ).execute()
 
-            # update juga di session supaya tampilan langsung ikut berubah
-            user.update({"twk": twk, "tiu": tiu, "tkp": tkp, "total": total})
-            st.session_state.user = user
+                # update juga di session supaya tampilan langsung ikut berubah
+                user.update({"twk": twk, "tiu": tiu, "tkp": tkp, "total": total})
+                st.session_state.user = user
 
-            st.session_state.toast_msg = "Nilai berhasil disimpan"
-            st.rerun()
+                st.session_state.toast_msg = "Nilai berhasil disimpan"
+                st.rerun()
+            except Exception as e:
+                error_msg = str(e)
+                if "23502" in error_msg or "violates not-null constraint" in error_msg:
+                    st.error("Gagal menyimpan: Konfigurasi Database (ID Default) belum diset di Supabase. Silakan periksa tabel 'scores'.")
+                else:
+                    st.error(f"Gagal menyimpan nilai: {e}")
 
         st.markdown("---")
 
