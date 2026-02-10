@@ -38,7 +38,7 @@ def _get_supabase_credentials():
         if not key: missing.append("SUPABASE_KEY")
         raise RuntimeError(
             f"Missing configuration: {', '.join(missing)}. "
-            "Harus di-set di st.secrets atau environment (.env)."
+            "Pastikan sudah di-set di Streamlit Secrets (Cloud) atau file .env (Lokal)."
         )
 
     return url, key
@@ -47,8 +47,9 @@ def _get_supabase_credentials():
 try:
     URL, KEY = _get_supabase_credentials()
     supabase = create_client(URL, KEY)
+    # Catatan: create_client tidak melakukan request jaringan saat inisialisasi.
+    # Error 401 baru akan muncul saat melakukan query pertama kali.
 except Exception as e:
-    st.error(f"Gagal inisialisasi Supabase: {e}")
-    # Berikan nilai default agar script tidak langsung crash saat impor
+    st.error(f"Gagal inisialisasi konfigurasi Supabase: {e}")
     URL, KEY = "", ""
     supabase = None
