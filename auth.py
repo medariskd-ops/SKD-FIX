@@ -119,7 +119,11 @@ def login():
                         st.session_state.toast_msg = "Pendaftaran berhasil! Silakan login."
                         st.rerun()
                     except Exception as e:
-                        st.error(f"Terjadi kesalahan: {e}")
+                        error_msg = str(e)
+                        if "23502" in error_msg or "violates not-null constraint" in error_msg:
+                            st.error("Gagal mendaftar: Konfigurasi Database (ID Default) belum diset di Supabase. Silakan hubungi admin.")
+                        else:
+                            st.error(f"Terjadi kesalahan: {e}")
 
     return False
 
