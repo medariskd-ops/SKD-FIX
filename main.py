@@ -621,6 +621,62 @@ def admin_user_management():
                 st.info("Tidak ada user untuk ditransmigrasi.")
 
     with tab2:
+        # Input Nilai SKD User (Admin)
+        with st.container(border=True):
+            st.subheader("Input Nilai SKD User")
+            if users:
+                nama_list_input_score = [u["nama"] for u in users if u["role"] != "admin"]
+                if nama_list_input_score:
+                    nama_pilih_input = st.selectbox(
+                        "Pilih User untuk input nilai",
+                        nama_list_input_score,
+                        key="admin_input_score_user",
+                        index=None if len(nama_list_input_score) > 4 or not nama_list_input_score else 0,
+                        placeholder="Cari & pilih nama user..." if len(nama_list_input_score) > 4 else None
+                    )
+
+                    if nama_pilih_input:
+                        user_pilih_input = next(u for u in users if u["nama"] == nama_pilih_input)
+
+                        with st.form("admin_input_nilai_form"):
+                            ai_twk = st.number_input("TWK", min_value=0, value=0)
+                            ai_tiu = st.number_input("TIU", min_value=0, value=0)
+                            ai_tkp = st.number_input("TKP", min_value=0, value=0)
+                            submitted_admin_input_score = st.form_submit_button("Simpan Nilai User")
+
+                        if submitted_admin_input_score:
+                            ai_total = ai_twk + ai_tiu + ai_tkp
+                            st.session_state.pending_admin_score_input = {
+                                "user_id": user_pilih_input["id"],
+                                "twk": ai_twk,
+                                "tiu": ai_tiu,
+                                "tkp": ai_tkp,
+                                "total": ai_total,
+                                "nama": nama_pilih_input
+                            }
+                            confirm_update_dialog(f"Simpan nilai untuk {nama_pilih_input}?", "do_input_admin_score")
+
+                        if st.session_state.get("do_input_admin_score"):
+                            ps_in = st.session_state.pending_admin_score_input
+                            supabase.table("scores").insert({
+                                "user_id": ps_in["user_id"],
+                                "twk": ps_in["twk"],
+                                "tiu": ps_in["tiu"],
+                                "tkp": ps_in["tkp"],
+                                "total": ps_in["total"]
+                            }).execute()
+
+                            st.session_state.toast_msg = f"Nilai {ps_in['nama']} berhasil disimpan"
+                            del st.session_state.do_input_admin_score
+                            del st.session_state.pending_admin_score_input
+                            st.rerun()
+                else:
+                    st.info("Belum ada user untuk diinput nilainya.")
+            else:
+                st.info("Belum ada user di database.")
+
+        st.markdown("---")
+
         # Edit Nilai SKD User (Admin)
         with st.container(border=True):
             st.subheader("Edit Nilai SKD User")
