@@ -350,6 +350,13 @@ def render_report_page(df, title, content_type="table"):
             cols_to_show = ["nama"] + cols_to_show
         
         table_data = df[cols_to_show].copy()
+
+        # Pastikan kolom numerik menjadi integer agar tidak ada .0 di tabel PNG
+        numeric_cols = ["skd_ke", "twk", "tiu", "tkp", "total"]
+        for col in numeric_cols:
+            if col in table_data.columns:
+                table_data[col] = pd.to_numeric(table_data[col], errors='coerce').fillna(0).astype(int)
+
         rename_map = {"skd_ke": "SKD ke-", "twk": "TWK", "tiu": "TIU", "tkp": "TKP", "total": "Total", "nama": "Nama"}
         table_data = table_data.rename(columns=rename_map)
         
