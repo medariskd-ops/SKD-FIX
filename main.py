@@ -1630,13 +1630,13 @@ def _render_all_users_report_ui(df_all):
     st.subheader("Laporan Semua User")
     
     max_skd_global = int(df_all["skd_ke"].max())
-    skd_options = [f"SKD ke-{i}" for i in range(1, max_skd_global + 1)] + ["SKD Terakhir"]
+    # "SKD Terakhir" paling atas dan langsung terpilih, karena paling sering dicetak
+    skd_options = ["SKD Terakhir"] + [f"SKD ke-{i}" for i in range(1, max_skd_global + 1)]
     
     pilih_skd = st.selectbox(
         "Pilih Percobaan SKD", 
         skd_options, 
-        index=None if len(skd_options) > 4 else len(skd_options)-1,
-        placeholder="Cari & pilih percobaan..." if len(skd_options) > 4 else None
+        index=0,
     )
     
     if not pilih_skd:
