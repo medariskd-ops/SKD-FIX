@@ -216,6 +216,29 @@ def inject_global_css():
             display: none !important;
         }
 
+        /* Transisi halus: konten baru muncul pelan (hanya saat elemen baru dibuat, mis. pindah halaman) */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: none; }
+        }
+        .welcome-banner, .metric-row,
+        [data-testid="stVerticalBlockBorderWrapper"],
+        [data-testid="stMain"] [data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"] {
+            animation: fadeUp 0.35s ease-out both;
+        }
+        .metric-row { animation-delay: 0.05s; }
+        [data-testid="stVerticalBlockBorderWrapper"],
+        [data-testid="stMain"] [data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"] {
+            animation-delay: 0.1s;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .welcome-banner, .metric-row,
+            [data-testid="stVerticalBlockBorderWrapper"],
+            [data-testid="stMain"] [data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"] {
+                animation: none;
+            }
+        }
+
         /* Layar kecil (HP) */
         @media (max-width: 640px) {
             [data-testid="stAppViewBlockContainer"], [data-testid="stMainBlockContainer"] {
@@ -240,6 +263,11 @@ def inject_global_css():
             .metric-label { font-size: 11.5px; line-height: 1.25; }
             .metric-value { font-size: 22px; }
             .login-brand { margin-top: 1.5rem; }
+            /* Toast di bawah supaya tidak menutupi banner */
+            [data-testid="stToastContainer"] {
+                top: auto !important;
+                bottom: 16px !important;
+            }
         }
 
         /* HP landscape: layar pendek */
@@ -352,8 +380,22 @@ def inject_global_css():
 
 inject_global_css()
 
+# Nomor run: tiap kali Streamlit menjalankan ulang script, nomornya naik.
+st.session_state._run_id = st.session_state.get("_run_id", 0) + 1
 
-def fetch_all_users():
+
+def _per_run_cache(key, loader):
+    """Ambil data dari Supabase sekali saja per run, panggilan berikutnya pakai hasil yang sama."""
+    store = st.session_state.setdefault("_run_cache", {})
+    if store.get("_rid") != st.session_state._run_id:
+        store.clear()
+        store["_rid"] = st.session_state._run_id
+    if key not in store:
+        store[key] = loader()
+    return [dict(r) for r in store[key]]
+
+
+def _fetch_all_users():
     try:
         response = supabase.table("users").select("*").execute()
         return getattr(response, "data", []) or []
@@ -442,7 +484,7 @@ def metric_row(cards):
     )
 
 
-def fetch_all_scores():
+def _fetch_all_scores():
     """Ambil semua data dari tabel scores."""
     try:
         response = supabase.table("scores").select("*").execute()
@@ -452,7 +494,7 @@ def fetch_all_scores():
         return []
 
 
-def fetch_user_scores(user_id: str):
+def _fetch_user_scores(user_id: str):
     """Ambil semua riwayat nilai untuk satu user (scores table)."""
     try:
         response = (
@@ -467,6 +509,18 @@ def fetch_user_scores(user_id: str):
         # Jika tabel scores belum ada atau error lain, kembalikan list kosong
         st.error(f"Error fetching user scores: {e}")
         return []
+
+
+def fetch_all_users():
+    return _per_run_cache("users", _fetch_all_users)
+
+
+def fetch_all_scores():
+    return _per_run_cache("scores", _fetch_all_scores)
+
+
+def fetch_user_scores(user_id: str):
+    return _per_run_cache(f"scores:{user_id}", lambda: _fetch_user_scores(user_id))
 
 
 def fetch_latest_score(user_id: str):
