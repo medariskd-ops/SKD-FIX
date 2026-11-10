@@ -95,6 +95,7 @@ def login():
                 st.session_state.role = user.get("role", "user")
                 # Reset filter angkatan agar admin selalu mulai dari angkatan terbaru
                 st.session_state.pop("filter_tahun_aktif", None)
+                st.session_state._just_logged_in = True
                 st.session_state.toast_msg = "Login berhasil"
                 st.rerun()
 
