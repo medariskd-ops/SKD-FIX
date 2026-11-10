@@ -935,10 +935,10 @@ def admin_user_management():
                         st.rerun()
 
 
-        # Transmigrasi User
+        # Ubah Angkatan (kolom database tetap tahun_transmigrasi)
         with st.container(border=True):
-            st.subheader("Transmigrasi User")
-            st.info("Pindahkan user ke angkatan baru tanpa menghapus data SKD lama.")
+            st.subheader("Ubah Angkatan")
+            st.info("Pindahkan user ke angkatan lain. Riwayat nilai SKD-nya tetap tersimpan.")
             
             user_list_trans = [u["nama"] for u in users if u.get("role") == "user"]
             
@@ -954,9 +954,9 @@ def admin_user_management():
                     )
                 with col_t2:
                     year_now = datetime.date.today().year
-                    year_trans = st.selectbox("Tahun Transmigrasi", [year_now, year_now + 1], key="trans_year_select")
+                    year_trans = st.selectbox("Angkatan Tujuan", [year_now, year_now + 1], key="trans_year_select")
                 
-                if st.button("Transmigrasi User", use_container_width=True, type="primary", disabled=not user_nama_trans):
+                if st.button("Ubah Angkatan", use_container_width=True, type="primary", disabled=not user_nama_trans):
                     user_to_trans = next(u for u in users if u["nama"] == user_nama_trans)
                     st.session_state.pending_transmigrasi = {
                         "id": user_to_trans["id"],
@@ -964,7 +964,7 @@ def admin_user_management():
                         "tahun": year_trans
                     }
                     confirm_update_dialog(
-                        f"Pindahkan {user_nama_trans} ke angkatan {year_trans}?", 
+                        f"Ubah angkatan {user_nama_trans} menjadi {year_trans}?", 
                         "do_transmigrasi_user"
                     )
 
@@ -975,12 +975,12 @@ def admin_user_management():
                         "tahun_transmigrasi": pt["tahun"]
                     }).eq("id", pt["id"]).execute()
                     
-                    st.session_state.toast_msg = f"User {pt['nama']} berhasil dipindahkan ke angkatan {pt['tahun']}"
+                    st.session_state.toast_msg = f"Angkatan {pt['nama']} diubah menjadi {pt['tahun']}"
                     del st.session_state.do_transmigrasi_user
                     del st.session_state.pending_transmigrasi
                     st.rerun()
             else:
-                st.info("Tidak ada user untuk ditransmigrasi.")
+                st.info("Belum ada user yang bisa diubah angkatannya.")
 
     with tab2:
         # Input Nilai SKD User (Admin)
