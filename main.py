@@ -18,10 +18,24 @@ st.set_page_config(
 # ======================
 # HELPER FUNCTIONS
 # ======================
+SCORE_COL_LABELS = {
+    "nama": "Nama",
+    "skd_ke": "SKD ke-",
+    "twk": "TWK",
+    "tiu": "TIU",
+    "tkp": "TKP",
+    "total": "Total",
+}
+
+# Warna grafik: tiap komponen beda hue supaya mudah dibedakan
+COLOR_TWK = "#2563EB"    # Biru
+COLOR_TIU = "#D97706"    # Oranye
+COLOR_TKP = "#059669"    # Emerald
+COLOR_TOTAL = "#1E293B"  # Slate gelap
 def show_toast(message: str, type="success"):
     """Menampilkan notifikasi toast custom dengan gaya Prompt 5."""
     icon = '✅' if type == 'success' else '❌'
-    color = "#16A34A" if type == "success" else "#DC2626"
+    color = "#059669" if type == "success" else "#E11D48"
     st.markdown(
         f"""
         <div class="custom-toast" style="border-left: 6px solid {color};">
@@ -34,189 +48,207 @@ def show_toast(message: str, type="success"):
 
 
 def inject_global_css():
-    """Menerapkan Modern Light Glassmorphism UI dan memaksa Light Mode."""
+    """Tema terang: emerald untuk aksi utama, netral untuk sekunder, rose hanya untuk aksi berbahaya."""
     st.markdown(
         """
         <style>
-        /* Force Light Mode Variables */
-        :root {
-            --primary-color: #10B981;
-            --background-color: #F8FAFC;
-            --secondary-background-color: #F1F5F9;
-            --text-color: #1E293B;
-            --font: "sans-serif";
-        }
-
-        /* Global Background */
         .stApp {
             background-color: #F8FAFC !important;
             color: #1E293B !important;
         }
-        
-        section[data-testid="stMain"] {
+
+        [data-testid="stMain"] {
             background-color: #F8FAFC !important;
             padding-top: 0px !important;
         }
 
         [data-testid="stAppViewBlockContainer"] {
-            padding-top: 0rem !important;
+            padding-top: 2rem !important;
             padding-left: 5% !important;
             padding-right: 5% !important;
         }
 
-        /* Modern Glass Sidebar */
-        [data-testid="stSidebar"] {
-            background-color: rgba(203, 213, 225, 0.5) !important;
-            backdrop-filter: blur(20px) !important;
-            -webkit-backdrop-filter: blur(20px) !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.4) !important;
-            box-shadow: 4px 0 20px rgba(0,0,0,0.05) !important;
-            z-index: 1000001 !important;
-            transition: transform 0.3s ease !important;
-        }
+        /* Judul halaman */
+        h1, h2, h3 { color: #1E293B !important; letter-spacing: -0.01em; }
 
-        /* Always show sidebar collapse button (<<) */
+        /* Sidebar flat */
+        [data-testid="stSidebar"] {
+            background-color: #EEF2F6 !important;
+            border-right: 1px solid #E2E8F0 !important;
+        }
         [data-testid="stSidebar"] [data-testid="stBaseButton-headerNoPadding"] {
             opacity: 1 !important;
             visibility: visible !important;
             color: #1E293B !important;
         }
-
-        /* Force Sidebar Text Color */
-        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p,
         [data-testid="stSidebar"] .stMarkdown p,
         [data-testid="stSidebar"] label p {
             color: #1E293B !important;
+        }
+        .sidebar-brand {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1E293B;
+            padding: 0 12px 4px 12px;
+        }
+
+        /* Navigasi sidebar (pill) */
+        [data-testid="stSidebar"] div[role="radiogroup"] {
+            padding: 8px 0;
+            gap: 4px;
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] label {
+            background-color: transparent !important;
+            padding: 8px 14px !important;
+            border-radius: 20px !important;
+            border: 1px solid transparent !important;
+            width: 100% !important;
+            cursor: pointer !important;
+            transition: background-color 0.15s ease !important;
+            margin: 0 !important;
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] label > div:first-child,
+        [data-testid="stSidebar"] [data-testid="stRadioOption"] > div > div:first-child {
+            display: none !important;
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] label p {
+            font-size: 14px !important;
+            margin: 0 !important;
+            color: #475569 !important;
+            font-weight: 500 !important;
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+            background-color: rgba(255, 255, 255, 0.6) !important;
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
+            background-color: #FFFFFF !important;
+            border-color: #E2E8F0 !important;
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) p {
+            color: #1E293B !important;
             font-weight: 600 !important;
         }
 
-        /* Prevent content shift */
-        [data-testid="stAppViewContainer"] section[data-testid="stMain"] {
-            width: 100% !important;
-            margin-left: 0 !important;
-            padding-left: 0 !important;
-        }
-        
-        /* Sidebar Expanded State Backdrop */
-        [data-testid="stSidebar"][aria-expanded="true"] ~ section[data-testid="stMain"]::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.1);
-            z-index: 99999;
-            pointer-events: none;
-        }
-
-        /* Sidebar Navigation Styling (Pills) */
-        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
-            display: none;
-        }
-        
-        [data-testid="stSidebar"] div[role="radiogroup"] {
-            padding: 20px 10px;
-            gap: 8px;
-        }
-
-        [data-testid="stSidebar"] div[role="radiogroup"] label {
-            background-color: transparent !important;
-            padding: 10px 20px !important;
-            border-radius: 24px !important;
-            border: none !important;
-            width: 100% !important;
-            cursor: pointer !important;
-            transition: all 0.2s ease !important;
-            margin: 0 !important;
-        }
-
-        /* Hide radio circle */
-        [data-testid="stSidebar"] div[role="radiogroup"] label > div:first-child {
-            display: none !important;
-        }
-
-        [data-testid="stSidebar"] div[role="radiogroup"] label p {
-            font-size: 15px !important;
-            margin: 0 !important;
-        }
-
-        [data-testid="stSidebar"] div[role="radiogroup"] label:hover {
-            background-color: rgba(0, 0, 0, 0.03) !important;
-        }
-        
-        /* Active Sidebar Item (Pill) */
-        [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
-            background-color: rgba(0, 0, 0, 0.05) !important;
-            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05) !important;
-        }
-
-        /* Input & Labels Visibility in Light Mode */
+        /* Label & input */
         [data-testid="stWidgetLabel"] p, .stMarkdown p, label p {
             color: #1E293B !important;
         }
-        
-        input, select, textarea {
-            color: #1E293B !important;
-            background-color: white !important;
+        div[data-baseweb="input"], div[data-baseweb="select"] > div {
+            border-radius: 10px !important;
         }
 
-        /* Cards & UI Elements */
-        .main-card, [data-testid="stVerticalBlockBorderWrapper"] {
-            background: white !important;
-            border-radius: 16px !important;
-            padding: 32px !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03) !important;
-            border: 1px solid rgba(0,0,0,0.05) !important;
-            margin-bottom: 24px !important;
+        /* Kartu (st.container(border=True)); selector kedua untuk Streamlit versi baru */
+        [data-testid="stVerticalBlockBorderWrapper"],
+        [data-testid="stMain"] [data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"] {
+            background: #FFFFFF !important;
+            border-radius: 14px !important;
+            border: 1px solid #E2E8F0 !important;
+            box-shadow: none !important;
+            padding: 20px 24px !important;
+            margin-bottom: 16px !important;
         }
 
-        /* Global Buttons Styling */
-        div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {
-            border-radius: 24px !important;
-            font-weight: 600 !important;
-            min-height: 44px !important;
-            transition: all 0.2s !important;
+        /* Form di dalam kartu tidak perlu border kedua */
+        [data-testid="stForm"] {
             border: none !important;
-            padding: 0.5rem 2rem !important;
+            padding: 0 !important;
         }
-        
-        /* Primary (Emerald) */
-        button[data-testid^="stBaseButton-primary"], 
+
+        /* Input putih */
+        div[data-baseweb="input"] > div, div[data-baseweb="select"] > div,
+        [data-testid="stNumberInput"] input, [data-testid="stTextInput"] input {
+            background-color: #FFFFFF !important;
+        }
+
+        /* Badge angkatan */
+        .angkatan-badge {
+            display: inline-block;
+            background: #D1FAE5;
+            color: #065F46;
+            border-radius: 12px;
+            padding: 3px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            margin: -8px 0 16px 0;
+        }
+
+        /* Judul login */
+        .login-brand { text-align: center; margin: 3rem 0 1rem 0; }
+        .login-brand .icon {
+            width: 52px; height: 52px; border-radius: 14px;
+            background: #D1FAE5; color: #047857;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 26px;
+        }
+        .login-brand h2 { margin: 10px 0 0 0 !important; padding: 0 !important; font-size: 24px !important; }
+        .login-brand p { margin: 2px 0 0 0; color: #64748B !important; font-size: 14px; }
+
+        /* Tombol: dasar */
+        div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {
+            border-radius: 22px !important;
+            font-weight: 600 !important;
+            min-height: 42px !important;
+            padding: 0.4rem 1.6rem !important;
+            transition: background-color 0.15s ease, border-color 0.15s ease !important;
+        }
+
+        /* Primary (emerald) */
+        button[data-testid^="stBaseButton-primary"],
         div.stDownloadButton > button,
         div[data-testid="stFormSubmitButton"] > button {
-            background-color: #10B981 !important;
-            color: white !important;
-            box-shadow: 0 4px 12px rgba(16,185,129,0.2) !important;
+            background-color: #059669 !important;
+            border: 1px solid #059669 !important;
+            color: #FFFFFF !important;
         }
-        button[data-testid^="stBaseButton-primary"]:hover, 
+        button[data-testid^="stBaseButton-primary"]:hover,
         div.stDownloadButton > button:hover,
         div[data-testid="stFormSubmitButton"] > button:hover {
-            background-color: #059669 !important;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(16,185,129,0.3) !important;
+            background-color: #047857 !important;
+            border-color: #047857 !important;
+        }
+        button[data-testid^="stBaseButton-primary"] p,
+        div.stDownloadButton > button p,
+        div[data-testid="stFormSubmitButton"] > button p {
+            color: #FFFFFF !important;
         }
 
-        /* Secondary/Logout (Rose) */
+        /* Secondary (netral) */
         button[data-testid^="stBaseButton-secondary"] {
-            background-color: #F43F5E !important;
-            color: white !important;
-            box-shadow: 0 4px 12px rgba(244,63,94,0.2) !important;
+            background-color: #FFFFFF !important;
+            border: 1px solid #CBD5E1 !important;
+            color: #1E293B !important;
         }
         button[data-testid^="stBaseButton-secondary"]:hover {
-            background-color: #E11D48 !important;
-            transform: translateY(-1px);
+            background-color: #F1F5F9 !important;
+            border-color: #94A3B8 !important;
         }
         button[data-testid^="stBaseButton-secondary"] p {
-            color: white !important;
+            color: #1E293B !important;
         }
 
-        /* Inputs & Selectboxes */
-        div[data-baseweb="input"], div[data-baseweb="select"] {
-            border-radius: 12px !important;
+        /* Danger outline: key diawali "danger_" (Logout, Hapus, Reset) */
+        [class*="st-key-danger_"] button {
+            background-color: #FFFFFF !important;
+            border: 1px solid #FDA4AF !important;
         }
-        [data-testid="stNumberInput"] input, [data-testid="stTextInput"] input {
-            border-radius: 12px !important;
+        [class*="st-key-danger_"] button p { color: #BE123C !important; }
+        [class*="st-key-danger_"] button:hover {
+            background-color: #FFF1F2 !important;
+            border-color: #FB7185 !important;
         }
 
-        /* Notifications (Left Slide) */
+        /* Danger solid: key diawali "dangerfill_" (konfirmasi hapus/keluar) */
+        [class*="st-key-dangerfill_"] button {
+            background-color: #E11D48 !important;
+            border: 1px solid #E11D48 !important;
+        }
+        [class*="st-key-dangerfill_"] button p { color: #FFFFFF !important; }
+        [class*="st-key-dangerfill_"] button:hover {
+            background-color: #BE123C !important;
+            border-color: #BE123C !important;
+        }
+
+        /* Notifikasi */
         @keyframes slideInL {
             0% { transform: translateX(-150%); opacity: 0; }
             10% { transform: translateX(0); opacity: 1; }
@@ -227,17 +259,18 @@ def inject_global_css():
             position: fixed;
             top: 25px; left: 25px;
             background: white;
-            padding: 16px 28px;
+            padding: 14px 24px;
             border-radius: 12px;
+            border: 1px solid #E2E8F0;
             z-index: 9999999;
             display: flex;
             align-items: center;
             gap: 12px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            box-shadow: 0 12px 24px -8px rgba(15,23,42,0.15);
             animation: slideInL 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             font-weight: 600;
+            color: #1E293B;
         }
-
         </style>
         """,
         unsafe_allow_html=True,
@@ -266,6 +299,25 @@ def get_latest_angkatan(users):
         except (TypeError, ValueError):
             pass
     return max(years) if years else "Semua"
+
+
+def render_angkatan_badge():
+    """Badge kecil di bawah judul halaman admin: angkatan aktif dan jumlah user-nya."""
+    filter_tahun = st.session_state.get("filter_tahun_aktif")
+    all_users = fetch_all_users()
+    if filter_tahun is None:
+        filter_tahun = get_latest_angkatan(all_users)
+    if filter_tahun == "Semua":
+        users = all_users
+        label = "Semua angkatan"
+    else:
+        users = [u for u in all_users if u.get("tahun_aktif") == filter_tahun]
+        label = f"Angkatan {filter_tahun}"
+    jumlah = len([u for u in users if u.get("role") == "user"])
+    st.markdown(
+        f'<span class="angkatan-badge">{label} · {jumlah} user</span>',
+        unsafe_allow_html=True,
+    )
 
 
 def fetch_all_scores():
@@ -316,25 +368,28 @@ def render_skd_chart(df, title, is_component=True):
     fig, ax = plt.subplots(figsize=(dynamic_width, 5), dpi=100)
     
     # Palette Modern Emerald & Dark Slate
-    color_twk = "#1E293B"  # Dark Slate
-    color_tiu = "#64748B"  # Slate
-    color_tkp = "#10B981"  # Emerald
+    color_twk, color_tiu, color_tkp, color_total = COLOR_TWK, COLOR_TIU, COLOR_TKP, COLOR_TOTAL
     
     if is_component:
         ax.plot(df["label"], df["twk"], marker="o", label="TWK", color=color_twk, linewidth=3)
         ax.plot(df["label"], df["tiu"], marker="o", label="TIU", color=color_tiu, linewidth=3)
         ax.plot(df["label"], df["tkp"], marker="o", label="TKP", color=color_tkp, linewidth=3)
-        ax.set_ylabel("Nilai", color=color_twk, fontweight='bold')
+        ax.set_ylabel("Nilai", color=color_total, fontweight='bold')
     else:
-        ax.plot(df["label"], df["total"], marker="o", color=color_twk, linewidth=3.5, label="Total")
-        ax.set_ylabel("Total Nilai", color=color_twk, fontweight='bold')
+        ax.plot(df["label"], df["total"], marker="o", color=color_total, linewidth=3, label="Total")
+        ax.set_ylabel("Total Nilai", color=color_total, fontweight='bold')
 
-    ax.set_title(title, fontsize=14, fontweight='bold', pad=15, color=color_twk)
-    ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
-    ax.grid(True, linestyle='--', alpha=0.6)
-    
-    ax.tick_params(axis='x', rotation=45, labelsize=9)
-    ax.tick_params(axis='y', labelsize=9)
+    ax.set_title(title, fontsize=14, fontweight='bold', pad=28, color=color_total, loc='left')
+    ax.legend(loc='lower left', bbox_to_anchor=(0, 1.0), ncol=3, frameon=False, fontsize=10)
+    ax.grid(True, axis='y', color='#E2E8F0', linewidth=1)
+    ax.set_axisbelow(True)
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#CBD5E1")
+
+    ax.tick_params(axis='x', rotation=45, labelsize=9, colors="#475569")
+    ax.tick_params(axis='y', labelsize=9, colors="#475569")
     fig.tight_layout()
     
     return fig
@@ -402,9 +457,7 @@ def render_report_page(df, title, content_type="table"):
         ax_comp = fig.add_subplot(2, 1, 1)
         ax_total = fig.add_subplot(2, 1, 2)
         
-        color_twk = "#1E293B"
-        color_tiu = "#64748B"
-        color_tkp = "#10B981"
+        color_twk, color_tiu, color_tkp = COLOR_TWK, COLOR_TIU, COLOR_TKP
 
         # Pastikan data terurut
         if "skd_ke" in df.columns:
@@ -420,21 +473,21 @@ def render_report_page(df, title, content_type="table"):
         ax_comp.plot(df["label"], df["twk"], marker="o", label="TWK", color=color_twk, linewidth=lwidth, markersize=msize)
         ax_comp.plot(df["label"], df["tiu"], marker="o", label="TIU", color=color_tiu, linewidth=lwidth, markersize=msize)
         ax_comp.plot(df["label"], df["tkp"], marker="o", label="TKP", color=color_tkp, linewidth=lwidth, markersize=msize)
-        ax_comp.set_ylabel("Nilai", color=color_twk, fontweight='bold')
-        ax_comp.set_title("Grafik Komponen Nilai SKD", fontsize=14, fontweight='bold', pad=10, color=color_twk)
+        ax_comp.set_ylabel("Nilai", color=COLOR_TOTAL, fontweight='bold')
+        ax_comp.set_title("Grafik Komponen Nilai SKD", fontsize=14, fontweight='bold', pad=10, color=COLOR_TOTAL)
         ax_comp.legend(loc='upper left', bbox_to_anchor=(1, 1))
         ax_comp.grid(True, linestyle='--', alpha=0.6)
         ax_comp.tick_params(axis='x', rotation=45, labelsize=tick_size)
 
         # Grafik Total
-        ax_total.plot(df["label"], df["total"], marker="o", color=color_twk, linewidth=lwidth + 0.5, markersize=msize, label="Total")
-        ax_total.set_ylabel("Total Nilai", color=color_twk, fontweight='bold')
-        ax_total.set_title("Grafik Total Nilai SKD", fontsize=14, fontweight='bold', pad=10, color=color_twk)
+        ax_total.plot(df["label"], df["total"], marker="o", color=COLOR_TOTAL, linewidth=lwidth + 0.5, markersize=msize, label="Total")
+        ax_total.set_ylabel("Total Nilai", color=COLOR_TOTAL, fontweight='bold')
+        ax_total.set_title("Grafik Total Nilai SKD", fontsize=14, fontweight='bold', pad=10, color=COLOR_TOTAL)
         ax_total.legend(loc='upper left', bbox_to_anchor=(1, 1))
         ax_total.grid(True, linestyle='--', alpha=0.6)
         ax_total.tick_params(axis='x', rotation=45, labelsize=tick_size)
         
-        fig.suptitle(title + "\n(Halaman 2: Grafik Perkembangan)", fontsize=16, fontweight='bold', y=0.98, color=color_twk)
+        fig.suptitle(title + "\n(Halaman 2: Grafik Perkembangan)", fontsize=16, fontweight='bold', y=0.98, color=COLOR_TOTAL)
         fig.subplots_adjust(top=0.88, bottom=0.12, left=0.15, right=0.85, hspace=0.4)
 
     buf = io.BytesIO()
@@ -444,25 +497,26 @@ def render_report_page(df, title, content_type="table"):
     return buf.getvalue()
 
 
-@st.dialog("Konfirmasi Update")
+@st.dialog("Konfirmasi perubahan")
 def confirm_update_dialog(message, session_key):
     st.write(message)
     c1, c2 = st.columns(2)
-    if c1.button("Iya", use_container_width=True, type="primary"):
+    if c1.button("Batal", key="dlg_update_batal", use_container_width=True):
+        st.rerun()
+    if c2.button("Simpan", key="dlg_update_simpan", use_container_width=True, type="primary"):
         st.session_state[session_key] = True
         st.rerun()
-    if c2.button("Tidak", use_container_width=True):
-        st.rerun()
 
 
-@st.dialog("Konfirmasi Hapus")
+@st.dialog("Konfirmasi hapus")
 def confirm_delete_dialog(message, session_key):
-    st.warning(message)
+    st.write(message)
+    st.caption("Tindakan ini tidak bisa dibatalkan.")
     c1, c2 = st.columns(2)
-    if c1.button("Iya", use_container_width=True, type="primary"):
-        st.session_state[session_key] = True
+    if c1.button("Batal", key="dlg_delete_batal", use_container_width=True):
         st.rerun()
-    if c2.button("Tidak", use_container_width=True):
+    if c2.button("Hapus", key="dangerfill_dlg_hapus", use_container_width=True):
+        st.session_state[session_key] = True
         st.rerun()
 
 
@@ -474,6 +528,7 @@ if "toast_msg" in st.session_state:
 
 def admin_user_management():
     st.header("👤 Kelola Pengguna")
+    render_angkatan_badge()
 
     tab1, tab2 = st.tabs(["👥 Kelola Akun", "📊 Kelola Nilai"])
     
@@ -511,7 +566,6 @@ def admin_user_management():
             else:
                 st.info("Belum ada user di database.")
 
-        st.markdown("---")
 
         # Edit user
         with st.container(border=True):
@@ -562,7 +616,6 @@ def admin_user_management():
                         del st.session_state.pending_user_update
                         st.rerun()
 
-        st.markdown("---")
 
         # Hapus user
         with st.container(border=True):
@@ -580,7 +633,7 @@ def admin_user_management():
                 if nama_hapus:
                     user_hapus = next(u for u in users if u["nama"] == nama_hapus)
 
-                    if st.button("Hapus User"):
+                    if st.button("Hapus User", key="danger_hapus_user"):
                         confirm_delete_dialog(f"Apakah Anda yakin ingin menghapus user {user_hapus['nama']}?", "do_delete_user")
 
                     if st.session_state.get("do_delete_user"):
@@ -589,7 +642,6 @@ def admin_user_management():
                         del st.session_state.do_delete_user
                         st.rerun()
 
-        st.markdown("---")
 
         # Transmigrasi User
         with st.container(border=True):
@@ -693,7 +745,6 @@ def admin_user_management():
             else:
                 st.info("Belum ada user di database.")
 
-        st.markdown("---")
 
         # Edit Nilai SKD User (Admin)
         with st.container(border=True):
@@ -769,7 +820,6 @@ def admin_user_management():
                 else:
                     st.info("Belum ada user untuk diedit nilainya.")
 
-        st.markdown("---")
 
         # Hapus Nilai SKD User (Admin)
         with st.container(border=True):
@@ -808,7 +858,7 @@ def admin_user_management():
                                 idx_pilih_del_admin = int(pilih_skd_del_admin.split("-")[-1])
                                 data_pilih_del_admin = df_user_scores_del[df_user_scores_del["skd_ke"] == idx_pilih_del_admin].iloc[0]
 
-                                if st.button(f"Hapus {pilih_skd_del_admin} untuk {nama_pilih_del_score}", key="btn_del_score"):
+                                if st.button(f"Hapus {pilih_skd_del_admin} untuk {nama_pilih_del_score}", key="danger_del_score"):
                                     confirm_delete_dialog(f"Hapus {pilih_skd_del_admin} untuk {nama_pilih_del_score}?", "do_delete_admin_score")
 
                                 if st.session_state.get("do_delete_admin_score"):
@@ -838,7 +888,6 @@ def user_self_page(user: dict):
             with col2:
                 st.write(f"Tahun Aktif: **{user.get('tahun_aktif', '-')}**")
 
-        st.markdown("---")
         
         with st.container(border=True):
             st.subheader("Input Nilai SKD")
@@ -881,7 +930,6 @@ def user_self_page(user: dict):
                 else:
                     st.error(f"Gagal menyimpan nilai: {e}")
 
-        st.markdown("---")
 
         scores = fetch_user_scores(user["id"])
         if scores:
@@ -894,9 +942,8 @@ def user_self_page(user: dict):
                 # Tampilkan riwayat
                 st.subheader("Riwayat Nilai SKD")
                 cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df_scores.columns]
-                st.dataframe(df_scores[cols], use_container_width=True, hide_index=True)
+                st.dataframe(df_scores[cols].rename(columns=SCORE_COL_LABELS), use_container_width=True, hide_index=True)
 
-            st.markdown("---")
             with st.container(border=True):
                 st.subheader("Edit Nilai Percobaan (SKD ke-n)")
                 
@@ -958,7 +1005,6 @@ def user_self_page(user: dict):
             with col2:
                 st.write(f"Tahun Aktif: **{user.get('tahun_aktif', '-')}**")
 
-        st.markdown("---")
         
         # Edit Password
         with st.container(border=True):
@@ -1054,6 +1100,7 @@ def prepare_admin_data():
 
 def admin_dashboard_summary():
     st.header("📈 Beranda")
+    render_angkatan_badge()
     data = prepare_admin_data()
     if not data:
         st.info("Belum ada data user.")
@@ -1102,6 +1149,7 @@ def admin_dashboard_summary():
 
 def admin_grafik_nilai():
     st.header("📊 Visualisasi Data")
+    render_angkatan_badge()
     data = prepare_admin_data()
     if not data:
         st.info("Belum ada data user.")
@@ -1212,7 +1260,7 @@ def admin_grafik_nilai():
     with st.container(border=True):
         st.subheader("Data Riwayat SKD")
         cols_to_show = ["nama", "skd_ke", "twk", "tiu", "tkp", "total"]
-        st.dataframe(filtered[cols_to_show], use_container_width=True, hide_index=True)
+        st.dataframe(filtered[cols_to_show].rename(columns=SCORE_COL_LABELS), use_container_width=True, hide_index=True)
 
     with st.container(border=True):
         st.subheader("Grafik Komponen Nilai")
@@ -1232,6 +1280,7 @@ def render_laporan_page(user, role):
     st.header("🖨️ Cetak Laporan")
     
     if role == "admin":
+        render_angkatan_badge()
         data = prepare_admin_data()
         if not data:
             st.info("Belum ada data user.")
@@ -1322,7 +1371,7 @@ def _render_all_users_report_ui(df_all):
     with st.container(border=True):
         st.subheader("Pratinjau Data")
         cols = ["nama", "skd_ke", "twk", "tiu", "tkp", "total"]
-        st.dataframe(report_df[cols].sort_values("total", ascending=False), use_container_width=True, hide_index=True)
+        st.dataframe(report_df[cols].sort_values("total", ascending=False).rename(columns=SCORE_COL_LABELS), use_container_width=True, hide_index=True)
 
         st.markdown("---")
         # Tombol Download Laporan PNG
@@ -1375,7 +1424,7 @@ def _render_individual_report_ui(df_target, pilih_user):
     with st.container(border=True):
         st.subheader(f"Pratinjau Data: {pilih_user}")
         cols = ["skd_ke", "twk", "tiu", "tkp", "total"]
-        st.dataframe(report_df[cols], use_container_width=True, hide_index=True)
+        st.dataframe(report_df[cols].rename(columns=SCORE_COL_LABELS), use_container_width=True, hide_index=True)
 
         st.markdown("---")
         # Tombol Download Laporan PNG
@@ -1422,7 +1471,6 @@ def user_personal_dashboard(user: dict):
         with col2:
             st.write(f"Tahun Aktif: **{user.get('tahun_aktif', '-')}**")
 
-    st.markdown("---")
 
     scores = fetch_user_scores(user["id"])
     
@@ -1453,7 +1501,7 @@ def user_personal_dashboard(user: dict):
     with st.container(border=True):
         st.subheader("Riwayat Nilai")
         cols = [c for c in ["skd_ke", "twk", "tiu", "tkp", "total"] if c in df.columns]
-        st.dataframe(df[cols], use_container_width=True, hide_index=True)
+        st.dataframe(df[cols].rename(columns=SCORE_COL_LABELS), use_container_width=True, hide_index=True)
 
     with st.container(border=True):
         st.subheader("Grafik Komponen Nilai (Per Percobaan)")
@@ -1482,7 +1530,6 @@ def admin_maintenance():
     3. **Menyisakan akun admin** agar sistem tetap dapat dikelola.
     """)
 
-    st.markdown("---")
     
     confirm_phrase = "RESET SEMUA DATA"
     st.write(f"Untuk melanjutkan, silakan ketik kalimat konfirmasi di bawah ini:")
@@ -1493,7 +1540,7 @@ def admin_maintenance():
     # Tombol reset hanya aktif jika input cocok
     is_confirmed = (input_confirm == confirm_phrase)
     
-    if st.button("🚀 Jalankan Reset Data Sekarang", disabled=not is_confirmed):
+    if st.button("Jalankan Reset Data Sekarang", key="danger_reset_data", disabled=not is_confirmed):
         confirm_delete_dialog("Yakin ingin menghapus seluruh data score dan user? Tindakan ini permanen!", "do_reset_all_data")
 
     if st.session_state.get("do_reset_all_data"):
@@ -1534,19 +1581,31 @@ if role == "admin":
 else:
     items = ["Beranda Saya", "Profil & Nilai Saya", "Cetak Laporan"]
 
+MENU_ICONS = {
+    "Beranda": ":material/home:",
+    "Beranda Saya": ":material/home:",
+    "Visualisasi Data": ":material/monitoring:",
+    "Kelola Pengguna": ":material/group:",
+    "Profil & Nilai Saya": ":material/person:",
+    "Cetak Laporan": ":material/print:",
+    "Reset Data": ":material/restart_alt:",
+}
+
 with st.sidebar:
+    st.markdown('<div class="sidebar-brand">SKD App</div>', unsafe_allow_html=True)
     menu = st.radio(
         "Navigation",
         items,
         key="menu_radio",
-        label_visibility="collapsed"
+        label_visibility="collapsed",
+        format_func=lambda m: f"{MENU_ICONS.get(m, '')} {m}".strip(),
     )
     st.session_state.active_menu = menu
     
     # Global Filter for Admin
     if role == "admin":
         st.markdown("---")
-        st.subheader("🔍 Filter Angkatan")
+        st.markdown("**Filter Angkatan**")
         
         # Ambil semua user untuk mendapatkan daftar tahun_aktif yang unik
         users_for_filter = fetch_all_users()
