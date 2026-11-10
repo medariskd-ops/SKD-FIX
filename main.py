@@ -165,23 +165,30 @@ def inject_global_css():
             margin: -8px 0 16px 0;
         }
 
-        /* Banner sapaan Beranda */
+        /* Banner sapaan Beranda (versi kalem) */
         .welcome-banner {
-            background: #059669;
+            background: #ECFDF5;
+            border: 1px solid #A7F3D0;
             border-radius: 16px;
-            padding: 22px 26px;
+            padding: 18px 22px;
             margin: 0 0 20px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
         }
-        .welcome-title { color: #FFFFFF; font-size: 26px; font-weight: 700; line-height: 1.3; }
-        .welcome-sub { color: #D1FAE5; font-size: 15px; margin-top: 2px; }
+        .welcome-title { color: #064E3B; font-size: 22px; font-weight: 700; line-height: 1.3; }
+        .welcome-sub { color: #047857; font-size: 14px; margin-top: 2px; }
         .welcome-icon {
             font-family: "Material Symbols Rounded";
-            font-size: 48px;
-            color: #A7F3D0;
+            font-size: 26px;
+            color: #047857;
+            background: #D1FAE5;
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: inline-flex; align-items: center; justify-content: center;
             line-height: 1;
+            flex-shrink: 0;
             user-select: none;
         }
 
@@ -254,9 +261,9 @@ def inject_global_css():
                 padding: 14px 14px !important;
             }
             .welcome-banner { padding: 16px 18px; border-radius: 14px; }
-            .welcome-title { font-size: 20px; }
+            .welcome-title { font-size: 19px; }
             .welcome-sub { font-size: 13px; }
-            .welcome-icon { font-size: 36px; }
+            .welcome-icon { width: 40px; height: 40px; font-size: 22px; }
             .metric-row { gap: 8px; }
             .metric-card { padding: 12px 10px; border-radius: 12px; }
             .metric-icon { width: 30px; height: 30px; font-size: 18px; border-radius: 8px; margin-bottom: 6px; }
@@ -276,7 +283,7 @@ def inject_global_css():
                 padding-top: 3rem !important;
             }
             .login-brand { margin-top: 0.5rem; }
-            .login-brand .icon { width: 40px; height: 40px; font-size: 20px; }
+            .login-brand .icon { width: 44px; height: 44px; font-size: 24px; }
             .welcome-banner { padding: 14px 20px; }
             .welcome-title { font-size: 20px; }
         }
@@ -284,13 +291,21 @@ def inject_global_css():
         /* Judul login */
         .login-brand { text-align: center; margin: 3rem 0 1rem 0; }
         .login-brand .icon {
-            width: 52px; height: 52px; border-radius: 14px;
+            font-family: "Material Symbols Rounded";
+            width: 56px; height: 56px; border-radius: 14px;
             background: #D1FAE5; color: #047857;
             display: inline-flex; align-items: center; justify-content: center;
-            font-size: 26px;
+            font-size: 30px; line-height: 1;
+            user-select: none;
         }
-        .login-brand h2 { margin: 10px 0 0 0 !important; padding: 0 !important; font-size: 24px !important; }
-        .login-brand p { margin: 2px 0 0 0; color: #64748B !important; font-size: 14px; }
+        .login-brand h2 { margin: 12px 0 0 0 !important; padding: 0 !important; font-size: 24px !important; color: #064E3B !important; }
+        .login-brand p { margin: 2px 0 0 0; color: #047857 !important; font-size: 14px; }
+        .st-key-login_card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 8px 24px 24px 24px;
+        }
 
         /* Tombol: dasar */
         div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {
