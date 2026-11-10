@@ -141,32 +141,19 @@ def login():
     return False
 
 
-def logout():
-    """Tombol logout di sidebar dengan konfirmasi."""
-    if "confirm_logout" not in st.session_state:
-        st.session_state.confirm_logout = False
-
-    def trigger_confirm():
-        st.session_state.confirm_logout = True
-
-    def cancel_confirm():
-        st.session_state.confirm_logout = False
-
-    def do_logout():
-        for key in ("user", "role", "logged_in", "confirm_logout", "toast_msg", "filter_tahun_aktif"):
+@st.dialog("Keluar dari akun?")
+def _logout_dialog():
+    st.write("Kamu perlu login lagi untuk masuk ke aplikasi.")
+    c1, c2 = st.columns(2)
+    if c1.button("Batal", key="dlg_logout_batal", use_container_width=True):
+        st.rerun()
+    if c2.button("Keluar", key="dangerfill_dlg_logout", use_container_width=True):
+        for key in ("user", "role", "logged_in", "toast_msg", "filter_tahun_aktif"):
             st.session_state.pop(key, None)
+        st.rerun()
 
-    # Gunakan sidebar.container agar tetap di sidebar dan transisi lebih bersih
-    with st.sidebar.container():
-        if not st.session_state.confirm_logout:
-            st.button(
-                "Logout", 
-                key="danger_logout_side", 
-                use_container_width=True, 
-                on_click=trigger_confirm
-            )
-        else:
-            st.markdown("**Yakin ingin keluar?**")
-            col1, col2 = st.columns(2)
-            col1.button("Batal", key="btn_logout_batal", use_container_width=True, on_click=cancel_confirm)
-            col2.button("Keluar", key="dangerfill_logout_keluar", use_container_width=True, on_click=do_logout)
+
+def logout():
+    """Tombol logout di sidebar, konfirmasinya lewat dialog pop up."""
+    if st.sidebar.button("Logout", key="danger_logout_side", use_container_width=True):
+        _logout_dialog()
