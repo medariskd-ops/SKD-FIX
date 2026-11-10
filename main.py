@@ -256,6 +256,18 @@ def fetch_all_users():
         return []
 
 
+def get_latest_angkatan(users):
+    """Ambil tahun_aktif terbaru dari daftar user. Kalau tidak ada, kembalikan 'Semua'."""
+    years = []
+    for u in users or []:
+        try:
+            if u.get("tahun_aktif") is not None:
+                years.append(int(u["tahun_aktif"]))
+        except (TypeError, ValueError):
+            pass
+    return max(years) if years else "Semua"
+
+
 def fetch_all_scores():
     """Ambil semua data dari tabel scores."""
     try:
@@ -467,12 +479,11 @@ def admin_user_management():
     
     # Ambil semua user dan filter berdasarkan cohort di sidebar
     all_users = fetch_all_users()
-    year_now = datetime.date.today().year
     filter_tahun = st.session_state.get("filter_tahun_aktif")
-    if filter_tahun is None: filter_tahun = year_now
-    
+    if filter_tahun is None: filter_tahun = get_latest_angkatan(all_users)
+
     if filter_tahun != "Semua":
-        users = [u for u in all_users if u.get("tahun_aktif") == filter_tahun]
+        users =[u for u in all_users if u.get("tahun_aktif") == filter_tahun]
     else:
         users = all_users
 
@@ -990,12 +1001,11 @@ def prepare_admin_data():
     total_admin = len(df_users[df_users["role"] == "admin"])
     
     # Apply Global Filter Tahun Aktif
-    year_now = datetime.date.today().year
     filter_tahun = st.session_state.get("filter_tahun_aktif")
-    if filter_tahun is None: filter_tahun = year_now
-    
+    if filter_tahun is None: filter_tahun = get_latest_angkatan(users)
+
     if filter_tahun != "Semua":
-        if "tahun_aktif" in df_users.columns:
+        if"tahun_aktif" in df_users.columns:
             df_users = df_users[df_users["tahun_aktif"] == filter_tahun].copy()
         
     total_user = len(df_users[df_users["role"] == "user"])
@@ -1550,12 +1560,9 @@ with st.sidebar:
                 unique_years = sorted([int(y) for y in unique_years])
                 filter_options.extend(unique_years)
         
-        year_now = datetime.date.today().year
-        try:
-            default_idx = filter_options.index(year_now)
-        except (ValueError, IndexError):
-            default_idx = 0
-            
+        # Default: angkatan paling baru (tahun_aktif terbesar) yang ada datanya
+        default_idx = len(filter_options) - 1 if len(filter_options) > 1 else 0
+
         st.selectbox(
             "Tahun Aktif",
             filter_options,
