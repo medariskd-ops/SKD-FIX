@@ -81,6 +81,8 @@ def login():
 
             st.session_state.user = user
             st.session_state.role = user.get("role", "user")
+            # Reset filter angkatan agar admin selalu mulai dari angkatan terbaru
+            st.session_state.pop("filter_tahun_aktif", None)
             st.session_state.toast_msg = "Login berhasil"
             st.rerun()
 
@@ -140,7 +142,7 @@ def logout():
         st.session_state.confirm_logout = False
 
     def do_logout():
-        for key in ("user", "role", "logged_in", "confirm_logout", "toast_msg"):
+        for key in ("user", "role", "logged_in", "confirm_logout", "toast_msg", "filter_tahun_aktif"):
             st.session_state.pop(key, None)
 
     # Gunakan sidebar.container agar tetap di sidebar dan transisi lebih bersih
