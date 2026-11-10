@@ -78,11 +78,24 @@ def inject_global_css():
         [data-testid="stSidebar"] label p {
             color: #1E293B !important;
         }
+        /* Logo naik sejajar dengan tombol << di header sidebar */
+        [data-testid="stSidebar"] [data-testid="stElementContainer"]:has(.sidebar-brand),
+        [data-testid="stSidebar"] .element-container:has(.sidebar-brand) {
+            margin-top: -60px;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 2;
+            pointer-events: none;
+        }
         .sidebar-brand {
             font-size: 18px;
             font-weight: 700;
             color: #1E293B;
-            padding: 0 12px 4px 12px;
+            padding: 0 12px;
+            line-height: 28px;
+            position: relative;
+            z-index: 2;
+            pointer-events: none;
         }
 
         /* Navigasi sidebar (pill) */
@@ -121,6 +134,23 @@ def inject_global_css():
             color: #065F46 !important;
             font-weight: 600 !important;
         }
+
+        /* Ukuran judul: judul halaman > judul kartu */
+        [data-testid="stMain"] h2 { font-size: 1.85rem !important; font-weight: 700 !important; }
+        [data-testid="stMain"] h3 { font-size: 1.2rem !important; font-weight: 650 !important; }
+        [data-testid="stMain"] h2 [data-testid="stIconMaterial"] { color: #059669; }
+        [data-testid="stHeaderActionElements"] { display: none !important; }
+
+        /* Kotak info/sukses disesuaikan dengan tema */
+        [data-testid="stAlertContentInfo"] { color: #334155 !important; }
+        [data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]) > div {
+            background-color: #F1F5F9 !important;
+        }
+        [data-testid="stAlertContentInfo"] p { color: #334155 !important; }
+        [data-testid="stAlert"]:has([data-testid="stAlertContentSuccess"]) > div {
+            background-color: #ECFDF5 !important;
+        }
+        [data-testid="stAlertContentSuccess"] p { color: #065F46 !important; }
 
         /* Label & input */
         [data-testid="stWidgetLabel"] p, .stMarkdown p, label p {
@@ -254,8 +284,8 @@ def inject_global_css():
                 padding-top: 3.5rem !important;
             }
             h1 { font-size: 1.6rem !important; }
-            h2 { font-size: 1.4rem !important; }
-            h3 { font-size: 1.15rem !important; }
+            [data-testid="stMain"] h2 { font-size: 1.45rem !important; }
+            [data-testid="stMain"] h3 { font-size: 1.05rem !important; }
             [data-testid="stVerticalBlockBorderWrapper"],
             [data-testid="stMain"] [data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"] {
                 padding: 14px 14px !important;
@@ -586,104 +616,166 @@ def render_skd_chart(df, title, is_component=True):
     return fig
 
 
+BULAN_ID = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli",
+            "Agustus", "September", "Oktober", "November", "Desember"]
+
+
+def _tanggal_cetak():
+    """Tanggal & jam cetak dalam WIB, format Indonesia."""
+    now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=7)))
+    return f"{now.day} {BULAN_ID[now.month - 1]} {now.year}, {now:%H:%M} WIB"
+
+
+def _style_axes(ax):
+    ax.grid(True, axis="y", color="#E2E8F0", linewidth=1)
+    ax.set_axisbelow(True)
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#CBD5E1")
+    ax.tick_params(colors="#475569")
+
+
 @st.cache_data(show_spinner=False)
 def render_report_page(df, title, content_type="table"):
     """
-    Render satu halaman laporan (Tabel atau Grafik) dengan ukuran A4 (approx 8.27x11.69 inch).
+    Render satu halaman laporan A4 (8.27 x 11.69 inch) siap cetak, resolusi 200 dpi.
+    Laporan individu: grafik garis perkembangan. Laporan semua user: grafik batang perbandingan.
     """
-    if df.empty: return None
-    
-    # Ukuran A4 Portrait (inch)
-    figsize_a4 = (8.27, 11.69)
-    fig = plt.figure(figsize=figsize_a4, dpi=100)
-    
-    color_primary = "#1E293B"
-    
-    if content_type == "table":
-        ax = fig.add_subplot(111)
-        ax.axis('off')
-        
-        cols_to_show = ["skd_ke", "twk", "tiu", "tkp", "total"]
-        if "nama" in df.columns and len(df["nama"].unique()) > 1:
-            cols_to_show = ["nama"] + cols_to_show
-        
-        table_data = df[cols_to_show].copy()
-        
-        # Pastikan kolom numerik menjadi integer agar tidak ada .0 di tabel PNG
-        numeric_cols = ["skd_ke", "twk", "tiu", "tkp", "total"]
-        for col in numeric_cols:
-            if col in table_data.columns:
-                table_data[col] = pd.to_numeric(table_data[col], errors='coerce').fillna(0).astype(int)
+    if df.empty:
+        return None
 
-        rename_map = {"skd_ke": "SKD ke-", "twk": "TWK", "tiu": "TIU", "tkp": "TKP", "total": "Total", "nama": "Nama"}
-        table_data = table_data.rename(columns=rename_map)
-        
+    df = df.copy()
+    multi_user = "nama" in df.columns and df["nama"].nunique() > 1
+    if multi_user:
+        # Urutan sama di tabel dan grafik: nilai total tertinggi di atas/kiri
+        df = df.sort_values("total", ascending=False)
+    elif "skd_ke" in df.columns:
+        df = df.sort_values("skd_ke")
+
+    fig = plt.figure(figsize=(8.27, 11.69), dpi=200)
+    halaman = "Halaman 1: Tabel Nilai" if content_type == "table" else "Halaman 2: Grafik"
+
+    # Judul & keterangan (margin aman cetak sekitar 1.5 cm)
+    fig.text(0.5, 0.955, title, ha="center", va="top", fontsize=15, fontweight="bold", color=COLOR_TOTAL)
+    fig.text(0.5, 0.925, halaman, ha="center", va="top", fontsize=10.5, color="#64748B")
+    fig.add_artist(plt.Line2D([0.08, 0.92], [0.905, 0.905], color="#A7F3D0", linewidth=1.5))
+    fig.text(0.08, 0.035, f"Dicetak {_tanggal_cetak()}", ha="left", fontsize=8.5, color="#94A3B8")
+    fig.text(0.92, 0.035, "SKD App", ha="right", fontsize=8.5, color="#94A3B8", fontweight="bold")
+
+    if content_type == "table":
+        ax = fig.add_axes([0.08, 0.08, 0.84, 0.80])
+        ax.axis("off")
+
+        cols_to_show = ["skd_ke", "twk", "tiu", "tkp", "total"]
+        if multi_user:
+            cols_to_show = ["nama"] + cols_to_show
+        table_data = df[cols_to_show].copy()
+        for col in ["skd_ke", "twk", "tiu", "tkp", "total"]:
+            table_data[col] = pd.to_numeric(table_data[col], errors="coerce").fillna(0).astype(int)
+        table_data = table_data.rename(columns={
+            "skd_ke": "SKD ke-", "twk": "TWK", "tiu": "TIU", "tkp": "TKP", "total": "Total", "nama": "Nama"
+        })
+
         num_rows = len(table_data)
-        # Dinamis font & scale agar tidak overlap dan pas di A4
-        dyn_font = max(6, min(10, 500 // (num_rows + 20)))
-        dyn_scale = max(1.1, min(2.5, 60 // (num_rows + 15)))
+        font_size = 10 if num_rows <= 20 else 8.5
+        row_h = min(0.045, 0.78 / (num_rows + 1))
 
         the_table = ax.table(
             cellText=table_data.values,
             colLabels=table_data.columns,
-            cellLoc='center',
-            loc='upper center'
+            cellLoc="center",
+            bbox=[0, 1 - row_h * (num_rows + 1), 1, row_h * (num_rows + 1)],
         )
         the_table.auto_set_font_size(False)
-        the_table.set_fontsize(dyn_font)
-        the_table.scale(1.2, dyn_scale)
-        
+        the_table.set_fontsize(font_size)
         for (row, col), cell in the_table.get_celld().items():
+            cell.set_edgecolor("#E2E8F0")
+            cell.set_linewidth(0.8)
             if row == 0:
-                cell.set_text_props(weight='bold', color='white')
-                cell.set_facecolor(color_primary)
-            elif row > 0:
-                cell.set_facecolor('#F8F9F9')
-        
-        ax.set_title(title + "\n(Halaman 1: Tabel Nilai)", fontsize=16, fontweight='bold', pad=50, color=color_primary)
-        fig.subplots_adjust(top=0.85, bottom=0.05, left=0.1, right=0.9)
+                cell.set_facecolor("#065F46")
+                cell.set_text_props(weight="bold", color="white")
+            else:
+                cell.set_facecolor("#FFFFFF" if row % 2 else "#F0FDF4")
+                cell.set_text_props(color=COLOR_TOTAL)
+                if table_data.columns[col] == "Total":
+                    cell.set_text_props(weight="bold", color=COLOR_TOTAL)
+                if table_data.columns[col] == "Nama":
+                    cell.set_text_props(ha="left")
+                    cell._loc = "left"
+                    cell.PAD = 0.04
+
+    elif multi_user and len(df) > 10:
+        # Banyak user: satu grafik batang mendatar bertumpuk (TWK + TIU + TKP = Total)
+        labels = df["label"].astype(str).tolist()
+        n = len(labels)
+        ax = fig.add_axes([0.24, 0.11, 0.66, 0.74])
+        y = list(range(n))
+        left = [0] * n
+        for col, name, color in (("twk", "TWK", COLOR_TWK), ("tiu", "TIU", COLOR_TIU), ("tkp", "TKP", COLOR_TKP)):
+            vals = df[col].tolist()
+            ax.barh(y, vals, left=left, height=0.68, color=color, label=name)
+            left = [l + v for l, v in zip(left, vals)]
+        fs = 8.5 if n <= 25 else 7
+        for yi, tot in zip(y, df["total"]):
+            ax.text(tot + max(df["total"]) * 0.01, yi, str(int(tot)), va="center", fontsize=fs, color=COLOR_TOTAL, fontweight="bold")
+        ax.set_yticks(y)
+        ax.set_yticklabels(labels, fontsize=fs)
+        ax.invert_yaxis()
+        ax.set_xlim(0, max(df["total"]) * 1.1)
+        _style_axes(ax)
+        ax.grid(True, axis="x", color="#E2E8F0", linewidth=1)
+        ax.grid(False, axis="y")
+        ax.set_xlabel("Nilai (TWK + TIU + TKP = Total)", color="#475569", fontsize=9.5)
+        ax.set_title("Nilai per User", fontsize=12.5, fontweight="bold", color=COLOR_TOTAL, loc="left", pad=26)
+        ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=3, frameon=False, fontsize=9.5)
 
     else:
-        # Grafik - 2 grafik ditumpuk vertikal
-        ax_comp = fig.add_subplot(2, 1, 1)
-        ax_total = fig.add_subplot(2, 1, 2)
-        
-        color_twk, color_tiu, color_tkp = COLOR_TWK, COLOR_TIU, COLOR_TKP
+        ax_comp = fig.add_axes([0.11, 0.53, 0.80, 0.32])
+        ax_total = fig.add_axes([0.11, 0.12, 0.80, 0.32])
+        labels = df["label"].astype(str).tolist()
+        n = len(labels)
+        x = list(range(n))
+        tick_size = 9 if n <= 8 else 7.5
+        rot = 0 if (n <= 6 and max(len(l) for l in labels) <= 10) else 45
 
-        # Pastikan data terurut
-        if "skd_ke" in df.columns:
-            df = df.sort_values("skd_ke")
+        if multi_user:
+            w = 0.26
+            ax_comp.bar([i - w for i in x], df["twk"], width=w, label="TWK", color=COLOR_TWK)
+            ax_comp.bar(x, df["tiu"], width=w, label="TIU", color=COLOR_TIU)
+            ax_comp.bar([i + w for i in x], df["tkp"], width=w, label="TKP", color=COLOR_TKP)
+            bars = ax_total.bar(x, df["total"], width=0.55, color="#059669")
+            ax_total.bar_label(bars, labels=[str(int(v)) for v in df["total"]], padding=3, fontsize=9, color=COLOR_TOTAL)
+            ax_total.set_ylim(0, max(df["total"]) * 1.15)
+            ax_comp.set_ylim(0, max(df[["twk", "tiu", "tkp"]].max()) * 1.15)
+            ax_comp.set_title("Komponen Nilai per User", fontsize=12.5, fontweight="bold", color=COLOR_TOTAL, loc="left", pad=26)
+            ax_total.set_title("Total Nilai per User", fontsize=12.5, fontweight="bold", color=COLOR_TOTAL, loc="left", pad=12)
+        else:
+            ms = 6 if n <= 15 else 4
+            ax_comp.plot(x, df["twk"], marker="o", label="TWK", color=COLOR_TWK, linewidth=2.2, markersize=ms)
+            ax_comp.plot(x, df["tiu"], marker="o", label="TIU", color=COLOR_TIU, linewidth=2.2, markersize=ms)
+            ax_comp.plot(x, df["tkp"], marker="o", label="TKP", color=COLOR_TKP, linewidth=2.2, markersize=ms)
+            ax_total.plot(x, df["total"], marker="o", color=COLOR_TOTAL, linewidth=2.5, markersize=ms)
+            for i, v in zip(x, df["total"]):
+                ax_total.annotate(str(int(v)), (i, v), textcoords="offset points", xytext=(0, 8),
+                                  ha="center", fontsize=8.5, color="#475569")
+            lo, hi = min(df["total"]), max(df["total"])
+            pad = max(10, (hi - lo) * 0.2)
+            ax_total.set_ylim(lo - pad, hi + pad)
+            ax_comp.set_title("Perkembangan Komponen Nilai", fontsize=12.5, fontweight="bold", color=COLOR_TOTAL, loc="left", pad=26)
+            ax_total.set_title("Perkembangan Total Nilai", fontsize=12.5, fontweight="bold", color=COLOR_TOTAL, loc="left", pad=12)
 
-        # Marker size & line width dinamis agar tidak berantakan saat data banyak
-        num_pts = len(df)
-        msize = max(2, min(8, 250 // (num_pts + 10)))
-        lwidth = max(1, min(3, 100 // (num_pts + 10)))
-        tick_size = max(5, min(9, 400 // (num_pts + 10)))
-
-        # Grafik Komponen
-        ax_comp.plot(df["label"], df["twk"], marker="o", label="TWK", color=color_twk, linewidth=lwidth, markersize=msize)
-        ax_comp.plot(df["label"], df["tiu"], marker="o", label="TIU", color=color_tiu, linewidth=lwidth, markersize=msize)
-        ax_comp.plot(df["label"], df["tkp"], marker="o", label="TKP", color=color_tkp, linewidth=lwidth, markersize=msize)
-        ax_comp.set_ylabel("Nilai", color=COLOR_TOTAL, fontweight='bold')
-        ax_comp.set_title("Grafik Komponen Nilai SKD", fontsize=14, fontweight='bold', pad=10, color=COLOR_TOTAL)
-        ax_comp.legend(loc='upper left', bbox_to_anchor=(1, 1))
-        ax_comp.grid(True, linestyle='--', alpha=0.6)
-        ax_comp.tick_params(axis='x', rotation=45, labelsize=tick_size)
-
-        # Grafik Total
-        ax_total.plot(df["label"], df["total"], marker="o", color=COLOR_TOTAL, linewidth=lwidth + 0.5, markersize=msize, label="Total")
-        ax_total.set_ylabel("Total Nilai", color=COLOR_TOTAL, fontweight='bold')
-        ax_total.set_title("Grafik Total Nilai SKD", fontsize=14, fontweight='bold', pad=10, color=COLOR_TOTAL)
-        ax_total.legend(loc='upper left', bbox_to_anchor=(1, 1))
-        ax_total.grid(True, linestyle='--', alpha=0.6)
-        ax_total.tick_params(axis='x', rotation=45, labelsize=tick_size)
-        
-        fig.suptitle(title + "\n(Halaman 2: Grafik Perkembangan)", fontsize=16, fontweight='bold', y=0.98, color=COLOR_TOTAL)
-        fig.subplots_adjust(top=0.88, bottom=0.12, left=0.15, right=0.85, hspace=0.4)
+        ax_comp.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=3, frameon=False, fontsize=9.5)
+        for ax in (ax_comp, ax_total):
+            _style_axes(ax)
+            ax.set_xticks(x)
+            ax.set_xticklabels(labels, rotation=rot, ha="right" if rot else "center", fontsize=tick_size)
+            ax.tick_params(axis="y", labelsize=9)
+        ax_comp.set_ylabel("Nilai", color="#475569", fontsize=10)
+        ax_total.set_ylabel("Total", color="#475569", fontsize=10)
 
     buf = io.BytesIO()
-    # Gunakan bbox_inches=None agar ukuran tetap A4 murni
-    fig.savefig(buf, format="png", bbox_inches=None)
+    fig.savefig(buf, format="png", dpi=200, bbox_inches=None, facecolor="white")
     plt.close(fig)
     return buf.getvalue()
 
@@ -718,10 +810,10 @@ if "toast_msg" in st.session_state:
 
 
 def admin_user_management():
-    st.header("👤 Kelola Pengguna")
+    st.header(":material/group: Kelola Pengguna")
     render_angkatan_badge()
 
-    tab1, tab2 = st.tabs(["👥 Kelola Akun", "📊 Kelola Nilai"])
+    tab1, tab2 = st.tabs(["Kelola Akun", "Kelola Nilai"])
     
     # Ambil semua user dan filter berdasarkan cohort di sidebar
     all_users = fetch_all_users()
@@ -836,7 +928,7 @@ def admin_user_management():
 
         # Transmigrasi User
         with st.container(border=True):
-            st.subheader("🚀 Transmigrasi User")
+            st.subheader("Transmigrasi User")
             st.info("Pindahkan user ke angkatan baru tanpa menghapus data SKD lama.")
             
             user_list_trans = [u["nama"] for u in users if u.get("role") == "user"]
@@ -1064,9 +1156,9 @@ def admin_user_management():
 
 
 def user_self_page(user: dict):
-    st.header("📑 Profil & Nilai Saya")
+    st.header(":material/person: Profil & Nilai Saya")
     
-    tab1, tab2 = st.tabs(["📊 Kelola Nilai", "👥 Kelola Akun"])
+    tab1, tab2 = st.tabs(["Kelola Nilai", "Kelola Akun"])
     
     with tab1:
         with st.container(border=True):
@@ -1332,12 +1424,19 @@ def admin_dashboard_summary():
     user_summary_df.columns = ["Nama User", "Total SKD", "Nilai Tertinggi"]
     
     with st.container(border=True):
-        st.subheader("📊 Ringkasan Aktivitas User")
-        st.dataframe(user_summary_df, use_container_width=True, hide_index=True)
+        st.subheader("Ringkasan Aktivitas User")
+        st.dataframe(
+            user_summary_df,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Total SKD": st.column_config.NumberColumn("Total SKD", format="%d kali"),
+            },
+        )
 
 
 def admin_grafik_nilai():
-    st.header("📊 Visualisasi Data")
+    st.header(":material/monitoring: Visualisasi Data")
     render_angkatan_badge()
     data = prepare_admin_data()
     if not data:
@@ -1391,7 +1490,7 @@ def admin_grafik_nilai():
 
     # Main Filtering for UI Display
     if pilih_skd == "Rentang":
-        st.markdown("### 🔍 Filter Rentang")
+        st.markdown("### Filter Rentang")
         col_r1, col_r2 = st.columns(2)
         with col_r1:
             r_dari = st.number_input("Dari SKD ke-", min_value=1, max_value=max_skd, value=1, key="admin_r_dari")
@@ -1466,7 +1565,7 @@ def admin_grafik_nilai():
 
 def render_laporan_page(user, role):
     """Halaman Laporan dan Cetak khusus untuk download file laporan A4."""
-    st.header("🖨️ Cetak Laporan")
+    st.header(":material/print: Cetak Laporan")
     
     if role == "admin":
         render_angkatan_badge()
@@ -1511,7 +1610,7 @@ def render_laporan_page(user, role):
 
 def _render_all_users_report_ui(df_all):
     """Helper untuk menampilkan UI laporan untuk semua user per SKD."""
-    st.subheader("📊 Laporan Semua User")
+    st.subheader("Laporan Semua User")
     
     max_skd_global = int(df_all["skd_ke"].max())
     skd_options = [f"SKD ke-{i}" for i in range(1, max_skd_global + 1)] + ["SKD Terakhir"]
@@ -1569,7 +1668,8 @@ def _render_all_users_report_ui(df_all):
             report_table = render_report_page(report_df, report_title, "table")
             if report_table:
                 st.download_button(
-                    label="📄 Download Tabel (PNG)",
+                    label="Download Tabel (PNG)",
+                    icon=":material/table_chart:",
                     data=report_table,
                     file_name=f"{filename_base}_tabel.png",
                     mime="image/png",
@@ -1580,7 +1680,8 @@ def _render_all_users_report_ui(df_all):
             report_charts = render_report_page(report_df, report_title, "charts")
             if report_charts:
                 st.download_button(
-                    label="📊 Download Grafik (PNG)",
+                    label="Download Grafik (PNG)",
+                    icon=":material/show_chart:",
                     data=report_charts,
                     file_name=f"{filename_base}_grafik.png",
                     mime="image/png",
@@ -1595,7 +1696,7 @@ def _render_individual_report_ui(df_target, pilih_user):
     df_target["label"] = "SKD ke-" + df_target["skd_ke"].astype(str)
     
     with st.container(border=True):
-        st.subheader("🔍 Tentukan Rentang Data")
+        st.subheader("Tentukan Rentang Data")
         st.info(f"Jumlah data: {max_skd}. Untuk hasil terbaik (A4), laporan dibatasi maksimal 15 data per halaman.")
         
         col_r1, col_r2 = st.columns(2)
@@ -1606,7 +1707,7 @@ def _render_individual_report_ui(df_target, pilih_user):
             max_val = min(r_dari + 14, max_skd)
             r_sampai = st.number_input("Sampai SKD ke-", min_value=r_dari, max_value=max_val, value=max_val, key=f"rep_r_sampai_{pilih_user}")
         
-        st.success(f"💡 Rentang Laporan: SKD ke-{r_dari} sampai ke-{r_sampai}")
+        st.success(f"Rentang Laporan: SKD ke-{r_dari} sampai ke-{r_sampai}")
 
     report_df = df_target[(df_target["skd_ke"] >= r_dari) & (df_target["skd_ke"] <= r_sampai)].copy()
 
@@ -1625,7 +1726,8 @@ def _render_individual_report_ui(df_target, pilih_user):
             report_table = render_report_page(report_df, report_title, "table")
             if report_table:
                 st.download_button(
-                    label="📄 Download Tabel (PNG)",
+                    label="Download Tabel (PNG)",
+                    icon=":material/table_chart:",
                     data=report_table,
                     file_name=f"{filename_base}_tabel.png",
                     mime="image/png",
@@ -1636,7 +1738,8 @@ def _render_individual_report_ui(df_target, pilih_user):
             report_charts = render_report_page(report_df, report_title, "charts")
             if report_charts:
                 st.download_button(
-                    label="📊 Download Grafik (PNG)",
+                    label="Download Grafik (PNG)",
+                    icon=":material/show_chart:",
                     data=report_charts,
                     file_name=f"{filename_base}_grafik.png",
                     mime="image/png",
@@ -1706,7 +1809,7 @@ def user_personal_dashboard(user: dict):
 
 
 def admin_maintenance():
-    st.header("🛠️ Reset Data")
+    st.header(":material/restart_alt: Reset Data")
     st.warning(
         "**PERINGATAN:** Menu ini akan menghapus data secara permanen. "
         "Pastikan Anda benar-benar ingin melakukannya."
