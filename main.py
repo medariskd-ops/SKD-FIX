@@ -714,7 +714,7 @@ def render_report_page(df, title, content_type="table"):
 
     fig.text(0.5, 0.955, title, ha="center", va="top", fontsize=15, fontweight="bold", color=COLOR_TOTAL)
     fig.text(0.5, 0.925, halaman, ha="center", va="top", fontsize=10.5, color="#64748B")
-    fig.add_artist(plt.Line2D([0.08, 0.92], [0.905, 0.905], color="#A7F3D0", linewidth=1.5))
+    fig.add_artist(plt.Line2D([0.08, 0.92], [0.905, 0.905], color="#E2E8F0", linewidth=1.5))
     fig.text(0.08, 0.035, f"Dicetak {_tanggal_cetak()}", ha="left", fontsize=8.5, color="#94A3B8")
     fig.text(0.92, 0.035, "SKD App", ha="right", fontsize=8.5, color="#94A3B8", fontweight="bold")
 
@@ -744,16 +744,24 @@ def render_report_page(df, title, content_type="table"):
         )
         the_table.auto_set_font_size(False)
         the_table.set_fontsize(font_size)
+        # Warna header kolom TWK/TIU/TKP sama persis dengan warna di grafik
+        header_colors = {"TWK": "twk", "TIU": "tiu", "TKP": "tkp"}
         for (row, col), cell in the_table.get_celld().items():
             cell.set_edgecolor("#E2E8F0")
             cell.set_linewidth(0.8)
+            col_name = table_data.columns[col]
             if row == 0:
-                cell.set_facecolor("#065F46")
-                cell.set_text_props(weight="bold", color="white")
+                key = header_colors.get(col_name)
+                if key:
+                    cell.set_facecolor(SKD_COLORS[key])
+                    cell.set_text_props(weight="bold", color=SKD_TEXT_ON[key])
+                else:
+                    cell.set_facecolor("#E2E8F0")
+                    cell.set_text_props(weight="bold", color=COLOR_TOTAL)
             else:
-                cell.set_facecolor("#FFFFFF" if row % 2 else "#F0FDF4")
+                cell.set_facecolor("#FFFFFF" if row % 2 else "#F8FAFC")
                 cell.set_text_props(color=COLOR_TOTAL)
-                if table_data.columns[col] == "Total":
+                if col_name == "Total":
                     cell.set_text_props(weight="bold", color=COLOR_TOTAL)
 
     elif multi_user:
