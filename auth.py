@@ -30,102 +30,113 @@ def login():
     if st.session_state.get("user") is not None:
         return True
 
-    tab1, tab2 = st.tabs(["Login", "Daftar Akun"])
-
-    with tab1:
-        st.subheader("Login")
-        username = st.text_input("Username", key="login_user")
-        password = st.text_input("Password", type="password", key="login_pass")
+    _, mid, _ = st.columns([1, 1.4, 1])
+    with mid:
         st.markdown(
-            "<small>Jika Anda lupa password, silakan hubungi admin untuk reset atau bantuan lebih lanjut.</small>",
-            unsafe_allow_html=True
+            """
+            <div class="login-brand">
+                <div class="icon">🎓</div>
+                <h2>SKD App</h2>
+                <p>Pantau progres tryout SKD kamu</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
-        if st.button("Login"):
-            if not username or not password:
-                st.error("Username dan password wajib diisi")
-                return False
+        tab1, tab2 = st.tabs(["Login", "Daftar Akun"])
 
-            user = _get_user_by_username(username)
-            if not user:
-                st.error("User tidak ditemukan")
-                return False
+        with tab1:
+            username = st.text_input("Username", key="login_user")
+            password = st.text_input("Password", type="password", key="login_pass")
+            st.markdown(
+                "<small>Jika Anda lupa password, silakan hubungi admin untuk reset atau bantuan lebih lanjut.</small>",
+                unsafe_allow_html=True
+            )
 
-            stored_password = user.get("password")
-            ok = False
+            if st.button("Login", type="primary", use_container_width=True):
+                if not username or not password:
+                    st.error("Username dan password wajib diisi")
+                    return False
 
-            if stored_password:
-                if _is_bcrypt_hash(stored_password):
-                    try:
-                        ok = bcrypt.checkpw(
-                            password.encode("utf-8"), stored_password.encode("utf-8")
-                        )
-                    except ValueError:
-                        ok = False
-                else:
-                    if password == stored_password:
-                        ok = True
+                user = _get_user_by_username(username)
+                if not user:
+                    st.error("User tidak ditemukan")
+                    return False
+
+                stored_password = user.get("password")
+                ok = False
+
+                if stored_password:
+                    if _is_bcrypt_hash(stored_password):
                         try:
-                            new_hash = bcrypt.hashpw(
-                                password.encode("utf-8"), bcrypt.gensalt()
-                            ).decode("utf-8")
-                            supabase.table("users").update(
-                                {"password": new_hash}
-                            ).eq("id", user["id"]).execute()
-                        except Exception:
-                            pass
+                            ok = bcrypt.checkpw(
+                                password.encode("utf-8"), stored_password.encode("utf-8")
+                            )
+                        except ValueError:
+                            ok = False
+                    else:
+                        if password == stored_password:
+                            ok = True
+                            try:
+                                new_hash = bcrypt.hashpw(
+                                    password.encode("utf-8"), bcrypt.gensalt()
+                                ).decode("utf-8")
+                                supabase.table("users").update(
+                                    {"password": new_hash}
+                                ).eq("id", user["id"]).execute()
+                            except Exception:
+                                pass
 
-            if not ok:
-                st.error("Username atau password salah")
-                return False
+                if not ok:
+                    st.error("Username atau password salah")
+                    return False
 
-            st.session_state.user = user
-            st.session_state.role = user.get("role", "user")
-            # Reset filter angkatan agar admin selalu mulai dari angkatan terbaru
-            st.session_state.pop("filter_tahun_aktif", None)
-            st.session_state.toast_msg = "Login berhasil"
-            st.rerun()
+                st.session_state.user = user
+                st.session_state.role = user.get("role", "user")
+                # Reset filter angkatan agar admin selalu mulai dari angkatan terbaru
+                st.session_state.pop("filter_tahun_aktif", None)
+                st.session_state.toast_msg = "Login berhasil"
+                st.rerun()
 
-    with tab2:
-        st.subheader("Daftar Akun Baru")
-        new_username = st.text_input("Username", key="reg_user")
-        new_password = st.text_input("Password", type="password", key="reg_pass")
-        confirm_password = st.text_input("Konfirmasi Password", type="password", key="reg_conf")
+        with tab2:
+            new_username = st.text_input("Username", key="reg_user")
+            new_password = st.text_input("Password", type="password", key="reg_pass")
+            confirm_password = st.text_input("Konfirmasi Password", type="password", key="reg_conf")
         
-        # Dropdown Angkatan (Tahun Sekarang & Tahun Sekarang + 1)
-        year_now = datetime.date.today().year
-        new_angkatan = st.selectbox("Angkatan", [year_now, year_now + 1], index=0)
+            # Dropdown Angkatan (Tahun Sekarang & Tahun Sekarang + 1)
+            year_now = datetime.date.today().year
+            new_angkatan = st.selectbox("Angkatan", [year_now, year_now + 1], index=0)
 
-        if st.button("Daftar"):
-            if not new_username or not new_password:
-                st.error("Nama dan password wajib diisi")
-            elif new_password != confirm_password:
-                st.error("Konfirmasi password tidak cocok")
-            else:
-                existing = _get_user_by_username(new_username)
-                if existing:
-                    st.error("Nama sudah digunakan, silakan pilih nama lain")
+            if st.button("Daftar", type="primary", use_container_width=True):
+                if not new_username or not new_password:
+                    st.error("Nama dan password wajib diisi")
+                elif new_password != confirm_password:
+                    st.error("Konfirmasi password tidak cocok")
                 else:
-                    password_hash = bcrypt.hashpw(
-                        new_password.encode("utf-8"), bcrypt.gensalt()
-                    ).decode("utf-8")
+                    existing = _get_user_by_username(new_username)
+                    if existing:
+                        st.error("Nama sudah digunakan, silakan pilih nama lain")
+                    else:
+                        password_hash = bcrypt.hashpw(
+                            new_password.encode("utf-8"), bcrypt.gensalt()
+                        ).decode("utf-8")
                     
-                    try:
-                        supabase.table("users").insert({
-                            "nama": new_username,
-                            "password": password_hash,
-                            "role": "user", # Selalu 'user' untuk registrasi mandiri
-                            "tahun_masuk": new_angkatan,
-                            "tahun_aktif": new_angkatan
-                        }).execute()
-                        st.session_state.toast_msg = "Pendaftaran berhasil! Silakan login."
-                        st.rerun()
-                    except Exception as e:
-                        error_msg = str(e)
-                        if "23502" in error_msg or "violates not-null constraint" in error_msg:
-                            st.error("Gagal mendaftar: Konfigurasi Database (ID Default) belum diset di Supabase. Silakan hubungi admin.")
-                        else:
-                            st.error(f"Terjadi kesalahan: {e}")
+                        try:
+                            supabase.table("users").insert({
+                                "nama": new_username,
+                                "password": password_hash,
+                                "role": "user", # Selalu 'user' untuk registrasi mandiri
+                                "tahun_masuk": new_angkatan,
+                                "tahun_aktif": new_angkatan
+                            }).execute()
+                            st.session_state.toast_msg = "Pendaftaran berhasil! Silakan login."
+                            st.rerun()
+                        except Exception as e:
+                            error_msg = str(e)
+                            if "23502" in error_msg or "violates not-null constraint" in error_msg:
+                                st.error("Gagal mendaftar: Konfigurasi Database (ID Default) belum diset di Supabase. Silakan hubungi admin.")
+                            else:
+                                st.error(f"Terjadi kesalahan: {e}")
 
     return False
 
@@ -150,12 +161,12 @@ def logout():
         if not st.session_state.confirm_logout:
             st.button(
                 "Logout", 
-                key="btn_logout_side", 
+                key="danger_logout_side", 
                 use_container_width=True, 
                 on_click=trigger_confirm
             )
         else:
-            st.warning("Yakin ingin keluar?")
+            st.markdown("**Yakin ingin keluar?**")
             col1, col2 = st.columns(2)
-            col1.button("Iya", key="btn_logout_iya", use_container_width=True, on_click=do_logout, type="primary")
-            col2.button("Tidak", key="btn_logout_tidak", use_container_width=True, on_click=cancel_confirm)
+            col1.button("Batal", key="btn_logout_batal", use_container_width=True, on_click=cancel_confirm)
+            col2.button("Keluar", key="dangerfill_logout_keluar", use_container_width=True, on_click=do_logout)
