@@ -30,9 +30,14 @@ SCORE_COL_LABELS = {
 }
 
 # Warna grafik: tiap komponen beda hue supaya mudah dibedakan
-COLOR_TWK = "#2563EB"    # Biru
-COLOR_TIU = "#D97706"    # Oranye
-COLOR_TKP = "#059669"    # Emerald
+COLOR_TWK = "#60A5FA"    # Biru
+COLOR_TIU = "#F59E0B"    # Kuning
+COLOR_TKP = "#34D399"    # Hijau mint
+# Isi batang (lebih lembut) dan warna angka di atasnya
+SKD_COLORS = {"twk": "#93C5FD", "tiu": "#FCD34D", "tkp": "#6EE7B7"}
+SKD_TEXT_ON = {"twk": "#1E3A8A", "tiu": "#78350F", "tkp": "#064E3B"}
+# Garis grafik (sedikit lebih tegas supaya tetap kelihatan)
+SKD_LINE_COLORS = {"twk": COLOR_TWK, "tiu": COLOR_TIU, "tkp": "#10B981"}
 COLOR_TOTAL = "#1E293B"  # Slate gelap
 def show_toast(message: str, type="success"):
     """Notifikasi toast bawaan Streamlit (kanan atas, bisa ditutup)."""
@@ -574,45 +579,107 @@ def fetch_latest_score(user_id: str):
     return scores[0] if scores else None
 
 
-def render_skd_chart(df, title, is_component=True):
-    """
-    Render grafik SKD dengan gaya seragam dan responsif (Modern Theme).
-    """
-    if df.empty:
-        st.warning(f"Data kosong untuk {title}")
-        return None
+# ======================
+# GRAFIK (satu gaya untuk app dan hasil cetak)
+# ======================
+def is_multi_user(df):
+    """True kalau data berisi lebih dari satu user (grafik perbandingan antar user)."""
+    return "nama" in df.columns and df["nama"].nunique() > 1
 
-    # Hitung figsize dinamis berdasarkan jumlah data
-    num_data = len(df)
-    dynamic_width = max(8, num_data * 0.7)
-    
-    fig, ax = plt.subplots(figsize=(dynamic_width, 5), dpi=100)
-    
-    # Palette Modern Emerald & Dark Slate
-    color_twk, color_tiu, color_tkp, color_total = COLOR_TWK, COLOR_TIU, COLOR_TKP, COLOR_TOTAL
-    
-    if is_component:
-        ax.plot(df["label"], df["twk"], marker="o", label="TWK", color=color_twk, linewidth=3)
-        ax.plot(df["label"], df["tiu"], marker="o", label="TIU", color=color_tiu, linewidth=3)
-        ax.plot(df["label"], df["tkp"], marker="o", label="TKP", color=color_tkp, linewidth=3)
-        ax.set_ylabel("Nilai", color=color_total, fontweight='bold')
-    else:
-        ax.plot(df["label"], df["total"], marker="o", color=color_total, linewidth=3, label="Total")
-        ax.set_ylabel("Total Nilai", color=color_total, fontweight='bold')
 
-    ax.set_title(title, fontsize=14, fontweight='bold', pad=28, color=color_total, loc='left')
-    ax.legend(loc='lower left', bbox_to_anchor=(0, 1.0), ncol=3, frameon=False, fontsize=10)
-    ax.grid(True, axis='y', color='#E2E8F0', linewidth=1)
+def _style_axes(ax):
+    ax.grid(True, axis="y", color="#E2E8F0", linewidth=1)
     ax.set_axisbelow(True)
     for side in ("top", "right"):
         ax.spines[side].set_visible(False)
     for side in ("left", "bottom"):
         ax.spines[side].set_color("#CBD5E1")
+    ax.tick_params(colors="#475569")
 
-    ax.tick_params(axis='x', rotation=45, labelsize=9, colors="#475569")
-    ax.tick_params(axis='y', labelsize=9, colors="#475569")
+
+def draw_user_bars(ax, df, fs=9):
+    """Batang mendatar bertumpuk per user: TWK + TIU + TKP, angka di dalam, total di ujung."""
+    labels = df["label"].astype(str).tolist()
+    n = len(labels)
+    y = list(range(n))
+    left = [0] * n
+    max_total = max(df["total"]) or 1
+    for col, name in (("twk", "TWK"), ("tiu", "TIU"), ("tkp", "TKP")):
+        vals = [int(v) for v in df[col].tolist()]
+        ax.barh(y, vals, left=left, height=0.62, color=SKD_COLORS[col], label=name,
+                edgecolor="white", linewidth=1.2)
+        for yi, l, v in zip(y, left, vals):
+            if v >= max_total * 0.06:
+                ax.text(l + v / 2, yi, str(v), ha="center", va="center", fontsize=fs - 0.5, color=SKD_TEXT_ON[col])
+        left = [l + v for l, v in zip(left, vals)]
+    for yi, tot in zip(y, df["total"]):
+        ax.text(tot + max_total * 0.015, yi, str(int(tot)), va="center", fontsize=fs + 0.5,
+                color=COLOR_TOTAL, fontweight="bold")
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels, fontsize=fs + 0.5, color="#334155")
+    ax.set_xlim(0, max_total * 1.12)
+    ax.set_ylim(n - 0.5, -0.5)
+    for side in ("top", "right", "bottom"):
+        ax.spines[side].set_visible(False)
+    ax.spines["left"].set_color("#E2E8F0")
+    ax.tick_params(axis="y", length=0, pad=8)
+    ax.set_xticks([])
+    ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=3, frameon=False, fontsize=fs + 0.5,
+              handlelength=1.2, columnspacing=1.5)
+
+
+def draw_line_chart(ax, df, kind="comp", fs=9):
+    """Grafik garis perkembangan satu user dari percobaan ke percobaan."""
+    labels = df["label"].astype(str).tolist()
+    n = len(labels)
+    x = list(range(n))
+    ms = 6 if n <= 15 else 4
+    if kind == "comp":
+        for col, name in (("twk", "TWK"), ("tiu", "TIU"), ("tkp", "TKP")):
+            ax.plot(x, df[col], marker="o", label=name, color=SKD_LINE_COLORS[col], linewidth=2.4, markersize=ms)
+        ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=3, frameon=False, fontsize=fs + 0.5)
+        ax.set_ylabel("Nilai", color="#475569", fontsize=fs + 0.5)
+    else:
+        ax.plot(x, df["total"], marker="o", color=COLOR_TOTAL, linewidth=2.6, markersize=ms)
+        for i, v in zip(x, df["total"]):
+            ax.annotate(str(int(v)), (i, v), textcoords="offset points", xytext=(0, 8),
+                        ha="center", fontsize=fs - 0.5, color="#475569")
+        lo, hi = min(df["total"]), max(df["total"])
+        pad = max(10, (hi - lo) * 0.2)
+        ax.set_ylim(lo - pad, hi + pad)
+        ax.set_ylabel("Total", color="#475569", fontsize=fs + 0.5)
+    _style_axes(ax)
+    rot = 0 if (n <= 6 and max(len(l) for l in labels) <= 10) else 45
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=rot, ha="right" if rot else "center", fontsize=fs)
+    ax.tick_params(axis="y", labelsize=fs)
+
+
+def render_skd_chart(df, title, is_component=True):
+    """Grafik garis di dalam app (satu user)."""
+    if df.empty:
+        st.warning(f"Data kosong untuk {title}")
+        return None
+    if "skd_ke" in df.columns:
+        df = df.sort_values("skd_ke")
+    fig, ax = plt.subplots(figsize=(max(8, len(df) * 0.7), 4.6), dpi=100)
+    draw_line_chart(ax, df, "comp" if is_component else "total", fs=9.5)
+    ax.set_title(title, fontsize=13, fontweight="bold", pad=28 if is_component else 12, color=COLOR_TOTAL, loc="left")
     fig.tight_layout()
-    
+    return fig
+
+
+def render_user_bars_chart(df, title):
+    """Grafik perbandingan antar user di dalam app."""
+    if df.empty:
+        st.warning(f"Data kosong untuk {title}")
+        return None
+    df = df.sort_values("total", ascending=False)
+    n = len(df)
+    fig, ax = plt.subplots(figsize=(9, max(2.8, 0.5 * n + 1.3)), dpi=100)
+    draw_user_bars(ax, df, fs=9.5)
+    ax.set_title(title, fontsize=13, fontweight="bold", pad=30, color=COLOR_TOTAL, loc="left")
+    fig.tight_layout()
     return fig
 
 
@@ -626,29 +693,18 @@ def _tanggal_cetak():
     return f"{now.day} {BULAN_ID[now.month - 1]} {now.year}, {now:%H:%M} WIB"
 
 
-def _style_axes(ax):
-    ax.grid(True, axis="y", color="#E2E8F0", linewidth=1)
-    ax.set_axisbelow(True)
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#CBD5E1")
-    ax.tick_params(colors="#475569")
-
-
 @st.cache_data(show_spinner=False)
 def render_report_page(df, title, content_type="table"):
     """
     Render satu halaman laporan A4 (8.27 x 11.69 inch) siap cetak, resolusi 200 dpi.
-    Laporan individu: grafik garis perkembangan. Laporan semua user: grafik batang perbandingan.
+    Gaya grafiknya sama dengan grafik di dalam app.
     """
     if df.empty:
         return None
 
     df = df.copy()
-    multi_user = "nama" in df.columns and df["nama"].nunique() > 1
+    multi_user = is_multi_user(df)
     if multi_user:
-        # Urutan sama di tabel dan grafik: nilai total tertinggi di atas/kiri
         df = df.sort_values("total", ascending=False)
     elif "skd_ke" in df.columns:
         df = df.sort_values("skd_ke")
@@ -656,7 +712,6 @@ def render_report_page(df, title, content_type="table"):
     fig = plt.figure(figsize=(8.27, 11.69), dpi=200)
     halaman = "Halaman 1: Tabel Nilai" if content_type == "table" else "Halaman 2: Grafik"
 
-    # Judul & keterangan (margin aman cetak sekitar 1.5 cm)
     fig.text(0.5, 0.955, title, ha="center", va="top", fontsize=15, fontweight="bold", color=COLOR_TOTAL)
     fig.text(0.5, 0.925, halaman, ha="center", va="top", fontsize=10.5, color="#64748B")
     fig.add_artist(plt.Line2D([0.08, 0.92], [0.905, 0.905], color="#A7F3D0", linewidth=1.5))
@@ -700,79 +755,25 @@ def render_report_page(df, title, content_type="table"):
                 cell.set_text_props(color=COLOR_TOTAL)
                 if table_data.columns[col] == "Total":
                     cell.set_text_props(weight="bold", color=COLOR_TOTAL)
-                if table_data.columns[col] == "Nama":
-                    cell.set_text_props(ha="left")
-                    cell._loc = "left"
-                    cell.PAD = 0.04
 
-    elif multi_user and len(df) > 10:
-        # Banyak user: satu grafik batang mendatar bertumpuk (TWK + TIU + TKP = Total)
-        labels = df["label"].astype(str).tolist()
-        n = len(labels)
-        ax = fig.add_axes([0.24, 0.11, 0.66, 0.74])
-        y = list(range(n))
-        left = [0] * n
-        for col, name, color in (("twk", "TWK", COLOR_TWK), ("tiu", "TIU", COLOR_TIU), ("tkp", "TKP", COLOR_TKP)):
-            vals = df[col].tolist()
-            ax.barh(y, vals, left=left, height=0.68, color=color, label=name)
-            left = [l + v for l, v in zip(left, vals)]
-        fs = 8.5 if n <= 25 else 7
-        for yi, tot in zip(y, df["total"]):
-            ax.text(tot + max(df["total"]) * 0.01, yi, str(int(tot)), va="center", fontsize=fs, color=COLOR_TOTAL, fontweight="bold")
-        ax.set_yticks(y)
-        ax.set_yticklabels(labels, fontsize=fs)
-        ax.invert_yaxis()
-        ax.set_xlim(0, max(df["total"]) * 1.1)
-        _style_axes(ax)
-        ax.grid(True, axis="x", color="#E2E8F0", linewidth=1)
-        ax.grid(False, axis="y")
-        ax.set_xlabel("Nilai (TWK + TIU + TKP = Total)", color="#475569", fontsize=9.5)
-        ax.set_title("Nilai per User", fontsize=12.5, fontweight="bold", color=COLOR_TOTAL, loc="left", pad=26)
-        ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=3, frameon=False, fontsize=9.5)
+    elif multi_user:
+        n = len(df)
+        fs = 9 if n <= 15 else (8 if n <= 25 else 7)
+        ax_h = min(0.74, 0.055 * n + 0.06)
+        ax = fig.add_axes([0.22, 0.85 - ax_h, 0.68, ax_h])
+        draw_user_bars(ax, df, fs=fs)
+        ax.set_title("Nilai per User", fontsize=12.5, fontweight="bold", color=COLOR_TOTAL, loc="left", pad=30)
+        fig.text(0.22, 0.85 - ax_h - 0.025, "Angka tebal di ujung batang = total nilai. Urut dari total tertinggi.",
+                 fontsize=8.5, color="#94A3B8")
 
     else:
         ax_comp = fig.add_axes([0.11, 0.53, 0.80, 0.32])
         ax_total = fig.add_axes([0.11, 0.12, 0.80, 0.32])
-        labels = df["label"].astype(str).tolist()
-        n = len(labels)
-        x = list(range(n))
-        tick_size = 9 if n <= 8 else 7.5
-        rot = 0 if (n <= 6 and max(len(l) for l in labels) <= 10) else 45
-
-        if multi_user:
-            w = 0.26
-            ax_comp.bar([i - w for i in x], df["twk"], width=w, label="TWK", color=COLOR_TWK)
-            ax_comp.bar(x, df["tiu"], width=w, label="TIU", color=COLOR_TIU)
-            ax_comp.bar([i + w for i in x], df["tkp"], width=w, label="TKP", color=COLOR_TKP)
-            bars = ax_total.bar(x, df["total"], width=0.55, color="#059669")
-            ax_total.bar_label(bars, labels=[str(int(v)) for v in df["total"]], padding=3, fontsize=9, color=COLOR_TOTAL)
-            ax_total.set_ylim(0, max(df["total"]) * 1.15)
-            ax_comp.set_ylim(0, max(df[["twk", "tiu", "tkp"]].max()) * 1.15)
-            ax_comp.set_title("Komponen Nilai per User", fontsize=12.5, fontweight="bold", color=COLOR_TOTAL, loc="left", pad=26)
-            ax_total.set_title("Total Nilai per User", fontsize=12.5, fontweight="bold", color=COLOR_TOTAL, loc="left", pad=12)
-        else:
-            ms = 6 if n <= 15 else 4
-            ax_comp.plot(x, df["twk"], marker="o", label="TWK", color=COLOR_TWK, linewidth=2.2, markersize=ms)
-            ax_comp.plot(x, df["tiu"], marker="o", label="TIU", color=COLOR_TIU, linewidth=2.2, markersize=ms)
-            ax_comp.plot(x, df["tkp"], marker="o", label="TKP", color=COLOR_TKP, linewidth=2.2, markersize=ms)
-            ax_total.plot(x, df["total"], marker="o", color=COLOR_TOTAL, linewidth=2.5, markersize=ms)
-            for i, v in zip(x, df["total"]):
-                ax_total.annotate(str(int(v)), (i, v), textcoords="offset points", xytext=(0, 8),
-                                  ha="center", fontsize=8.5, color="#475569")
-            lo, hi = min(df["total"]), max(df["total"])
-            pad = max(10, (hi - lo) * 0.2)
-            ax_total.set_ylim(lo - pad, hi + pad)
-            ax_comp.set_title("Perkembangan Komponen Nilai", fontsize=12.5, fontweight="bold", color=COLOR_TOTAL, loc="left", pad=26)
-            ax_total.set_title("Perkembangan Total Nilai", fontsize=12.5, fontweight="bold", color=COLOR_TOTAL, loc="left", pad=12)
-
-        ax_comp.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=3, frameon=False, fontsize=9.5)
-        for ax in (ax_comp, ax_total):
-            _style_axes(ax)
-            ax.set_xticks(x)
-            ax.set_xticklabels(labels, rotation=rot, ha="right" if rot else "center", fontsize=tick_size)
-            ax.tick_params(axis="y", labelsize=9)
-        ax_comp.set_ylabel("Nilai", color="#475569", fontsize=10)
-        ax_total.set_ylabel("Total", color="#475569", fontsize=10)
+        fs = 9 if len(df) <= 8 else 7.5
+        draw_line_chart(ax_comp, df, "comp", fs=fs)
+        draw_line_chart(ax_total, df, "total", fs=fs)
+        ax_comp.set_title("Perkembangan Komponen Nilai", fontsize=12.5, fontweight="bold", color=COLOR_TOTAL, loc="left", pad=26)
+        ax_total.set_title("Perkembangan Total Nilai", fontsize=12.5, fontweight="bold", color=COLOR_TOTAL, loc="left", pad=12)
 
     buf = io.BytesIO()
     fig.savefig(buf, format="png", dpi=200, bbox_inches=None, facecolor="white")
@@ -1550,17 +1551,25 @@ def admin_grafik_nilai():
         cols_to_show = ["nama", "skd_ke", "twk", "tiu", "tkp", "total"]
         st.dataframe(filtered[cols_to_show].rename(columns=SCORE_COL_LABELS), use_container_width=True, hide_index=True)
 
-    with st.container(border=True):
-        st.subheader("Grafik Komponen Nilai")
-        fig1 = render_skd_chart(filtered, f"Komponen Nilai SKD ({pilih_skd})", is_component=True)
-        if fig1:
-            st.pyplot(fig1)
+    if is_multi_user(filtered):
+        # Banyak user: satu grafik batang perbandingan (sama dengan hasil cetak)
+        with st.container(border=True):
+            st.subheader("Grafik Nilai per User")
+            fig = render_user_bars_chart(filtered, f"Nilai per User ({pilih_skd})")
+            if fig:
+                st.pyplot(fig)
+    else:
+        with st.container(border=True):
+            st.subheader("Grafik Komponen Nilai")
+            fig1 = render_skd_chart(filtered, f"Komponen Nilai SKD ({pilih_skd})", is_component=True)
+            if fig1:
+                st.pyplot(fig1)
 
-    with st.container(border=True):
-        st.subheader("Grafik Total Nilai")
-        fig2 = render_skd_chart(filtered, f"Total Nilai SKD ({pilih_skd})", is_component=False)
-        if fig2:
-            st.pyplot(fig2)
+        with st.container(border=True):
+            st.subheader("Grafik Total Nilai")
+            fig2 = render_skd_chart(filtered, f"Total Nilai SKD ({pilih_skd})", is_component=False)
+            if fig2:
+                st.pyplot(fig2)
 
 
 def render_laporan_page(user, role):
