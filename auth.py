@@ -58,34 +58,35 @@ def login():
                     st.error("Username dan password wajib diisi")
                     return False
 
-                user = _get_user_by_username(username)
-                if not user:
-                    st.error("User tidak ditemukan")
-                    return False
+                with st.spinner("Sedang masuk..."):
+                    user = _get_user_by_username(username)
+                    if not user:
+                        st.error("User tidak ditemukan")
+                        return False
 
-                stored_password = user.get("password")
-                ok = False
+                    stored_password = user.get("password")
+                    ok = False
 
-                if stored_password:
-                    if _is_bcrypt_hash(stored_password):
-                        try:
-                            ok = bcrypt.checkpw(
-                                password.encode("utf-8"), stored_password.encode("utf-8")
-                            )
-                        except ValueError:
-                            ok = False
-                    else:
-                        if password == stored_password:
-                            ok = True
+                    if stored_password:
+                        if _is_bcrypt_hash(stored_password):
                             try:
-                                new_hash = bcrypt.hashpw(
-                                    password.encode("utf-8"), bcrypt.gensalt()
-                                ).decode("utf-8")
-                                supabase.table("users").update(
-                                    {"password": new_hash}
-                                ).eq("id", user["id"]).execute()
-                            except Exception:
-                                pass
+                                ok = bcrypt.checkpw(
+                                    password.encode("utf-8"), stored_password.encode("utf-8")
+                                )
+                            except ValueError:
+                                ok = False
+                        else:
+                            if password == stored_password:
+                                ok = True
+                                try:
+                                    new_hash = bcrypt.hashpw(
+                                        password.encode("utf-8"), bcrypt.gensalt()
+                                    ).decode("utf-8")
+                                    supabase.table("users").update(
+                                        {"password": new_hash}
+                                    ).eq("id", user["id"]).execute()
+                                except Exception:
+                                    pass
 
                 if not ok:
                     st.error("Username atau password salah")
@@ -96,7 +97,6 @@ def login():
                 # Reset filter angkatan agar admin selalu mulai dari angkatan terbaru
                 st.session_state.pop("filter_tahun_aktif", None)
                 st.session_state._just_logged_in = True
-                st.session_state.toast_msg = "Login berhasil"
                 st.rerun()
 
         with tab2:
