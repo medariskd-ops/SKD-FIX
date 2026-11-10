@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import bcrypt
 import io
 import datetime
+import html
 
 from auth import login, logout
 from database import supabase
@@ -33,18 +34,9 @@ COLOR_TIU = "#D97706"    # Oranye
 COLOR_TKP = "#059669"    # Emerald
 COLOR_TOTAL = "#1E293B"  # Slate gelap
 def show_toast(message: str, type="success"):
-    """Menampilkan notifikasi toast custom dengan gaya Prompt 5."""
-    icon = '✅' if type == 'success' else '❌'
-    color = "#059669" if type == "success" else "#E11D48"
-    st.markdown(
-        f"""
-        <div class="custom-toast" style="border-left: 6px solid {color};">
-            <span style="font-size: 20px;">{icon}</span>
-            <span>{message}</span>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    """Notifikasi toast bawaan Streamlit (kanan atas, bisa ditutup)."""
+    icon = ":material/check_circle:" if type == "success" else ":material/error:"
+    st.toast(message, icon=icon)
 
 
 def inject_global_css():
@@ -121,11 +113,11 @@ def inject_global_css():
             background-color: rgba(255, 255, 255, 0.6) !important;
         }
         [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
-            background-color: #FFFFFF !important;
-            border-color: #E2E8F0 !important;
+            background-color: #D1FAE5 !important;
+            border-color: #A7F3D0 !important;
         }
         [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) p {
-            color: #1E293B !important;
+            color: #065F46 !important;
             font-weight: 600 !important;
         }
 
@@ -171,6 +163,46 @@ def inject_global_css():
             font-weight: 600;
             margin: -8px 0 16px 0;
         }
+
+        /* Banner sapaan Beranda */
+        .welcome-banner {
+            background: #059669;
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin: 0 0 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .welcome-title { color: #FFFFFF; font-size: 26px; font-weight: 700; line-height: 1.3; }
+        .welcome-sub { color: #D1FAE5; font-size: 15px; margin-top: 2px; }
+        .welcome-icon {
+            font-family: "Material Symbols Rounded";
+            font-size: 48px;
+            color: #A7F3D0;
+            line-height: 1;
+            user-select: none;
+        }
+
+        /* Kartu angka */
+        .metric-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+        }
+        .metric-icon {
+            font-family: "Material Symbols Rounded";
+            font-size: 22px;
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: inline-flex; align-items: center; justify-content: center;
+            margin-bottom: 10px;
+            user-select: none;
+        }
+        .metric-label { color: #64748B; font-size: 14px; }
+        .metric-value { color: #1E293B; font-size: 32px; font-weight: 600; line-height: 1.2; }
 
         /* Judul login */
         .login-brand { text-align: center; margin: 3rem 0 1rem 0; }
@@ -248,28 +280,20 @@ def inject_global_css():
             border-color: #BE123C !important;
         }
 
-        /* Notifikasi */
-        @keyframes slideInL {
-            0% { transform: translateX(-150%); opacity: 0; }
-            10% { transform: translateX(0); opacity: 1; }
-            90% { transform: translateX(0); opacity: 1; }
-            100% { transform: translateX(150%); opacity: 0; }
+        /* Notifikasi (st.toast bawaan) */
+        [data-testid="stToast"] {
+            background: #FFFFFF !important;
+            border: 1px solid #E2E8F0 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 12px 24px -8px rgba(15,23,42,0.15) !important;
         }
-        .custom-toast {
-            position: fixed;
-            top: 25px; left: 25px;
-            background: white;
-            padding: 14px 24px;
-            border-radius: 12px;
-            border: 1px solid #E2E8F0;
-            z-index: 9999999;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 12px 24px -8px rgba(15,23,42,0.15);
-            animation: slideInL 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-            font-weight: 600;
-            color: #1E293B;
+        [data-testid="stToast"] p {
+            color: #1E293B !important;
+            font-weight: 600 !important;
+        }
+        [data-testid="stToast"] [data-testid="stIconMaterial"],
+        [data-testid="stToastDynamicIcon"] {
+            color: #059669 !important;
         }
         </style>
         """,
@@ -301,8 +325,8 @@ def get_latest_angkatan(users):
     return max(years) if years else "Semua"
 
 
-def render_angkatan_badge():
-    """Badge kecil di bawah judul halaman admin: angkatan aktif dan jumlah user-nya."""
+def get_angkatan_info():
+    """Label angkatan yang sedang difilter admin dan jumlah user di dalamnya."""
     filter_tahun = st.session_state.get("filter_tahun_aktif")
     all_users = fetch_all_users()
     if filter_tahun is None:
@@ -314,8 +338,52 @@ def render_angkatan_badge():
         users = [u for u in all_users if u.get("tahun_aktif") == filter_tahun]
         label = f"Angkatan {filter_tahun}"
     jumlah = len([u for u in users if u.get("role") == "user"])
+    return label, jumlah
+
+
+def render_angkatan_badge():
+    """Badge kecil di bawah judul halaman admin: angkatan aktif dan jumlah user-nya."""
+    label, jumlah = get_angkatan_info()
     st.markdown(
         f'<span class="angkatan-badge">{label} · {jumlah} user</span>',
+        unsafe_allow_html=True,
+    )
+
+
+def render_welcome_banner(nama, subtitle):
+    """Banner sapaan hijau di halaman Beranda."""
+    st.markdown(
+        f"""
+        <div class="welcome-banner">
+            <div>
+                <div class="welcome-title">Halo, {html.escape(str(nama))} 👋</div>
+                <div class="welcome-sub">{html.escape(str(subtitle))}</div>
+            </div>
+            <span class="welcome-icon">school</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+METRIC_TONES = {
+    "green": ("#D1FAE5", "#047857"),
+    "blue": ("#DBEAFE", "#1D4ED8"),
+    "amber": ("#FEF3C7", "#B45309"),
+}
+
+
+def metric_card(label, value, icon, tone="green"):
+    """Kartu angka dengan ikon Material berwarna."""
+    bg, fg = METRIC_TONES.get(tone, METRIC_TONES["green"])
+    st.markdown(
+        f"""
+        <div class="metric-card">
+            <span class="metric-icon" style="background:{bg};color:{fg};">{icon}</span>
+            <div class="metric-label">{html.escape(str(label))}</div>
+            <div class="metric-value">{html.escape(str(value))}</div>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
 
@@ -1099,8 +1167,11 @@ def prepare_admin_data():
 
 
 def admin_dashboard_summary():
-    st.header("📈 Beranda")
-    render_angkatan_badge()
+    label_angkatan, jumlah_user = get_angkatan_info()
+    render_welcome_banner(
+        (st.session_state.get("user") or {}).get("nama", "Admin"),
+        f"{label_angkatan} · {jumlah_user} user aktif",
+    )
     data = prepare_admin_data()
     if not data:
         st.info("Belum ada data user.")
@@ -1124,14 +1195,11 @@ def admin_dashboard_summary():
     # --- Bagian Metrics Atas ---
     col1, col2, col3 = st.columns(3)
     with col1:
-        with st.container(border=True):
-            st.metric("Total User", total_user)
+        metric_card("Total User", total_user, "group", "green")
     with col2:
-        with st.container(border=True):
-            st.metric("Total Admin", total_admin)
+        metric_card("Total Admin", total_admin, "admin_panel_settings", "blue")
     with col3:
-        with st.container(border=True):
-            st.metric("SKD Terbanyak", total_skd_max)
+        metric_card("SKD Terbanyak", int(total_skd_max), "emoji_events", "amber")
 
     # --- Tabel Ringkasan Aktivitas User ---
     user_summary_df = df_users[df_users["role"] == "user"][["id", "nama"]].merge(
@@ -1459,7 +1527,13 @@ def _render_individual_report_ui(df_target, pilih_user):
 
 def user_personal_dashboard(user: dict):
     """Dashboard khusus user: hanya lihat nilai miliknya sendiri."""
-    st.header("📊 Beranda Saya")
+    scores = fetch_user_scores(user["id"])
+    total_skd = len(scores)
+    tahun_aktif = user.get("tahun_aktif") or "-"
+    render_welcome_banner(
+        user.get("nama", ""),
+        f"Angkatan {tahun_aktif} · {total_skd} kali tryout",
+    )
 
     with st.container(border=True):
         st.write(f"Nama: **{user.get('nama')}**")
@@ -1472,19 +1546,14 @@ def user_personal_dashboard(user: dict):
             st.write(f"Tahun Aktif: **{user.get('tahun_aktif', '-')}**")
 
 
-    scores = fetch_user_scores(user["id"])
-    
     # --- Bagian Metrics Atas ---
-    total_skd = len(scores)
-    max_score = max([s.get("total", 0) for s in scores]) if scores else 0
+    max_score = max([(s.get("total") or 0) for s in scores]) if scores else 0
     
     col1, col2 = st.columns(2)
     with col1:
-        with st.container(border=True):
-            st.metric("Total SKD Saya", total_skd)
+        metric_card("Total SKD Saya", total_skd, "assignment", "blue")
     with col2:
-        with st.container(border=True):
-            st.metric("Nilai Tertinggi Saya", max_score)
+        metric_card("Nilai Tertinggi Saya", int(max_score), "emoji_events", "amber")
 
     if not scores:
         st.info("Belum ada data nilai. Silakan input nilai terlebih dahulu di menu User.")
