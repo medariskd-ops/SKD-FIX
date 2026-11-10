@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import matplotlib.pyplot as plt
 import bcrypt
@@ -185,12 +186,17 @@ def inject_global_css():
         }
 
         /* Kartu angka */
+        .metric-row {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
         .metric-card {
             background: #FFFFFF;
             border: 1px solid #E2E8F0;
             border-radius: 14px;
             padding: 18px 20px;
-            margin-bottom: 16px;
+            min-width: 0;
         }
         .metric-icon {
             font-family: "Material Symbols Rounded";
@@ -203,6 +209,49 @@ def inject_global_css():
         }
         .metric-label { color: #64748B; font-size: 14px; }
         .metric-value { color: #1E293B; font-size: 32px; font-weight: 600; line-height: 1.2; }
+
+        /* Iframe kecil untuk script tutup sidebar: jangan makan tempat */
+        [data-testid="stSidebar"] [data-testid="stElementContainer"]:has(iframe[height="0"]),
+        [data-testid="stSidebar"] .element-container:has(iframe[height="0"]) {
+            display: none !important;
+        }
+
+        /* Layar kecil (HP) */
+        @media (max-width: 640px) {
+            [data-testid="stAppViewBlockContainer"], [data-testid="stMainBlockContainer"] {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+                padding-top: 3.5rem !important;
+            }
+            h1 { font-size: 1.6rem !important; }
+            h2 { font-size: 1.4rem !important; }
+            h3 { font-size: 1.15rem !important; }
+            [data-testid="stVerticalBlockBorderWrapper"],
+            [data-testid="stMain"] [data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"] {
+                padding: 14px 14px !important;
+            }
+            .welcome-banner { padding: 16px 18px; border-radius: 14px; }
+            .welcome-title { font-size: 20px; }
+            .welcome-sub { font-size: 13px; }
+            .welcome-icon { font-size: 36px; }
+            .metric-row { gap: 8px; }
+            .metric-card { padding: 12px 10px; border-radius: 12px; }
+            .metric-icon { width: 30px; height: 30px; font-size: 18px; border-radius: 8px; margin-bottom: 6px; }
+            .metric-label { font-size: 11.5px; line-height: 1.25; }
+            .metric-value { font-size: 22px; }
+            .login-brand { margin-top: 1.5rem; }
+        }
+
+        /* HP landscape: layar pendek */
+        @media (max-height: 500px) {
+            [data-testid="stAppViewBlockContainer"], [data-testid="stMainBlockContainer"] {
+                padding-top: 3rem !important;
+            }
+            .login-brand { margin-top: 0.5rem; }
+            .login-brand .icon { width: 40px; height: 40px; font-size: 20px; }
+            .welcome-banner { padding: 14px 20px; }
+            .welcome-title { font-size: 20px; }
+        }
 
         /* Judul login */
         .login-brand { text-align: center; margin: 3rem 0 1rem 0; }
@@ -373,17 +422,22 @@ METRIC_TONES = {
 }
 
 
-def metric_card(label, value, icon, tone="green"):
-    """Kartu angka dengan ikon Material berwarna."""
+def _metric_card_html(label, value, icon, tone="green"):
     bg, fg = METRIC_TONES.get(tone, METRIC_TONES["green"])
+    return (
+        f'<div class="metric-card">'
+        f'<span class="metric-icon" style="background:{bg};color:{fg};">{icon}</span>'
+        f'<div class="metric-label">{html.escape(str(label))}</div>'
+        f'<div class="metric-value">{html.escape(str(value))}</div>'
+        f'</div>'
+    )
+
+
+def metric_row(cards):
+    """Deretan kartu angka dalam satu grid, tetap sejajar di layar HP."""
+    inner = "".join(_metric_card_html(*c) for c in cards)
     st.markdown(
-        f"""
-        <div class="metric-card">
-            <span class="metric-icon" style="background:{bg};color:{fg};">{icon}</span>
-            <div class="metric-label">{html.escape(str(label))}</div>
-            <div class="metric-value">{html.escape(str(value))}</div>
-        </div>
-        """,
+        f'<div class="metric-row" style="grid-template-columns:repeat({len(cards)},minmax(0,1fr));">{inner}</div>',
         unsafe_allow_html=True,
     )
 
@@ -1193,13 +1247,11 @@ def admin_dashboard_summary():
         ).reset_index()
 
     # --- Bagian Metrics Atas ---
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        metric_card("Total User", total_user, "group", "green")
-    with col2:
-        metric_card("Total Admin", total_admin, "admin_panel_settings", "blue")
-    with col3:
-        metric_card("SKD Terbanyak", int(total_skd_max), "emoji_events", "amber")
+    metric_row([
+        ("Total User", total_user, "group", "green"),
+        ("Total Admin", total_admin, "admin_panel_settings", "blue"),
+        ("SKD Terbanyak", int(total_skd_max), "emoji_events", "amber"),
+    ])
 
     # --- Tabel Ringkasan Aktivitas User ---
     user_summary_df = df_users[df_users["role"] == "user"][["id", "nama"]].merge(
@@ -1549,11 +1601,10 @@ def user_personal_dashboard(user: dict):
     # --- Bagian Metrics Atas ---
     max_score = max([(s.get("total") or 0) for s in scores]) if scores else 0
     
-    col1, col2 = st.columns(2)
-    with col1:
-        metric_card("Total SKD Saya", total_skd, "assignment", "blue")
-    with col2:
-        metric_card("Nilai Tertinggi Saya", int(max_score), "emoji_events", "amber")
+    metric_row([
+        ("Total SKD Saya", total_skd, "assignment", "blue"),
+        ("Nilai Tertinggi Saya", int(max_score), "emoji_events", "amber"),
+    ])
 
     if not scores:
         st.info("Belum ada data nilai. Silakan input nilai terlebih dahulu di menu User.")
@@ -1669,7 +1720,10 @@ with st.sidebar:
         label_visibility="collapsed",
         format_func=lambda m: f"{MENU_ICONS.get(m, '')} {m}".strip(),
     )
-    st.session_state.active_menu = menu
+    # Di HP, sidebar menutupi layar: tutup otomatis setelah pindah menu
+    menu_changed = st.session_state.get("_last_menu") not in (None, menu)
+    st.session_state._last_menu = menu
+    just_logged_in = st.session_state.pop("_just_logged_in", False)
     
     # Global Filter for Admin
     if role == "admin":
@@ -1699,6 +1753,28 @@ with st.sidebar:
         )
         
     logout()
+
+    if menu_changed or just_logged_in:
+        # Nonce unik supaya iframe selalu dibuat ulang dan script-nya jalan lagi
+        st.session_state._sb_nonce = st.session_state.get("_sb_nonce", 0) + 1
+        components.html(
+            f"<!-- {st.session_state._sb_nonce} -->"
+            + """
+            <script>
+            const doc = window.parent.document;
+            const w = window.parent;
+            const isPhone = w.innerWidth <= 768 || w.innerHeight <= 500;
+            const sb = doc.querySelector('[data-testid="stSidebar"]');
+            const isOpen = sb && sb.getAttribute("aria-expanded") !== "false" && sb.dataset.collapsed !== "true";
+            if (isPhone && isOpen) {
+                const btn = doc.querySelector('[data-testid="stSidebarCollapseButton"] button')
+                    || doc.querySelector('[data-testid="stSidebar"] [data-testid="stSidebarHeader"] button');
+                if (btn) btn.click();
+            }
+            </script>
+            """,
+            height=0,
+        )
 
 # ======================
 # HALAMAN BERANDA
